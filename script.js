@@ -210,7 +210,13 @@ function renderPorts(portsData) {
     markers = [];
 
     portsData.forEach(port => {
-        // 1. Main Port Marker
+        // 1. Info Boat Marker (Define first to use in click handler)
+        const boatMarker = L.marker(port.coords, {
+            icon: createInfoBoatIcon(port),
+            zIndexOffset: 100 // Float above
+        }).addTo(map);
+
+        // 2. Main Port Marker
         const marker = L.marker(port.coords, {
             icon: createCustomIcon(port)
         }).addTo(map);
@@ -229,20 +235,19 @@ function renderPorts(portsData) {
         });
 
         marker.on('click', () => {
+            // Toggle Boat Card Visibility
+            if (map.hasLayer(boatMarker)) {
+                map.removeLayer(boatMarker);
+            } else {
+                map.addLayer(boatMarker);
+            }
+
+            // Normal Selection
             selectPort(port);
             map.flyTo(port.coords, 10, { duration: 1.5 });
         });
 
         markers.push(marker);
-
-        // 2. Info Boat Marker (Displayed "in front" - i.e., West)
-        // We simulate "West" by subtracting from longitude or using CSS anchor
-        // Using same coords but distinct anchor point in CSS/Icon definition to shift it visualy
-        const boatMarker = L.marker(port.coords, {
-            icon: createInfoBoatIcon(port),
-            zIndexOffset: 100 // Float above
-        }).addTo(map);
-
         markers.push(boatMarker);
     });
 }
@@ -458,25 +463,52 @@ function selectPort(port) {
     if (port.shipList.length === 0) {
         shipList.innerHTML = '<li>Sin naves programadas</li>';
     } else {
-        port.shipList.forEach(ship => {
-            const isTanker = (ship.type || "").toUpperCase().includes("TANQUE");
-            const icon = isTanker ? "🛢️" : "🚢";
-            const li = document.createElement('li');
+        // Group by Date
+        const grouped = {};
 
-            // Format ETA
-            const etaShort = ship.eta.split(' ')[0] || ship.eta; // Just date
+        // Sort by Date first
+        const sortedShips = [...port.shipList].sort((a, b) => {
+            return new Date(a.eta) - new Date(b.eta);
+        });
 
-            li.innerHTML = `
-                <div class="ship-item ${isTanker ? 'tanker-glow' : ''}">
-                    <span class="time">${etaShort}</span>
-                    <strong class="ship-name">${icon} ${ship.name}</strong>
-                    <div class="ship-details">
-                        ${ship.agency} | ${ship.type} <br>
-                        L: ${ship.length}m | B: ${ship.beam}m
+        sortedShips.forEach(ship => {
+            const dateStr = ship.eta.split(' ')[0] || "Fecha Desc.";
+            if (!grouped[dateStr]) grouped[dateStr] = [];
+            grouped[dateStr].push(ship);
+        });
+
+        // Render Groups
+        Object.keys(grouped).forEach(date => {
+            // Date Header
+            const header = document.createElement('div');
+            header.className = 'date-header';
+            header.style.color = '#008f8a';
+            header.style.fontSize = '0.85rem';
+            header.style.fontWeight = 'bold';
+            header.style.marginTop = '10px';
+            header.style.marginBottom = '5px';
+            header.style.borderBottom = '1px solid rgba(0,143,138,0.2)';
+            header.textContent = `📅 ${date}`;
+            shipList.appendChild(header);
+
+            // Ships for this date
+            grouped[date].forEach(ship => {
+                const isTanker = (ship.type || "").toUpperCase().includes("TANQUE");
+                const icon = isTanker ? "🛢️" : "🚢";
+                const li = document.createElement('li');
+
+                // Removed the <span class="time"> element
+                li.innerHTML = `
+                    <div class="ship-item ${isTanker ? 'tanker-glow' : ''}">
+                        <strong class="ship-name" style="margin-left:0;">${icon} ${ship.name}</strong>
+                        <div class="ship-details">
+                            ${ship.agency} | ${ship.type} <br>
+                            L: ${ship.length}m | B: ${ship.beam}m
+                        </div>
                     </div>
-                </div>
-            `;
-            shipList.appendChild(li);
+                `;
+                shipList.appendChild(li);
+            });
         });
     }
 
