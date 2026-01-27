@@ -7,17 +7,22 @@ const CONFIG = {
 };
 
 // --- Port Mapping & Config ---
+// Added draft (m) and max_dwt (Deadweight Tonnage) roughly based on typical capacity
+// --- Port Mapping & Config ---
+// Data Source: APN / Operator Websites (Approximate Max Operational Limits)
+// DWT = Deadweight Tonnage
 const PORT_CONFIG = {
-    'PETAL': { id: 'talara', name: "Talara", type: 'norte', coords: [-4.5772, -81.2719] },
-    'PEPAI': { id: 'paita', name: "Paita", type: 'norte', coords: [-5.0830, -81.1144] },
-    'PESAL': { id: 'salaverry', name: "Salaverry", type: 'norte', coords: [-8.2289, -78.9796] },
-    'PECHM': { id: 'chimbote', name: "Chimbote", type: 'center', coords: [-9.0765, -78.5916] },
-    'PECLL': { id: 'callao', name: "Callao", type: 'center', coords: [-12.0508, -77.1373] },
-    'PEPIO': { id: 'pisco', name: "Pisco", type: 'south', coords: [-13.8055, -76.2922] },
-    'PEPIO': { id: 'pisco', name: "Pisco", type: 'south', coords: [-13.8055, -76.2922] },
-    'PEMAT': { id: 'matarani', name: "Matarani", type: 'south', coords: [-17.0016, -72.1065] },
-    'PEILO': { id: 'ilo', name: "Ilo", type: 'south', coords: [-17.6450, -71.3468] },
-    'PESQN': { id: 'sannicolas', name: "San Nicolás (Proyecto)", type: 'south', coords: [-15.2600, -75.2400] }
+    'PETAL': { id: 'talara', name: "Talara", type: 'norte', coords: [-4.5772, -81.2719], draft: 10.5, max_dwt: "52k" },
+    'PEPAI': { id: 'paita', name: "Paita", type: 'norte', coords: [-5.0830, -81.1144], draft: 13.0, max_dwt: "50k" },
+    'PESAL': { id: 'salaverry', name: "Salaverry", type: 'norte', coords: [-8.2289, -78.9796], draft: 10.5, max_dwt: "65k" },
+    'PECHM': { id: 'chimbote', name: "Chimbote", type: 'center', coords: [-9.0765, -78.5916], draft: 11.0, max_dwt: "40k" },
+    'PECHY': { id: 'chancay', name: "Chancay (Cosco)", type: 'center', coords: [-11.5930, -77.2770], draft: 17.8, max_dwt: "160k" },
+    'PECLL': { id: 'callao', name: "Callao", type: 'center', coords: [-12.0508, -77.1373], draft: 16.0, max_dwt: "150k" },
+    'PECON': { id: 'conchan', name: "Conchán (Petroperú)", type: 'center', coords: [-12.2628, -76.9304], draft: 18.3, max_dwt: "70k" },
+    'PEPIO': { id: 'pisco', name: "Pisco", type: 'south', coords: [-13.8055, -76.2922], draft: 14.0, max_dwt: "60k" },
+    'PEMAT': { id: 'matarani', name: "Matarani", type: 'south', coords: [-17.0016, -72.1065], draft: 18.0, max_dwt: "60k" },
+    'PEILO': { id: 'ilo', name: "Ilo", type: 'south', coords: [-17.6450, -71.3468], draft: 11.0, max_dwt: "35k" },
+    'PESQN': { id: 'sannicolas', name: "San Nicolás (Shougang)", type: 'south', coords: [-15.2600, -75.2400], draft: 18.0, max_dwt: "300k" }
 };
 
 // Helper: Process Real Data
@@ -142,8 +147,61 @@ function createCustomIcon(port) {
     return L.divIcon({
         className: 'custom-marker',
         html: `<div class="marker-ring"></div><div class="${markerClass}"></div>`,
-        iconSize: [30, 30],
-        iconAnchor: [15, 15]
+        iconSize: [24, 24], // Reduced from [30, 30]
+        iconAnchor: [12, 12]
+    });
+}
+
+// New: Info Boat Icon
+// New: Info Boat Icon
+// New: Info Boat Icon
+function createInfoBoatIcon(port) {
+    // 1. Parse DWT
+    let dwt = 35000; // default
+    if (typeof port.max_dwt === 'string') {
+        dwt = parseInt(port.max_dwt.replace(/k/i, '000'), 10) || 35000;
+        if (port.max_dwt.toLowerCase().includes('k') && dwt < 1000) dwt *= 1000;
+    }
+
+    // 2. Scale Size
+    // Range: 35k (Talara) -> 200k (San Nicolas)
+    // Size: 24px -> 60px
+    const minDwt = 35000;
+    const maxDwt = 200000;
+    const minSize = 24;
+    const maxSize = 60; // Slightly reduced max size for compact look
+
+    const pct = Math.max(0, Math.min(1, (dwt - minDwt) / (maxDwt - minDwt)));
+    const fontSize = Math.round(minSize + (pct * (maxSize - minSize)));
+
+    // 3. Estimate Width
+    // Boat width = fontSize
+    // Draft section "Calado 15m" approx 50px
+    // DWT section "Max 200k" approx 60px
+    // Padding/Gaps approx 30px
+    const boatWidth = fontSize;
+    const contentWidth = 140;
+    const totalWidth = boatWidth + contentWidth;
+    const anchorX = totalWidth + 10;
+
+    return L.divIcon({
+        className: 'boat-info-wrapper',
+        html: `
+            <div class="boat-visual-container compact-row">
+                <div class="boat-shape" style="font-size: ${fontSize}px;">🚢</div>
+                <div class="info-group">
+                    <span class="lbl-compact">Calado</span>
+                    <span class="val-compact">${port.draft}m</span>
+                </div>
+                <div class="divider">|</div>
+                <div class="info-group">
+                    <span class="lbl-compact">Max</span>
+                    <span class="val-compact">${port.max_dwt}</span>
+                </div>
+            </div>
+        `,
+        iconSize: [totalWidth, 40],
+        iconAnchor: [anchorX, 20]
     });
 }
 
@@ -152,9 +210,7 @@ function renderPorts(portsData) {
     markers = [];
 
     portsData.forEach(port => {
-        // Only show ports with ships? Or all? Let's show all but dim empty ones?
-        // For now show all.
-
+        // 1. Main Port Marker
         const marker = L.marker(port.coords, {
             icon: createCustomIcon(port)
         }).addTo(map);
@@ -166,9 +222,10 @@ function renderPorts(portsData) {
 
         marker.bindTooltip(label, {
             permanent: true,
-            direction: 'bottom',
-            className: 'port-label',
-            offset: [0, 10]
+            direction: 'right', // Changed from left to right to make room for boat
+            className: 'port-label-container',
+            offset: [15, 0],
+            opacity: 1
         });
 
         marker.on('click', () => {
@@ -177,6 +234,16 @@ function renderPorts(portsData) {
         });
 
         markers.push(marker);
+
+        // 2. Info Boat Marker (Displayed "in front" - i.e., West)
+        // We simulate "West" by subtracting from longitude or using CSS anchor
+        // Using same coords but distinct anchor point in CSS/Icon definition to shift it visualy
+        const boatMarker = L.marker(port.coords, {
+            icon: createInfoBoatIcon(port),
+            zIndexOffset: 100 // Float above
+        }).addTo(map);
+
+        markers.push(boatMarker);
     });
 }
 
@@ -199,10 +266,13 @@ function renderMines(mines) {
             icon: createMineIcon(mine)
         }).addTo(map);
 
-        marker.bindTooltip(`⛏️ ${mine.name} (${mine.type}) <br> <span style="font-size:0.8em; opacity:0.8">${mine.state}</span>`, {
-            permanent: false,
-            direction: 'top',
-            className: 'port-label' // Reuse style
+        // Mine Label with Leader Line Effect
+        marker.bindTooltip(`<div class="mine-label-content">${mine.name}</div>`, {
+            permanent: true,
+            direction: 'right', // Default right
+            className: 'mine-label-leader',
+            offset: [10, -15], // Up and right
+            opacity: 1
         });
 
         marker.on('click', () => {
@@ -235,12 +305,6 @@ function showMineDetails(mine) {
     // Hide stats cards for mines (or repurpose them)
     document.querySelector('.stats-grid').style.display = 'none';
 
-    // Calculate Distances (Linear)
-    const distSanNicolas = getDistance(mine.coords, [-15.26, -75.24]);
-    const distMatarani = getDistance(mine.coords, [-17.0016, -72.1065]);
-    const distCallao = getDistance(mine.coords, [-12.0508, -77.1373]);
-    const distIlo = getDistance(mine.coords, [-17.6450, -71.3468]);
-
     // Clear Valid Routes
     clearRoutes();
 
@@ -257,15 +321,29 @@ function showMineDetails(mine) {
         </p>
     `;
 
-    // Calculate Routes Asynchronously
-    const portsToRoute = [
-        { name: "San Nicolás", coords: [-15.2600, -75.2400], color: '#00f2ea', id: 'sannicolas' },
-        { name: "Matarani", coords: [-17.0016, -72.1065], color: '#ff4444', id: 'matarani' },
-        { name: "Ilo", coords: [-17.6450, -71.3468], color: '#ff9800', id: 'ilo' }
-        // {name: "Callao", coords: [-12.0508, -77.1373], color: '#ccc'} // Too far usually?
-    ];
+    // Calculate Distances to ALL ports and sort
+    const allPortsDist = Object.keys(PORT_CONFIG).map(key => {
+        const p = PORT_CONFIG[key];
+        const dist = parseFloat(getDistance(mine.coords, p.coords));
+        return { ...p, dist: dist };
+    });
 
-    // Sort by linear distance to pick top 3? Or just force these 3 south ones.
+    // Sort by distance ascending
+    allPortsDist.sort((a, b) => a.dist - b.dist);
+
+    // Pick top 3
+    const top3Ports = allPortsDist.slice(0, 3);
+
+    // Map to route format
+    // Colors: Closest (Cyan), 2nd (Green), 3rd (Orange)
+    const routeColors = ['#00f2ea', '#27ae60', '#ff9800'];
+
+    const portsToRoute = top3Ports.map((p, index) => ({
+        name: p.name,
+        coords: p.coords,
+        color: routeColors[index] || '#ccc',
+        id: p.id
+    }));
 
     calculateAndDrawRoutes(mine.coords, portsToRoute);
 
@@ -416,8 +494,14 @@ function closeSidebar() {
 
 function setMapFilter(filter) {
     // Update button states
-    documentquerySelectorAll('.btn-control').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active'); // Warning: 'event' usage simplifies here, better to pass explicit naming in prod
+    const buttons = document.querySelectorAll('.btn-control');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    // Attempt to match event target if passed implicitly (browsers)
+    // But since we use onclick="setMapFilter('...')", event might be available global
+    if (typeof event !== 'undefined' && event.target) {
+        event.target.classList.add('active');
+    }
 
     // Filter ports
     if (filter === 'all') {
@@ -428,32 +512,8 @@ function setMapFilter(filter) {
     }
 }
 
-// Fix for inline onclick event bubbling passing
-window.setMapFilter = function (region) {
-    // Update active class
-    const buttons = document.querySelectorAll('.btn-control');
-    buttons.forEach(b => {
-        if (b.textContent.toLowerCase().includes(region === 'all' ? 'todos' : region)) {
-            b.classList.add('active');
-        } else {
-            b.classList.remove('active');
-        }
-
-        // Fallback for direct "North" - "Norte" mapping mismatch if strictly relying on text
-        // Simple approach: reset all, add to clicked.
-    });
-
-    // In this context, we need to identify the clicked button. 
-    // Since I can't easily pass 'this' from the HTML string without cleaner bindings:
-    // I will refactor the UI text to match logic or just filter.
-
-    if (region === 'all') {
-        renderPorts(ports);
-    } else {
-        const filtered = ports.filter(p => p.type === region);
-        renderPorts(filtered);
-    }
-};
+// Overwrite window function to be safe
+window.setMapFilter = setMapFilter;
 
 // Force redraw on resize
 window.addEventListener('resize', () => {
