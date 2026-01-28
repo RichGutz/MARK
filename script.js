@@ -80,7 +80,287 @@ function initApp() {
     if (typeof MINING_PROJECTS !== 'undefined') {
         renderMines(MINING_PROJECTS);
     }
+    renderTerrain();
+    renderSouthCorridor();
+    renderInfraRoads();
+    renderExtraRoads();
 }
+
+function renderExtraRoads() {
+    // PE-30B
+    if (typeof ROAD_PE30B !== 'undefined') {
+        const feature = ROAD_PE30B; // It's a single feature, not a collection
+        L.geoJSON(feature, {
+            style: {
+                color: '#e91e63',
+                weight: 5,
+                opacity: 0.9,
+                dashArray: '10, 5' // Distinctive dash for this added road
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties) {
+                    const kms = feature.properties.distance_km.toFixed(1);
+                    layer.bindTooltip(`<div class="road-tag" style="background:#fff; border-color:#e91e63;">${feature.properties.id}</div>`, {
+                        permanent: true,
+                        direction: 'center',
+                        className: 'road-label-container'
+                    });
+
+                    layer.bindPopup(`
+                        <b>${feature.properties.name}</b><br>
+                        ID: ${feature.properties.id}<br>
+                        Longitud: ${kms} km
+                    `, { className: 'custom-popup-dark' });
+                }
+            }
+        }).addTo(map);
+    }
+
+    // PE-30A
+    if (typeof ROAD_PE30A !== 'undefined') {
+        const feature = ROAD_PE30A;
+        // Assign to global variable for dynamic styling
+        window.layerPE30A = L.geoJSON(feature, {
+            style: { color: '#e91e63', weight: 5, opacity: 0.9, dashArray: '10, 5' },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties) {
+                    const kms = feature.properties.distance_km.toFixed(1);
+                    layer.bindTooltip(`<div class="road-tag" style="background:#fff; border-color:#e91e63;">${feature.properties.id}</div>`, {
+                        permanent: true, direction: 'center', className: 'road-label-container'
+                    });
+                    layer.bindPopup(`<b>${feature.properties.name}</b><br>ID: ${feature.properties.id}<br>Longitud: ${kms} km`, { className: 'custom-popup-dark' });
+                }
+            }
+        }).addTo(map);
+    }
+}
+
+// --- Mineral Logistics Calculator Logic ---
+function initCalculator() {
+    const inputs = ['input-hierro', 'input-chancas', 'input-trapiche', 'input-capacity'];
+
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', calculateLogistics);
+    });
+}
+
+function calculateLogistics() {
+    // 1. Get Volumes (Million MT/Year)
+    const v1 = parseFloat(document.getElementById('input-hierro').value) || 0;
+    const v2 = parseFloat(document.getElementById('input-chancas').value) || 0;
+    const v3 = parseFloat(document.getElementById('input-trapiche').value) || 0;
+
+    const totalVolMM = v1 + v2 + v3;
+
+    // 2. Constants
+    const TRUCK_CAPACITY = 30; // Tonnes
+    const DAYS = 365;
+    const BASELINE_TRAFFIC_HEAVY = 750; // Current Heavy Traffic (Bidirectional)
+
+    // Dynamic Max Capacity User Input
+    const valCap = parseFloat(document.getElementById('input-capacity').value);
+    const MAX_HEAVY_CAPACITY = isNaN(valCap) ? 750 : valCap;
+
+    // 3. Calculate Trucks (Loaded Downbound)
+    // Input is in Tonnes (TM/Year) as user types full numbers (e.g. 3000000)
+    const totalTonnes = totalVolMM;
+    const trucksPerYear = totalTonnes / TRUCK_CAPACITY;
+    const trucksPerDay = Math.round(trucksPerYear / DAYS); // One way (Loaded)
+
+    // 4. Calculate Total Events (Round Trip: Loaded Down + Empty Up)
+    const dailyEvents = trucksPerDay * 2;
+
+    // 5. Saturation Analysis
+    // Total Flow = Baseline (Bidirectional) + New (Bidirectional)
+    const totalTraffic = BASELINE_TRAFFIC_HEAVY + dailyEvents;
+
+    const basePct = (BASELINE_TRAFFIC_HEAVY / MAX_HEAVY_CAPACITY) * 100;
+    const newPct = (dailyEvents / MAX_HEAVY_CAPACITY) * 100;
+    const totalPct = basePct + newPct;
+
+    // 6. Update UI
+    document.getElementById('res-trucks').innerText = `${trucksPerDay.toLocaleString()} 🚛/día`;
+    document.getElementById('res-events').innerText = `+${dailyEvents.toLocaleString()} viajes/día`;
+
+    // Update Meter (Stacked)
+    const barBase = document.getElementById('bar-base');
+    const barNew = document.getElementById('bar-new');
+    const labelPct = document.getElementById('res-saturation');
+    const warn = document.getElementById('capacity-warning');
+
+    // Widths
+    barBase.style.width = `${Math.min(basePct, 100)}%`;
+    // New bar takes up remaining space or overflows
+    // To visualize overflow, we might cap the width sum at 100% for the container, 
+    // but here let's just let it fill.
+    if (totalPct <= 100) {
+        barNew.style.width = `${newPct}%`;
+    } else {
+        // If total > 100, Base takes its share, New takes the rest up to 100 visually
+        barNew.style.width = `${100 - Math.min(basePct, 100)}%`;
+    }
+
+    // Colors & Status
+    let status = 'Fluido';
+    let newColor = '#4caf50'; // Green for new traffic impact
+    let roadColor = '#e91e63'; // Default Pink
+
+    if (totalPct > 60) {
+        status = 'Moderado';
+        newColor = '#ffeb3b';
+        roadColor = '#ff9800'; // Orange
+    }
+    if (totalPct > 85) {
+        status = 'Denso';
+        newColor = '#ff9800';
+        roadColor = '#ff5722'; // Deep Orange
+    }
+    if (totalPct > 100) {
+        status = 'SATURADO (Colapso Logístico)';
+        newColor = '#f44336';
+        roadColor = '#f44336'; // Red
+    }
+
+    barNew.style.backgroundColor = newColor;
+    labelPct.innerText = `${Math.round(totalPct)}% Saturación`;
+    warn.innerText = `Estado: ${status}`;
+    warn.style.color = newColor;
+
+    // 7. Update Map (Route 30A)
+    if (window.layerPE30A) {
+        window.layerPE30A.setStyle({
+            color: roadColor,
+            weight: totalPct > 100 ? 8 : 5,
+            dashArray: totalPct > 100 ? null : '10, 5',
+            opacity: totalPct > 100 ? 1 : 0.8
+        });
+
+        // Dynamic Popup update
+        window.layerPE30A.eachLayer(layer => {
+            layer.setPopupContent(`
+                <div style="font-family:'Rajdhani',sans-serif;">
+                    <strong style="color:${roadColor}; font-size:1.1em;">Ruta 30A (Corredor Minero)</strong><br>
+                    <span style="font-size:0.9em">Capacidad Pesada Est: ~${MAX_HEAVY_CAPACITY} veh/día</span>
+                    <hr style="margin:4px 0; border-color:#555;">
+                    Tráfico Base: <b>${BASELINE_TRAFFIC_HEAVY}</b> (Bidireccional)<br>
+                    + Proyecto: <b style="color:${newColor}">+${dailyEvents}</b> (I/V)<br>
+                    <hr style="margin:4px 0; border-color:#555;">
+                    Total: <b style="font-size:1.2em">${totalTraffic.toLocaleString()}</b> veh/día
+                </div>
+             `);
+        });
+    }
+}
+
+// Initialize Calculator on Load
+document.addEventListener('DOMContentLoaded', initCalculator);
+
+function renderInfraRoads() {
+    if (typeof INFRA_ROADS !== 'undefined') {
+        L.geoJSON(INFRA_ROADS, {
+            style: function (feature) {
+                return {
+                    color: feature.properties.color,
+                    weight: 6, // Thicker for main roads
+                    opacity: 0.9,
+                    lineCap: 'butt'
+                };
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties) {
+                    const kms = feature.properties.distance_km.toFixed(1);
+                    // Use Name or ID for the tag
+                    const labelText = feature.properties.name || feature.properties.id;
+
+                    layer.bindTooltip(`<div class="road-tag" style="background:rgba(255,255,255,0.9); border-color:#555;">${labelText}</div>`, {
+                        permanent: true,
+                        direction: 'center',
+                        className: 'road-label-container'
+                    });
+
+                    // Detailed Popup
+                    layer.bindPopup(`
+                        <b>${feature.properties.name}</b><br>
+                        ID: ${feature.properties.id}<br>
+                        Longitud: ${kms} km
+                    `, { className: 'custom-popup-dark' });
+                }
+            }
+        }).addTo(map);
+    }
+}
+
+function renderSouthCorridor() {
+    if (typeof SOUTH_CORRIDOR !== 'undefined') {
+        L.geoJSON(SOUTH_CORRIDOR, {
+            style: {
+                color: '#ff9800', // Orange/Gold for Corridor
+                weight: 4,
+                opacity: 0.6
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties) {
+                    const kms = feature.properties.distance_km.toFixed(1);
+                    const hrs = feature.properties.duration_h.toFixed(1);
+                    const type = feature.properties.road_type || 'Vía Estandar';
+                    const cap = feature.properties.capacity || 'Desconocida';
+
+                    // Permanent Label (TAG) for the Road Name
+                    // Extracting just the code if possible (e.g. "PE-30A") for brevity, 
+                    // but user wants the name. Let's show the whole type string but styled.
+                    layer.bindTooltip(`<div class="road-tag">${type}</div>`, {
+                        permanent: true,
+                        direction: 'center',
+                        className: 'road-label-container'
+                    });
+
+                    // Detailed Popup (Click to see)
+                    let styleColor = '#ff9800';
+                    if (cap === 'Alta') styleColor = '#00e676';
+                    if (cap === 'Media') styleColor = '#ffea00';
+
+                    layer.bindPopup(`
+                        <div style="text-align:left;">
+                            <strong style="font-size:1.1em; color:#00f2ea;">${feature.properties.mine}</strong><br>
+                            <span style="opacity:0.8;">Distancia:</span> ${kms} km<br>
+                            <span style="opacity:0.8;">Tiempo:</span> ${hrs} hrs<br>
+                            <hr style="margin:4px 0; border-color:rgba(255,255,255,0.2);">
+                            <span style="color:${styleColor};">🛣️ ${type}</span><br>
+                            <span style="font-size:0.9em;">Capacidad: <b>${cap}</b></span>
+                        </div>
+                    `, {
+                        className: 'custom-popup-dark'
+                    });
+                }
+            }
+        }).addTo(map);
+    }
+}
+
+function renderTerrain() {
+    if (typeof TERRAIN_ROADS !== 'undefined') {
+        L.geoJSON(TERRAIN_ROADS, {
+            style: {
+                color: '#00d2ff', // Cyan/Blue for visibility
+                weight: 3,
+                opacity: 0.8,
+                dashArray: '5, 5' // Dashed to distinguish from main roads
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.layer) {
+                    // Permanent Tag for Terrain/CAD Roads
+                    layer.bindTooltip(`<div class="road-tag" style="background:rgba(255,255,255,0.7); font-size:10px;">${feature.properties.layer}</div>`, {
+                        permanent: true,
+                        direction: 'center',
+                        className: 'road-label-container'
+                    });
+                }
+            }
+        }).addTo(map);
+    }
+}
+
 
 // --- Map Logic ---
 function initMap() {
