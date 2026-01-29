@@ -7,8 +7,6 @@ const CONFIG = {
 };
 
 // --- Port Mapping & Config ---
-// Added draft (m) and max_dwt (Deadweight Tonnage) roughly based on typical capacity
-// --- Port Mapping & Config ---
 // Data Source: APN / Operator Websites (Approximate Max Operational Limits)
 // DWT = Deadweight Tonnage
 const PORT_CONFIG = {
@@ -84,6 +82,85 @@ function initApp() {
     renderSouthCorridor();
     renderInfraRoads();
     renderExtraRoads();
+    renderShougangPolygon(); // New Polygon
+    renderOptimizedRoute(); // Optimized Horizontal Route
+    renderShougangVertices(); // Show Numbers 1-26
+}
+
+function renderShougangVertices() {
+    if (window.SHOUGANG_RAW_COORDS) {
+        window.SHOUGANG_RAW_COORDS.forEach((coord, index) => {
+            // Numbers 1-26
+            L.circleMarker(coord, {
+                radius: 4,
+                color: "#ffeb3b",
+                fillColor: "#000",
+                fillOpacity: 1,
+                weight: 1
+            }).addTo(map).bindTooltip(`${index + 1}`, {
+                permanent: true,
+                direction: 'center',
+                className: 'vertex-label'
+            });
+        });
+    }
+}
+
+function renderOptimizedRoute() {
+    // Optimized Route: Vertex 8 -> Vertex 9 -> Horizontal to PE-1S
+    const p1 = [-15.165533, -75.256948]; // Vertex 8 (NW)
+    const p2 = [-15.075283, -75.095742]; // Vertex 9 (N)
+
+    // Target: Same Lat as V9, Longitude calculated for PE-1S intersection
+    const p3 = [-15.075283, -75.008714];
+
+    const routeCoords = [p1, p2, p3];
+    const distanceKm = 29.35; // Calculated
+
+    L.polyline(routeCoords, {
+        color: '#00e676', // Bright Green 
+        weight: 8,        // Thick Solid
+        opacity: 0.9,
+        lineCap: 'square',
+        lineJoin: 'round'
+    }).addTo(map).bindPopup(`
+        <div style="text-align:center; font-family:'Rajdhani',sans-serif;">
+            <strong style="color:#00e676; font-size:1.2em;">Acceso Optimizado</strong><br>
+            <span style="font-size:0.9em; color:#ccc;">V8 &rarr; V9 &rarr; Este (Plano)</span>
+            <hr style="margin:4px 0; border-color:#555;">
+            Distancia a Construir: <b style="color:#fff; font-size:1.3em;">${distanceKm} km</b><br>
+            <span style="font-size:0.8em; opacity:0.7;">Minimizando longitud al conectar PE-1S</span>
+        </div>
+    `, { className: 'custom-popup-dark' });
+
+    // Markers
+    L.circleMarker(p1, { radius: 6, color: '#00e676', fillColor: '#fff', fillOpacity: 1 }).addTo(map);
+    L.circleMarker(p3, { radius: 6, color: '#00e676', fillColor: '#000', fillOpacity: 1 }).addTo(map)
+        .bindTooltip("Conexión PE-1S", { permanent: true, direction: "right", className: "road-label-container" });
+}
+
+function renderShougangPolygon() {
+    if (typeof SHOUGANG_POLYGON_FEATURE !== 'undefined') {
+        L.geoJSON(SHOUGANG_POLYGON_FEATURE, {
+            style: {
+                color: '#ffd700', // Gold/Yellow
+                weight: 3,
+                opacity: 0.8,
+                fillColor: '#ffd700',
+                fillOpacity: 0.15,
+                dashArray: '5, 5'
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.name) {
+                    layer.bindTooltip(feature.properties.name, {
+                        permanent: true,
+                        direction: "center",
+                        className: "road-label-container"
+                    });
+                }
+            }
+        }).addTo(map);
+    }
 }
 
 function renderExtraRoads() {
@@ -187,7 +264,6 @@ function calculateLogistics() {
     const barBase = document.getElementById('bar-base');
     const barNew = document.getElementById('bar-new');
     const labelPct = document.getElementById('res-saturation');
-    const warn = document.getElementById('capacity-warning');
 
     // Widths
     barBase.style.width = `${Math.min(basePct, 100)}%`;
@@ -206,6 +282,10 @@ function calculateLogistics() {
     let newColor = '#4caf50'; // Green for new traffic impact
     let roadColor = '#e91e63'; // Default Pink
 
+    // Logic: If Project itself > 50% of capacity, it's getting heavy.
+    // If Project + Base > 100%... well Base is already 100% often.
+    // Let's color based on TOTAL impact as before for warning, but Text is Project specific.
+
     if (totalPct > 60) {
         status = 'Moderado';
         newColor = '#ffeb3b';
@@ -217,15 +297,16 @@ function calculateLogistics() {
         roadColor = '#ff5722'; // Deep Orange
     }
     if (totalPct > 100) {
-        status = 'SATURADO (Colapso Logístico)';
+        status = 'COLAPSO (Saturación Total)';
         newColor = '#f44336';
         roadColor = '#f44336'; // Red
     }
 
     barNew.style.backgroundColor = newColor;
-    labelPct.innerText = `${Math.round(totalPct)}% Saturación`;
-    warn.innerText = `Estado: ${status}`;
-    warn.style.color = newColor;
+
+    // User Request: "Volume of trucks is % of the saturation of 750"
+    // So we display newPct.
+    labelPct.innerText = `${Math.round(newPct)}% de la Capacidad`;
 
     // 7. Update Map (Route 30A)
     if (window.layerPE30A) {
@@ -738,8 +819,6 @@ function selectPort(port) {
     statArrivals.style.color = port.tankers > 0 ? '#ff4444' : '#fff';
 
     // Render List
-    shipList.innerHTML = '';
-
     if (port.shipList.length === 0) {
         shipList.innerHTML = '<li>Sin naves programadas</li>';
     } else {
@@ -791,8 +870,6 @@ function selectPort(port) {
             });
         });
     }
-
-    sidebar.classList.remove('hidden');
 }
 
 
