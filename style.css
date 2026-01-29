@@ -265,6 +265,26 @@ li:hover {
     z-index: 1000;
 }
 
+.control-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.control-label {
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-right: 4px;
+}
+
+.control-vr {
+    width: 1px;
+    background: var(--glass-border);
+    margin: 0 10px;
+}
+
 .btn-control {
     background: transparent;
     border: 1px solid var(--text-dim);
@@ -639,4 +659,17 @@ li:hover {
     font-size: 10px;
     line-height: 1.3;
     color: #ddd;
+}
+
+/* Vertex Labels for Debugging */
+.vertex-label {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #000;
+    color: #000;
+    font-weight: bold;
+    font-size: 10px;
+    padding: 1px 3px;
+    border-radius: 50%;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    font-family: Arial, sans-serif;
 }

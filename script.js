@@ -2,7 +2,10 @@
 const CONFIG = {
     initialCenter: [-9.5, -75],
     initialZoom: 6,
-    tileLayer: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    tiles: {
+        standard: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+        satellite: 'http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+    },
     attribution: '&copy; OpenStreetMap contributors'
 };
 
@@ -68,6 +71,11 @@ function processShipData() {
 
 // --- App State ---
 let map;
+let layers = {
+    base: null,
+    dept: null
+};
+let currentMapType = 'standard';
 let markers = [];
 const ports = processShipData(); // Initial load
 
@@ -84,7 +92,44 @@ function initApp() {
     renderExtraRoads();
     renderShougangPolygon(); // New Polygon
     renderOptimizedRoute(); // Optimized Horizontal Route
-    renderShougangVertices(); // Show Numbers 1-26
+    // renderShougangVertices(); // Show Numbers 1-26
+    renderSanFernando(); // San Fernando Reserve
+    renderRailway(); // Future Railway
+}
+
+function renderRailway() {
+    if (typeof RAILWAY_MARCONA_ANDAHUAYLAS !== 'undefined') {
+        const railwayGroup = L.layerGroup().addTo(map);
+
+        // 1. Thick Yellow Background Line
+        L.geoJSON(RAILWAY_MARCONA_ANDAHUAYLAS, {
+            style: {
+                color: '#ffeb3b', // Yellow
+                weight: 6,
+                opacity: 1,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }
+        }).addTo(railwayGroup);
+
+        // 2. Dotted Inner Line (Black/Dark)
+        L.geoJSON(RAILWAY_MARCONA_ANDAHUAYLAS, {
+            style: {
+                color: '#000000', // Black
+                weight: 2,
+                opacity: 0.8,
+                dashArray: '2, 8', // Dots
+                lineCap: 'round',
+                lineJoin: 'round'
+            }
+        }).addTo(railwayGroup).eachLayer(function (layer) {
+            layer.bindTooltip("Ferrocarril Marcona - Andahuaylas", {
+                permanent: false,
+                direction: "center",
+                className: "road-label-container"
+            });
+        });
+    }
 }
 
 function renderShougangVertices() {
@@ -103,6 +148,30 @@ function renderShougangVertices() {
                 className: 'vertex-label'
             });
         });
+    }
+}
+
+function renderSanFernando() {
+    if (typeof SAN_FERNANDO_GEOJSON !== 'undefined') {
+        L.geoJSON(SAN_FERNANDO_GEOJSON, {
+            style: {
+                color: '#4caf50', // Green
+                weight: 2,
+                opacity: 0.9,
+                fillColor: '#4caf50',
+                fillOpacity: 0.2,
+                dashArray: '5, 5'
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.anp_nomb) {
+                    layer.bindTooltip(`Reserva Nacional ${feature.properties.anp_nomb}`, {
+                        permanent: true,
+                        direction: "center",
+                        className: "road-label-container"
+                    });
+                }
+            }
+        }).addTo(map);
     }
 }
 
@@ -452,6 +521,9 @@ function initMap() {
 
     L.control.attribution({ prefix: false }).addAttribution('APN Data Scraper').addTo(map);
 
+    // Initial Base Layer (Standard)
+    setMapType('standard');
+
     // Load GeoJSON for Peru Departments
     if (typeof PERU_GEOJSON !== 'undefined') {
         const getColor = (d) => {
@@ -464,7 +536,7 @@ function initMap() {
             return '#' + '00000'.substring(0, 6 - c.length) + c;
         };
 
-        L.geoJSON(PERU_GEOJSON, {
+        layers.dept = L.geoJSON(PERU_GEOJSON, {
             style: function (feature) {
                 return {
                     color: '#ffffff',     // White borders
@@ -493,9 +565,37 @@ function initMap() {
                 });
             }
         }).addTo(map);
-    } else {
-        // Light Theme Map (CartoDB Positron)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { opacity: 1 }).addTo(map);
+    }
+}
+
+function setMapType(type) {
+    currentMapType = type;
+
+    // Remove existing base layer if any
+    if (layers.base) {
+        map.removeLayer(layers.base);
+    }
+
+    let tileUrl = CONFIG.tiles.standard;
+    let options = { opacity: 1, subdomains: 'abcd' };
+
+    if (type === 'satellite') {
+        tileUrl = CONFIG.tiles.satellite;
+        options = {
+            opacity: 1,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            maxZoom: 20
+        };
+    }
+
+    layers.base = L.tileLayer(tileUrl, options).addTo(map);
+    layers.base.bringToBack(); // Ensure it stays behind vectors
+
+    // Update Buttons
+    if (document.getElementById('btn-map-standard')) { // Check if exists
+        document.getElementById('btn-map-standard').classList.remove('active');
+        document.getElementById('btn-map-satellite').classList.remove('active');
+        document.getElementById(`btn-map-${type}`).classList.add('active');
     }
 }
 
@@ -595,7 +695,7 @@ function renderPorts(portsData) {
             opacity: 1
         });
 
-        marker.on('click', () => {
+        const clickHandler = () => {
             // Toggle Boat Card Visibility
             if (map.hasLayer(boatMarker)) {
                 map.removeLayer(boatMarker);
@@ -606,7 +706,10 @@ function renderPorts(portsData) {
             // Normal Selection
             selectPort(port);
             map.flyTo(port.coords, 10, { duration: 1.5 });
-        });
+        };
+
+        marker.on('click', clickHandler);
+        boatMarker.on('click', clickHandler);
 
         markers.push(marker);
         markers.push(boatMarker);
@@ -807,6 +910,9 @@ function selectPort(port) {
     const statShips = document.getElementById('stat-ships');
     const statArrivals = document.getElementById('stat-arrivals'); // We can use this for Tanker count
     const shipList = document.getElementById('ship-list');
+
+    // Show Sidebar
+    sidebar.classList.remove('hidden');
 
     // Update Label for 2nd Box to "Tankers"
     // Ideally we should update the HTML label too, but let's just hack the value for now

@@ -36,15 +36,15 @@
 
             <div class="input-group">
                 <label>Hierro Apurímac (MT/Año)</label>
-                <input type="number" id="input-hierro" value="0" step="0.1" min="0">
+                <input type="number" id="input-hierro" value="0" step="1000" min="0" oninput="calculateLogistics()">
             </div>
             <div class="input-group">
                 <label>Los Chancas (MT/Año)</label>
-                <input type="number" id="input-chancas" value="0" step="0.1" min="0">
+                <input type="number" id="input-chancas" value="0" step="1000" min="0" oninput="calculateLogistics()">
             </div>
             <div class="input-group">
                 <label>Trapiche (MT/Año)</label>
-                <input type="number" id="input-trapiche" value="0" step="0.1" min="0">
+                <input type="number" id="input-trapiche" value="0" step="1000" min="0" oninput="calculateLogistics()">
             </div>
 
             <hr style="border-color:rgba(255,255,255,0.1); margin:10px 0;">
@@ -52,7 +52,7 @@
             <div class="input-group">
                 <label>Capacidad (Camiones/Día)</label>
                 <input type="number" id="input-capacity" value="750" step="50" min="100"
-                    style="color:#ffd700; border-color:#ffd700;">
+                    style="color:#ffd700; border-color:#ffd700;" oninput="calculateLogistics()">
             </div>
 
             <div class="results-section">
@@ -67,20 +67,14 @@
 
                 <div class="capacity-meter">
                     <div class="meter-label">
-                        <span>Saturación PE-30A (Base: 750)</span>
+                        <span>Impacto del Proyecto (vs Capacidad)</span>
                         <span id="res-saturation">0%</span>
                     </div>
                     <div class="progress-bar-bg" style="display: flex;">
                         <div id="bar-base" class="progress-bar-fill" style="background-color: #555; width: 0%"></div>
                         <div id="bar-new" class="progress-bar-fill" style="width: 0%"></div>
                     </div>
-                    <small class="warning-text" id="capacity-warning">Estado: Normal</small>
                 </div>
-            </div>
-
-            <div class="info-note">
-                <small>ℹ️ <strong>Efecto Convoy:</strong> 5 camiones de carga equivalen a ~30 autos en tiempo de espera
-                    (curvas Socos).</small>
             </div>
         </div>
 
@@ -118,10 +112,19 @@
 
         <!-- Legend / Controls -->
         <div class="controls glass-panel">
-            <button class="btn-control active" onclick="setMapFilter('all')">Todos</button>
-            <button class="btn-control" onclick="setMapFilter('north')">Norte</button>
-            <button class="btn-control" onclick="setMapFilter('center')">Centro</button>
-            <button class="btn-control" onclick="setMapFilter('south')">Sur</button>
+            <div class="control-group">
+                <span class="control-label">Filtros</span>
+                <button class="btn-control active" onclick="setMapFilter('all')">Todos</button>
+                <button class="btn-control" onclick="setMapFilter('north')">Norte</button>
+                <button class="btn-control" onclick="setMapFilter('center')">Centro</button>
+                <button class="btn-control" onclick="setMapFilter('south')">Sur</button>
+            </div>
+            <div class="control-vr"></div>
+            <div class="control-group">
+                <span class="control-label">Mapa</span>
+                <button class="btn-control active" id="btn-map-standard" onclick="setMapType('standard')">Plano</button>
+                <button class="btn-control" id="btn-map-satellite" onclick="setMapType('satellite')">Satélite</button>
+            </div>
         </div>
     </div>
 
@@ -142,9 +145,12 @@
     <script src="infrastructure_roads.js"></script>
     <script src="road_pe30b.js"></script>
     <script src="road_pe30a.js"></script>
+    <script src="shougang_polygon.js"></script>
+    <script src="san_fernando.js"></script>
+    <script src="railway_marcona_andahuaylas.js"></script>
 
     <!-- App Logic -->
-    <script src="script.js?v=2.3"></script>
+    <script src="script.js?v=2.6"></script>
 </body>
 
 </html>
