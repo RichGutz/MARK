@@ -76,43 +76,102 @@ def haversine(lat1, lon1, lat2, lon2):
     
     return R * c
 
-cumulative_distance = 0
+# Helper: Interpolate points
+def interpolate_points(p1, p2, interval_m=10):
+    dist = haversine(p1[0], p1[1], p2[0], p2[1])
+    num_steps = int(dist / interval_m)
+    new_points = []
+    
+    if num_steps < 1:
+        return []
+        
+    for i in range(1, num_steps + 1):
+        frac = i / num_steps
+        lat = p1[0] + (p2[0] - p1[0]) * frac
+        lon = p1[1] + (p2[1] - p1[1]) * frac
+        new_points.append([lat, lon])
+    return new_points
+
+# 1. Densify Route (Every ~10m)
+dense_route = []
+cumulative_dist = 0
+last_coord = route_latlon[0]
+dense_route.append({"coords": last_coord, "dist": 0})
+
+for i in range(1, len(route_latlon)):
+    curr_coord = route_latlon[i]
+    # Add interpolated points
+    interp = interpolate_points(last_coord, curr_coord, interval_m=10)
+    
+    for p in interp:
+        d = haversine(last_coord[0], last_coord[1], p[0], p[1])
+        cumulative_dist += d
+        dense_route.append({"coords": p, "dist": cumulative_dist})
+        last_coord = p # Update last for next small hop
+        
+    # Add actual point
+    d = haversine(last_coord[0], last_coord[1], curr_coord[0], curr_coord[1])
+    cumulative_dist += d
+    dense_route.append({"coords": curr_coord, "dist": cumulative_dist})
+    last_coord = curr_coord
+
+# Fetch dense elevations? No, that's too expensive (thousands of calls).
+# We will interpolate elevation from original points or fetch efficiently?
+# Better: Calculate distance on the original route, find the segment where KM X falls, interpolate lat/lon/elev.
+
+# --- Optimized Approach for exact KM markers ---
 points_data = []
-last_km_marker = -1
+target_km = 0
+interval_km = 1.0
+total_dist_so_far = 0
 
-for i in range(len(route_coords)):
-    lat, lon = route_latlon[i]
-    alt = elevations[i]
+# Add Start Point (KM 0)
+points_data.append({
+    "coords": route_latlon[0],
+    "alt": round(elevations[0], 1) if elevations else 0,
+    "slope": 0,
+    "km": 0.0
+})
+target_km += interval_km
+
+for i in range(1, len(route_latlon)):
+    lat1, lon1 = route_latlon[i-1]
+    alt1 = elevations[i-1]
     
-    if i > 0:
-        prev_lat, prev_lon = route_latlon[i-1]
-        prev_alt = elevations[i-1]
+    lat2, lon2 = route_latlon[i]
+    alt2 = elevations[i]
+    
+    segment_dist = haversine(lat1, lon1, lat2, lon2)
+    
+    # While next target fits in this segment
+    while (target_km * 1000) <= (total_dist_so_far + segment_dist):
+        # Interpolate
+        remaining_dist = (target_km * 1000) - total_dist_so_far
+        frac = remaining_dist / segment_dist
         
-        dist = haversine(prev_lat, prev_lon, lat, lon)
-        cumulative_distance += dist
+        interp_lat = lat1 + (lat2 - lat1) * frac
+        interp_lon = lon1 + (lon2 - lon1) * frac
+        interp_alt = alt1 + (alt2 - alt1) * frac
         
-        # Calculate slope
-        if dist > 0:
-            slope = ((alt - prev_alt) / dist) * 100
+        # Calculate slope (backwards look is tricky if we just jumped, but local segment slope is fine)
+        # Local slope of the segment:
+        if segment_dist > 0:
+            local_slope = ((alt2 - alt1) / segment_dist) * 100
         else:
-            slope = 0
-    else:
-        slope = 0
-    
-    km = cumulative_distance / 1000
-    
-    # Only add points every 1000 meters (1 km)
-    current_km = int(km)
-    if current_km > last_km_marker or i == 0:
+            local_slope = 0
+            
         points_data.append({
-            "coords": [lat, lon],
-            "alt": round(alt, 1),
-            "slope": round(slope, 2),
-            "km": round(km, 2)
+            "coords": [interp_lat, interp_lon],
+            "alt": round(interp_alt, 1),
+            "slope": round(local_slope, 2),
+            "km": target_km
         })
-        last_km_marker = current_km
+        
+        target_km += interval_km
+        
+    total_dist_so_far += segment_dist
 
-print(f"✅ Generados {len(points_data)} puntos de marcadores (cada ~1 km)")
+print(f"✅ Generados {len(points_data)} puntos de marcadores (EXACTAMENTE cada 1 km)")
 
 # Create GeoJSON
 route_feature = {
@@ -140,6 +199,6 @@ with open(r'C:\Users\rguti\Petral.MARK\Dashboard_Puertos\coastal_route.js', 'w',
     f.write(js_content)
 
 print(f"\n✅ Generado coastal_route.js")
-print(f"📏 Distancia total: {cumulative_distance/1000:.2f} km")
+print(f"📏 Distancia total: {total_dist_so_far/1000:.2f} km")
 print(f"📍 Puntos con etiquetas: {len(points_data)}")
 print(f"⛰️  Rango elevación: {min(elevations):.1f}m - {max(elevations):.1f}m")

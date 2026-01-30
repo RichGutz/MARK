@@ -91,7 +91,7 @@ function initApp() {
     renderInfraRoads();
     renderExtraRoads();
     renderShougangPolygon(); // New Polygon
-    renderOptimizedRoute(); // Optimized Horizontal Route
+    // renderOptimizedRoute(); // Optimized Horizontal Route
     // renderShougangVertices(); // Show Numbers 1-26
     renderSanFernando(); // San Fernando Reserve
     renderRailway(); // Future Railway
@@ -175,38 +175,7 @@ function renderSanFernando() {
     }
 }
 
-function renderOptimizedRoute() {
-    // Optimized Route: Vertex 8 -> Vertex 9 -> Horizontal to PE-1S
-    const p1 = [-15.165533, -75.256948]; // Vertex 8 (NW)
-    const p2 = [-15.075283, -75.095742]; // Vertex 9 (N)
-
-    // Target: Same Lat as V9, Longitude calculated for PE-1S intersection
-    const p3 = [-15.075283, -75.008714];
-
-    const routeCoords = [p1, p2, p3];
-    const distanceKm = 29.35; // Calculated
-
-    L.polyline(routeCoords, {
-        color: '#00e676', // Bright Green 
-        weight: 8,        // Thick Solid
-        opacity: 0.9,
-        lineCap: 'square',
-        lineJoin: 'round'
-    }).addTo(map).bindPopup(`
-        <div style="text-align:center; font-family:'Rajdhani',sans-serif;">
-            <strong style="color:#00e676; font-size:1.2em;">Acceso Optimizado</strong><br>
-            <span style="font-size:0.9em; color:#ccc;">V8 &rarr; V9 &rarr; Este (Plano)</span>
-            <hr style="margin:4px 0; border-color:#555;">
-            Distancia a Construir: <b style="color:#fff; font-size:1.3em;">${distanceKm} km</b><br>
-            <span style="font-size:0.8em; opacity:0.7;">Minimizando longitud al conectar PE-1S</span>
-        </div>
-    `, { className: 'custom-popup-dark' });
-
-    // Markers
-    L.circleMarker(p1, { radius: 6, color: '#00e676', fillColor: '#fff', fillOpacity: 1 }).addTo(map);
-    L.circleMarker(p3, { radius: 6, color: '#00e676', fillColor: '#000', fillOpacity: 1 }).addTo(map)
-        .bindTooltip("Conexión PE-1S", { permanent: true, direction: "right", className: "road-label-container" });
-}
+// function renderOptimizedRoute() { ... } removed
 
 function renderShougangPolygon() {
     if (typeof SHOUGANG_POLYGON_FEATURE !== 'undefined') {
@@ -1436,43 +1405,13 @@ function toggleSFRoad() {
 
 let landmarkMarker = null;
 
-function renderIntersectionLandmark() {
-    if (typeof LANDMARK_SHOUGANG_SF_INTERSECTION !== 'undefined' && !landmarkMarker) {
-        const coords = LANDMARK_SHOUGANG_SF_INTERSECTION.coords;
-
-        const landmarkIcon = L.divIcon({
-            className: 'landmark-icon',
-            html: '<div style="background: #ff0; border: 3px solid #f00; border-radius: 50%; width: 20px; height: 20px; box-shadow: 0 0 10px rgba(255,0,0,0.8);"></div>',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
-        });
-
-        landmarkMarker = L.marker(coords, {
-            icon: landmarkIcon
-        }).addTo(map);
-
-        landmarkMarker.bindPopup(`
-            <div style="font-family:'Rajdhani',sans-serif;">
-                <strong style="color:#ff0; font-size:1.1em;">📍 ${LANDMARK_SHOUGANG_SF_INTERSECTION.name}</strong><br>
-                <span style="font-size:0.9em; color:#ccc;">${LANDMARK_SHOUGANG_SF_INTERSECTION.description}</span><br>
-                <span style="font-size:0.85em; color:#aaa;">Elevación: ${LANDMARK_SHOUGANG_SF_INTERSECTION.elevation} m</span>
-            </div>
-        `, { className: 'custom-popup-dark' });
-
-        landmarkMarker.bindTooltip(LANDMARK_SHOUGANG_SF_INTERSECTION.name, {
-            permanent: true,
-            direction: 'top',
-            className: 'landmark-label',
-            offset: [0, -15]
-        });
-    }
-}
+// function renderIntersectionLandmark() { ... } removed
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         renderSFRoad();
-        renderIntersectionLandmark();
+        // renderIntersectionLandmark();
     }, 1500);
 });
 
