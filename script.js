@@ -988,11 +988,26 @@ window.addEventListener('resize', () => {
 document.addEventListener('DOMContentLoaded', initApp);
 // --- Fuel Logistics Calculator Logic ---
 function initFuelCalculator() {
-    const inputs = ['input-fuel-vol', 'input-fuel-pct', 'input-fuel-conv', 'input-fuel-tanker'];
-    inputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('input', calculateFuelLogistics);
-    });
+    // Note: Inline oninput is already used in HTML.
+    // We only need special handling for the Volume input (Type Text)
+
+    // Special handling for the Volume input (Type Text to support commas)
+    const volInput = document.getElementById('input-fuel-vol');
+    if (volInput) {
+        // On Focus: Remove commas for editing
+        volInput.addEventListener('focus', () => {
+            let val = volInput.value.replace(/,/g, '');
+            volInput.value = val;
+        });
+
+        // On Blur: Format with commas
+        volInput.addEventListener('blur', () => {
+            let val = parseFloat(volInput.value.replace(/,/g, ''));
+            if (!isNaN(val)) {
+                volInput.value = val.toLocaleString('en-US');
+            }
+        });
+    }
 
     // Initial Calc
     calculateFuelLogistics();
@@ -1000,10 +1015,14 @@ function initFuelCalculator() {
 
 function calculateFuelLogistics() {
     // 1. Get Inputs
-    const volM3 = parseFloat(document.getElementById('input-fuel-vol').value) || 0;
-    const pct = parseFloat(document.getElementById('input-fuel-pct').value) || 100;
-    const convFactor = parseFloat(document.getElementById('input-fuel-conv').value) || 264.172;
-    const tankerVol = parseFloat(document.getElementById('input-fuel-tanker').value) || 9000;
+    // Sanitize commas for the volume input since it's now Text
+    const rawVol = document.getElementById('input-fuel-vol').value;
+    const volM3 = parseFloat(rawVol.replace(/,/g, '')) || 0;
+
+    // Use 0 as default to avoid jumping values when clearing input
+    const pct = parseFloat(document.getElementById('input-fuel-pct').value) || 0;
+    const convFactor = parseFloat(document.getElementById('input-fuel-conv').value) || 0;
+    const tankerVol = parseFloat(document.getElementById('input-fuel-tanker').value) || 0;
 
     // 2. Calculate Total Volume in Gallons
     // Formula: Vol(m3) * (%/100) * Conversion
@@ -1011,21 +1030,25 @@ function calculateFuelLogistics() {
 
     // 3. Calculate Daily Tankers
     const days = 365;
-    const tankersPerYear = totalGal / tankerVol;
+    let tankersPerYear = 0;
+    if (tankerVol > 0) {
+        tankersPerYear = totalGal / tankerVol;
+    }
     const tankersPerDay = tankersPerYear / days;
 
     // 4. Calculate Total Events (Round Trip)
     const dailyEvents = tankersPerDay * 2;
 
     // 5. Update UI
+    // 5. Update UI
     const elTotal = document.getElementById('res-fuel-total');
     if (elTotal) elTotal.innerText = `${Math.round(totalGal).toLocaleString()} gal`;
 
     const elTrucks = document.getElementById('res-fuel-trucks');
-    if (elTrucks) elTrucks.innerText = `${tankersPerDay.toFixed(1)} 🚛 /día`;
+    if (elTrucks) elTrucks.innerText = `${tankersPerDay.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} 🚛 /día`;
 
     const elEvents = document.getElementById('res-fuel-events');
-    if (elEvents) elEvents.innerText = `${dailyEvents.toFixed(1)} viajes/día`;
+    if (elEvents) elEvents.innerText = `${dailyEvents.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} viajes/día`;
 }
 
 // Ensure init is called

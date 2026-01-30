@@ -82,14 +82,13 @@
         <div id="fuel-logistics-panel" class="glass-panel"
             style="position: absolute; top: 100px; left: 20px; width: 280px; z-index: 1000; padding: 15px; border-radius: 10px;">
             <div class="panel-header">
-                <h3>⛽ Logística Combustibles</h3>
+                <h3 style="color:#ff4444;">⛽ Logística Combustibles</h3>
                 <span class="panel-subtitle">Proyección Abastecimiento Diesel</span>
             </div>
 
             <div class="input-group">
-                <label>Volumen Diesel Valero (m³)</label>
-                <input type="number" id="input-fuel-vol" value="1749229" step="100" min="0"
-                    oninput="calculateFuelLogistics()">
+                <label>Volumen Diesel Valero 2025 (m³)</label>
+                <input type="text" id="input-fuel-vol" value="1,749,229" oninput="calculateFuelLogistics()">
             </div>
             <div class="input-group">
                 <label>% Destinado a MARK</label>
@@ -119,7 +118,7 @@
                 </div>
                 <div class="result-row">
                     <span>Eventos Totales (Ida+Vuelta):</span>
-                    <strong id="res-fuel-events" style="color:#ffeb3b;">0 viajes/día</strong>
+                    <strong id="res-fuel-events" style="color:#ff4444;">0 viajes/día</strong>
                 </div>
             </div>
         </div>
