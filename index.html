@@ -78,6 +78,52 @@
             </div>
         </div>
 
+        <!-- NEW: Fuel Logistics Calculator Panel -->
+        <div id="fuel-logistics-panel" class="glass-panel"
+            style="position: absolute; top: 100px; left: 20px; width: 280px; z-index: 1000; padding: 15px; border-radius: 10px;">
+            <div class="panel-header">
+                <h3>⛽ Logística Combustibles</h3>
+                <span class="panel-subtitle">Proyección Abastecimiento Diesel</span>
+            </div>
+
+            <div class="input-group">
+                <label>Volumen Diesel Valero (m³)</label>
+                <input type="number" id="input-fuel-vol" value="1749229" step="100" min="0"
+                    oninput="calculateFuelLogistics()">
+            </div>
+            <div class="input-group">
+                <label>% Destinado a MARK</label>
+                <input type="number" id="input-fuel-pct" value="30" step="1" min="0" max="100"
+                    oninput="calculateFuelLogistics()">
+            </div>
+            <div class="input-group">
+                <label>Factor Conversión (m³ a gal)</label>
+                <input type="number" id="input-fuel-conv" value="264.172" step="0.001"
+                    oninput="calculateFuelLogistics()">
+            </div>
+            <div class="input-group">
+                <label>Volumen Cisterna (gal)</label>
+                <input type="number" id="input-fuel-tanker" value="9000" step="100" oninput="calculateFuelLogistics()">
+            </div>
+
+            <hr style="border-color:rgba(255,255,255,0.1); margin:10px 0;">
+
+            <div class="results-section">
+                <div class="result-row">
+                    <span>Volumen Total:</span>
+                    <strong id="res-fuel-total" style="color:#00e676;">0 gal</strong>
+                </div>
+                <div class="result-row">
+                    <span>Cisternas (Ida):</span>
+                    <strong id="res-fuel-trucks">0 🚛 /día</strong>
+                </div>
+                <div class="result-row">
+                    <span>Eventos Totales (Ida+Vuelta):</span>
+                    <strong id="res-fuel-events" style="color:#ffeb3b;">0 viajes/día</strong>
+                </div>
+            </div>
+        </div>
+
         <!-- Map Container -->
         <div id="map"></div>
 
@@ -121,6 +167,37 @@
             </div>
             <div class="control-vr"></div>
             <div class="control-group">
+                <span class="control-label">Capas</span>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-port-labels" checked onchange="togglePortLabels()">
+                    <span class="toggle-text">Etiquetas Puertos</span>
+                </label>
+                <div style="width:10px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-land-labels" checked onchange="toggleLandLabels()">
+                    <span class="toggle-text">Etiquetas Tierra</span>
+                </label>
+            </div>
+            <div class="control-vr"></div>
+            <div class="control-group">
+                <span class="control-label">Concesiones</span>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-shougang" checked onchange="toggleShougang()">
+                    <span class="toggle-text">Shougang</span>
+                </label>
+                <div style="width:10px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-marcobre" onchange="toggleMarcobre()">
+                    <span class="toggle-text">Marcobre</span>
+                </label>
+                <div style="width:10px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-generacion" onchange="toggleGeneracion()">
+                    <span class="toggle-text">Gen. Eléctrica</span>
+                </label>
+            </div>
+            <div class="control-vr"></div>
+            <div class="control-group">
                 <span class="control-label">Mapa</span>
                 <button class="btn-control active" id="btn-map-standard" onclick="setMapType('standard')">Plano</button>
                 <button class="btn-control" id="btn-map-satellite" onclick="setMapType('satellite')">Satélite</button>
@@ -148,6 +225,8 @@
     <script src="shougang_polygon.js"></script>
     <script src="san_fernando.js"></script>
     <script src="railway_marcona_andahuaylas.js"></script>
+    <script src="layer_marcobre.js"></script>
+    <script src="layer_generacion_electrica.js"></script>
 
     <!-- App Logic -->
     <script src="script.js?v=2.6"></script>
