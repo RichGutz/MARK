@@ -715,3 +715,21 @@ li:hover {
     color: #ff6b35;
     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
+
+/* Landmark Labels */
+.landmark-label {
+    background: rgba(0,0,0,0.8) !important;
+    border: 2px solid #ff0 !important;
+    color: #ff0 !important;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255,255,0,0.5);
+}
+
+.landmark-icon {
+    background: transparent !important;
+    border: none !important;
+}

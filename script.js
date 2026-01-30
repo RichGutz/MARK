@@ -1387,3 +1387,268 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleGeneracion();
     }, 1000);
 });
+
+
+// ========================================
+// SAN FERNANDO ROAD LAYER
+// ========================================
+
+let sfRoadLayer = null;
+
+function renderSFRoad() {
+    if (typeof SAN_FERNANDO_ROAD_GEOJSON !== 'undefined' && !sfRoadLayer) {
+        sfRoadLayer = L.geoJSON(SAN_FERNANDO_ROAD_GEOJSON, {
+            style: {
+                color: '#00ff00',
+                weight: 4,
+                opacity: 0.9,
+                lineCap: 'round',
+                dashArray: '8, 4'
+            }
+        });
+
+        sfRoadLayer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#00ff00; font-size:1.1em;">Camino Reserva San Fernando</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">Ruta de acceso a la reserva</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+    }
+}
+
+function toggleSFRoad() {
+    const show = document.getElementById('toggle-sf-road').checked;
+
+    if (!sfRoadLayer) {
+        renderSFRoad();
+    }
+
+    if (show && sfRoadLayer) {
+        map.addLayer(sfRoadLayer);
+    } else if (sfRoadLayer) {
+        map.removeLayer(sfRoadLayer);
+    }
+}
+
+// ========================================
+// LANDMARK: SHOUGANG-SF INTERSECTION
+// ========================================
+
+let landmarkMarker = null;
+
+function renderIntersectionLandmark() {
+    if (typeof LANDMARK_SHOUGANG_SF_INTERSECTION !== 'undefined' && !landmarkMarker) {
+        const coords = LANDMARK_SHOUGANG_SF_INTERSECTION.coords;
+
+        const landmarkIcon = L.divIcon({
+            className: 'landmark-icon',
+            html: '<div style="background: #ff0; border: 3px solid #f00; border-radius: 50%; width: 20px; height: 20px; box-shadow: 0 0 10px rgba(255,0,0,0.8);"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+
+        landmarkMarker = L.marker(coords, {
+            icon: landmarkIcon
+        }).addTo(map);
+
+        landmarkMarker.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#ff0; font-size:1.1em;">📍 ${LANDMARK_SHOUGANG_SF_INTERSECTION.name}</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">${LANDMARK_SHOUGANG_SF_INTERSECTION.description}</span><br>
+                <span style="font-size:0.85em; color:#aaa;">Elevación: ${LANDMARK_SHOUGANG_SF_INTERSECTION.elevation} m</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+
+        landmarkMarker.bindTooltip(LANDMARK_SHOUGANG_SF_INTERSECTION.name, {
+            permanent: true,
+            direction: 'top',
+            className: 'landmark-label',
+            offset: [0, -15]
+        });
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        renderSFRoad();
+        renderIntersectionLandmark();
+    }, 1500);
+});
+
+
+// ========================================
+// NEW GREEN ROUTE LAYER
+// ========================================
+
+let greenRouteLayer = null;
+let greenRoutePointsLayer = null;
+
+function renderGreenRoute() {
+    if (typeof NEW_GREEN_ROUTE_GEOJSON !== 'undefined' && !greenRouteLayer) {
+        // Render route line
+        greenRouteLayer = L.geoJSON(NEW_GREEN_ROUTE_GEOJSON, {
+            style: {
+                color: '#00ff00',
+                weight: 5,
+                opacity: 0.9,
+                lineCap: 'round'
+            }
+        });
+
+        greenRouteLayer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#00ff00; font-size:1.1em;">Ruta Verde</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">Shougang NW → Camino San Fernando</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+    }
+
+    // Render labeled points
+    if (typeof NEW_GREEN_ROUTE_POINTS !== 'undefined' && !greenRoutePointsLayer) {
+        greenRoutePointsLayer = L.layerGroup();
+
+        NEW_GREEN_ROUTE_POINTS.forEach((point, idx) => {
+            const marker = L.circleMarker(point.coords, {
+                radius: 5,
+                color: '#00ff00',
+                fillColor: '#fff',
+                fillOpacity: 1,
+                weight: 2
+            });
+
+            // Determine slope color
+            let slopVal = point.slope;
+            let color = '#fff';
+            if (Math.abs(slopVal) < 3) color = '#0f0';
+            else if (Math.abs(slopVal) < 6) color = '#ff0';
+            else color = '#f00';
+
+            let slopeText = '';
+            if (idx > 0) {
+                slopeText = `<br><span class="elev-slope-val" style="color:${color}">${slopVal.toFixed(1)}%</span>`;
+            }
+
+            marker.bindTooltip(`KM ${point.km}<br>Alt: ${Math.round(point.alt)}m${slopeText}`, {
+                permanent: true,
+                direction: 'top',
+                className: 'elev-label-container',
+                offset: [0, -10]
+            });
+
+            greenRoutePointsLayer.addLayer(marker);
+        });
+    }
+}
+
+function toggleGreenRoute() {
+    const show = document.getElementById('toggle-green-route').checked;
+
+    if (!greenRouteLayer) {
+        renderGreenRoute();
+    }
+
+    if (show) {
+        if (greenRouteLayer) map.addLayer(greenRouteLayer);
+        if (greenRoutePointsLayer) map.addLayer(greenRoutePointsLayer);
+    } else {
+        if (greenRouteLayer) map.removeLayer(greenRouteLayer);
+        if (greenRoutePointsLayer) map.removeLayer(greenRoutePointsLayer);
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        renderGreenRoute();
+        toggleGreenRoute(); // Apply initial state
+    }, 1600);
+});
+
+
+// ========================================
+// COASTAL ROUTE LAYER
+// ========================================
+
+let coastalRouteLayer = null;
+let coastalRoutePointsLayer = null;
+
+function renderCoastalRoute() {
+    if (typeof COASTAL_ROUTE_GEOJSON !== 'undefined' && !coastalRouteLayer) {
+        // Render route line
+        coastalRouteLayer = L.geoJSON(COASTAL_ROUTE_GEOJSON, {
+            style: {
+                color: '#00bfff',  // Deep Sky Blue
+                weight: 5,
+                opacity: 0.9,
+                lineCap: 'round'
+            }
+        });
+
+        coastalRouteLayer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#00bfff; font-size:1.1em;">Ruta Costera MARK</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">Ruta alternativa por la costa</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+    }
+
+    // Render labeled points
+    if (typeof COASTAL_ROUTE_POINTS !== 'undefined' && !coastalRoutePointsLayer) {
+        coastalRoutePointsLayer = L.layerGroup();
+
+        COASTAL_ROUTE_POINTS.forEach((point, idx) => {
+            const marker = L.circleMarker(point.coords, {
+                radius: 5,
+                color: '#00bfff',
+                fillColor: '#fff',
+                fillOpacity: 1,
+                weight: 2
+            });
+
+            // Determine slope color
+            let slopVal = point.slope;
+            let color = '#fff';
+            if (Math.abs(slopVal) < 3) color = '#0f0';
+            else if (Math.abs(slopVal) < 6) color = '#ff0';
+            else color = '#f00';
+
+            let slopeText = '';
+            if (idx > 0) {
+                slopeText = `<br><span class="elev-slope-val" style="color:${color}">${slopVal.toFixed(1)}%</span>`;
+            }
+
+            marker.bindTooltip(`KM ${point.km}<br>Alt: ${Math.round(point.alt)}m${slopeText}`, {
+                permanent: true,
+                direction: 'top',
+                className: 'elev-label-container',
+                offset: [0, -10]
+            });
+
+            coastalRoutePointsLayer.addLayer(marker);
+        });
+    }
+}
+
+function toggleCoastalRoute() {
+    const show = document.getElementById('toggle-coastal-route').checked;
+
+    if (!coastalRouteLayer) {
+        renderCoastalRoute();
+    }
+
+    if (show) {
+        if (coastalRouteLayer) map.addLayer(coastalRouteLayer);
+        if (coastalRoutePointsLayer) map.addLayer(coastalRoutePointsLayer);
+    } else {
+        if (coastalRouteLayer) map.removeLayer(coastalRouteLayer);
+        if (coastalRoutePointsLayer) map.removeLayer(coastalRoutePointsLayer);
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        renderCoastalRoute();
+    }, 1700);
+});

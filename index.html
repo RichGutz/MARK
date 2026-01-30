@@ -180,6 +180,24 @@
             </div>
             <div class="control-vr"></div>
             <div class="control-group">
+                <span class="control-label">Caminos</span>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-sf-road" onchange="toggleSFRoad()">
+                    <span class="toggle-text">Camino SF</span>
+                </label>
+                <div style="width:10px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-green-route" checked onchange="toggleGreenRoute()">
+                    <span class="toggle-text">Ruta Verde</span>
+                </label>
+                <div style="width:10px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-coastal-route" onchange="toggleCoastalRoute()">
+                    <span class="toggle-text">Ruta Costera</span>
+                </label>
+            </div>
+            <div class="control-vr"></div>
+            <div class="control-group">
                 <span class="control-label">Concesiones</span>
                 <label class="toggle-control">
                     <input type="checkbox" id="toggle-shougang" checked onchange="toggleShougang()">
@@ -227,6 +245,10 @@
     <script src="railway_marcona_andahuaylas.js"></script>
     <script src="layer_marcobre.js"></script>
     <script src="layer_generacion_electrica.js"></script>
+    <script src="layer_san_fernando_road.js"></script>
+    <script src="landmark_intersection.js"></script>
+    <script src="new_green_route.js?v=2"></script>
+    <script src="coastal_route.js"></script>
 
     <!-- App Logic -->
     <script src="script.js?v=2.6"></script>
