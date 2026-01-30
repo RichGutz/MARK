@@ -91,7 +91,7 @@ function initApp() {
     renderInfraRoads();
     renderExtraRoads();
     renderShougangPolygon(); // New Polygon
-    renderOptimizedRoute(); // Optimized Horizontal Route
+    // renderOptimizedRoute(); // Optimized Horizontal Route
     // renderShougangVertices(); // Show Numbers 1-26
     renderSanFernando(); // San Fernando Reserve
     renderRailway(); // Future Railway
@@ -175,38 +175,7 @@ function renderSanFernando() {
     }
 }
 
-function renderOptimizedRoute() {
-    // Optimized Route: Vertex 8 -> Vertex 9 -> Horizontal to PE-1S
-    const p1 = [-15.165533, -75.256948]; // Vertex 8 (NW)
-    const p2 = [-15.075283, -75.095742]; // Vertex 9 (N)
-
-    // Target: Same Lat as V9, Longitude calculated for PE-1S intersection
-    const p3 = [-15.075283, -75.008714];
-
-    const routeCoords = [p1, p2, p3];
-    const distanceKm = 29.35; // Calculated
-
-    L.polyline(routeCoords, {
-        color: '#00e676', // Bright Green 
-        weight: 8,        // Thick Solid
-        opacity: 0.9,
-        lineCap: 'square',
-        lineJoin: 'round'
-    }).addTo(map).bindPopup(`
-        <div style="text-align:center; font-family:'Rajdhani',sans-serif;">
-            <strong style="color:#00e676; font-size:1.2em;">Acceso Optimizado</strong><br>
-            <span style="font-size:0.9em; color:#ccc;">V8 &rarr; V9 &rarr; Este (Plano)</span>
-            <hr style="margin:4px 0; border-color:#555;">
-            Distancia a Construir: <b style="color:#fff; font-size:1.3em;">${distanceKm} km</b><br>
-            <span style="font-size:0.8em; opacity:0.7;">Minimizando longitud al conectar PE-1S</span>
-        </div>
-    `, { className: 'custom-popup-dark' });
-
-    // Markers
-    L.circleMarker(p1, { radius: 6, color: '#00e676', fillColor: '#fff', fillOpacity: 1 }).addTo(map);
-    L.circleMarker(p3, { radius: 6, color: '#00e676', fillColor: '#000', fillOpacity: 1 }).addTo(map)
-        .bindTooltip("Conexión PE-1S", { permanent: true, direction: "right", className: "road-label-container" });
-}
+// function renderOptimizedRoute() { ... } removed
 
 function renderShougangPolygon() {
     if (typeof SHOUGANG_POLYGON_FEATURE !== 'undefined') {
@@ -1019,11 +988,26 @@ window.addEventListener('resize', () => {
 document.addEventListener('DOMContentLoaded', initApp);
 // --- Fuel Logistics Calculator Logic ---
 function initFuelCalculator() {
-    const inputs = ['input-fuel-vol', 'input-fuel-pct', 'input-fuel-conv', 'input-fuel-tanker'];
-    inputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('input', calculateFuelLogistics);
-    });
+    // Note: Inline oninput is already used in HTML.
+    // We only need special handling for the Volume input (Type Text)
+
+    // Special handling for the Volume input (Type Text to support commas)
+    const volInput = document.getElementById('input-fuel-vol');
+    if (volInput) {
+        // On Focus: Remove commas for editing
+        volInput.addEventListener('focus', () => {
+            let val = volInput.value.replace(/,/g, '');
+            volInput.value = val;
+        });
+
+        // On Blur: Format with commas
+        volInput.addEventListener('blur', () => {
+            let val = parseFloat(volInput.value.replace(/,/g, ''));
+            if (!isNaN(val)) {
+                volInput.value = val.toLocaleString('en-US');
+            }
+        });
+    }
 
     // Initial Calc
     calculateFuelLogistics();
@@ -1031,10 +1015,14 @@ function initFuelCalculator() {
 
 function calculateFuelLogistics() {
     // 1. Get Inputs
-    const volM3 = parseFloat(document.getElementById('input-fuel-vol').value) || 0;
-    const pct = parseFloat(document.getElementById('input-fuel-pct').value) || 100;
-    const convFactor = parseFloat(document.getElementById('input-fuel-conv').value) || 264.172;
-    const tankerVol = parseFloat(document.getElementById('input-fuel-tanker').value) || 9000;
+    // Sanitize commas for the volume input since it's now Text
+    const rawVol = document.getElementById('input-fuel-vol').value;
+    const volM3 = parseFloat(rawVol.replace(/,/g, '')) || 0;
+
+    // Use 0 as default to avoid jumping values when clearing input
+    const pct = parseFloat(document.getElementById('input-fuel-pct').value) || 0;
+    const convFactor = parseFloat(document.getElementById('input-fuel-conv').value) || 0;
+    const tankerVol = parseFloat(document.getElementById('input-fuel-tanker').value) || 0;
 
     // 2. Calculate Total Volume in Gallons
     // Formula: Vol(m3) * (%/100) * Conversion
@@ -1042,21 +1030,25 @@ function calculateFuelLogistics() {
 
     // 3. Calculate Daily Tankers
     const days = 365;
-    const tankersPerYear = totalGal / tankerVol;
+    let tankersPerYear = 0;
+    if (tankerVol > 0) {
+        tankersPerYear = totalGal / tankerVol;
+    }
     const tankersPerDay = tankersPerYear / days;
 
     // 4. Calculate Total Events (Round Trip)
     const dailyEvents = tankersPerDay * 2;
 
     // 5. Update UI
+    // 5. Update UI
     const elTotal = document.getElementById('res-fuel-total');
     if (elTotal) elTotal.innerText = `${Math.round(totalGal).toLocaleString()} gal`;
 
     const elTrucks = document.getElementById('res-fuel-trucks');
-    if (elTrucks) elTrucks.innerText = `${tankersPerDay.toFixed(1)} 🚛 /día`;
+    if (elTrucks) elTrucks.innerText = `${tankersPerDay.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} 🚛 /día`;
 
     const elEvents = document.getElementById('res-fuel-events');
-    if (elEvents) elEvents.innerText = `${dailyEvents.toFixed(1)} viajes/día`;
+    if (elEvents) elEvents.innerText = `${dailyEvents.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} viajes/día`;
 }
 
 // Ensure init is called
@@ -1386,4 +1378,239 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleMarcobre();
         toggleGeneracion();
     }, 1000);
+});
+
+
+// ========================================
+// SAN FERNANDO ROAD LAYER
+// ========================================
+
+let sfRoadLayer = null;
+
+function renderSFRoad() {
+    if (typeof SAN_FERNANDO_ROAD_GEOJSON !== 'undefined' && !sfRoadLayer) {
+        sfRoadLayer = L.geoJSON(SAN_FERNANDO_ROAD_GEOJSON, {
+            style: {
+                color: '#00ff00',
+                weight: 4,
+                opacity: 0.9,
+                lineCap: 'round',
+                dashArray: '8, 4'
+            }
+        });
+
+        sfRoadLayer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#00ff00; font-size:1.1em;">Camino Reserva San Fernando</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">Ruta de acceso a la reserva</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+    }
+}
+
+function toggleSFRoad() {
+    const show = document.getElementById('toggle-sf-road').checked;
+
+    if (!sfRoadLayer) {
+        renderSFRoad();
+    }
+
+    if (show && sfRoadLayer) {
+        map.addLayer(sfRoadLayer);
+    } else if (sfRoadLayer) {
+        map.removeLayer(sfRoadLayer);
+    }
+}
+
+// ========================================
+// LANDMARK: SHOUGANG-SF INTERSECTION
+// ========================================
+
+let landmarkMarker = null;
+
+// function renderIntersectionLandmark() { ... } removed
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        renderSFRoad();
+        // renderIntersectionLandmark();
+    }, 1500);
+});
+
+
+// ========================================
+// NEW GREEN ROUTE LAYER
+// ========================================
+
+let greenRouteLayer = null;
+let greenRoutePointsLayer = null;
+
+function renderGreenRoute() {
+    if (typeof NEW_GREEN_ROUTE_GEOJSON !== 'undefined' && !greenRouteLayer) {
+        // Render route line
+        greenRouteLayer = L.geoJSON(NEW_GREEN_ROUTE_GEOJSON, {
+            style: {
+                color: '#00ff00',
+                weight: 5,
+                opacity: 0.9,
+                lineCap: 'round'
+            }
+        });
+
+        greenRouteLayer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#00ff00; font-size:1.1em;">Ruta Verde</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">Shougang NW → Camino San Fernando</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+    }
+
+    // Render labeled points
+    if (typeof NEW_GREEN_ROUTE_POINTS !== 'undefined' && !greenRoutePointsLayer) {
+        greenRoutePointsLayer = L.layerGroup();
+
+        NEW_GREEN_ROUTE_POINTS.forEach((point, idx) => {
+            const marker = L.circleMarker(point.coords, {
+                radius: 5,
+                color: '#00ff00',
+                fillColor: '#fff',
+                fillOpacity: 1,
+                weight: 2
+            });
+
+            // Determine slope color
+            let slopVal = point.slope;
+            let color = '#fff';
+            if (Math.abs(slopVal) < 3) color = '#0f0';
+            else if (Math.abs(slopVal) < 6) color = '#ff0';
+            else color = '#f00';
+
+            let slopeText = '';
+            if (idx > 0) {
+                slopeText = `<br><span class="elev-slope-val" style="color:${color}">${slopVal.toFixed(1)}%</span>`;
+            }
+
+            marker.bindTooltip(`KM ${point.km}<br>Alt: ${Math.round(point.alt)}m${slopeText}`, {
+                permanent: true,
+                direction: 'top',
+                className: 'elev-label-container',
+                offset: [0, -10]
+            });
+
+            greenRoutePointsLayer.addLayer(marker);
+        });
+    }
+}
+
+function toggleGreenRoute() {
+    const show = document.getElementById('toggle-green-route').checked;
+
+    if (!greenRouteLayer) {
+        renderGreenRoute();
+    }
+
+    if (show) {
+        if (greenRouteLayer) map.addLayer(greenRouteLayer);
+        if (greenRoutePointsLayer) map.addLayer(greenRoutePointsLayer);
+    } else {
+        if (greenRouteLayer) map.removeLayer(greenRouteLayer);
+        if (greenRoutePointsLayer) map.removeLayer(greenRoutePointsLayer);
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        renderGreenRoute();
+        toggleGreenRoute(); // Apply initial state
+    }, 1600);
+});
+
+
+// ========================================
+// COASTAL ROUTE LAYER
+// ========================================
+
+let coastalRouteLayer = null;
+let coastalRoutePointsLayer = null;
+
+function renderCoastalRoute() {
+    if (typeof COASTAL_ROUTE_GEOJSON !== 'undefined' && !coastalRouteLayer) {
+        // Render route line
+        coastalRouteLayer = L.geoJSON(COASTAL_ROUTE_GEOJSON, {
+            style: {
+                color: '#00bfff',  // Deep Sky Blue
+                weight: 5,
+                opacity: 0.9,
+                lineCap: 'round'
+            }
+        });
+
+        coastalRouteLayer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#00bfff; font-size:1.1em;">Ruta Costera MARK</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">Ruta alternativa por la costa</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+    }
+
+    // Render labeled points
+    if (typeof COASTAL_ROUTE_POINTS !== 'undefined' && !coastalRoutePointsLayer) {
+        coastalRoutePointsLayer = L.layerGroup();
+
+        COASTAL_ROUTE_POINTS.forEach((point, idx) => {
+            const marker = L.circleMarker(point.coords, {
+                radius: 5,
+                color: '#00bfff',
+                fillColor: '#fff',
+                fillOpacity: 1,
+                weight: 2
+            });
+
+            // Determine slope color
+            let slopVal = point.slope;
+            let color = '#fff';
+            if (Math.abs(slopVal) < 3) color = '#0f0';
+            else if (Math.abs(slopVal) < 6) color = '#ff0';
+            else color = '#f00';
+
+            let slopeText = '';
+            if (idx > 0) {
+                slopeText = `<br><span class="elev-slope-val" style="color:${color}">${slopVal.toFixed(1)}%</span>`;
+            }
+
+            marker.bindTooltip(`KM ${point.km}<br>Alt: ${Math.round(point.alt)}m${slopeText}`, {
+                permanent: true,
+                direction: 'top',
+                className: 'elev-label-container',
+                offset: [0, -10]
+            });
+
+            coastalRoutePointsLayer.addLayer(marker);
+        });
+    }
+}
+
+function toggleCoastalRoute() {
+    const show = document.getElementById('toggle-coastal-route').checked;
+
+    if (!coastalRouteLayer) {
+        renderCoastalRoute();
+    }
+
+    if (show) {
+        if (coastalRouteLayer) map.addLayer(coastalRouteLayer);
+        if (coastalRoutePointsLayer) map.addLayer(coastalRoutePointsLayer);
+    } else {
+        if (coastalRouteLayer) map.removeLayer(coastalRouteLayer);
+        if (coastalRoutePointsLayer) map.removeLayer(coastalRoutePointsLayer);
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        renderCoastalRoute();
+    }, 1700);
 });
