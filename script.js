@@ -1017,3 +1017,373 @@ window.addEventListener('resize', () => {
 
 // Start
 document.addEventListener('DOMContentLoaded', initApp);
+// --- Fuel Logistics Calculator Logic ---
+function initFuelCalculator() {
+    const inputs = ['input-fuel-vol', 'input-fuel-pct', 'input-fuel-conv', 'input-fuel-tanker'];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', calculateFuelLogistics);
+    });
+
+    // Initial Calc
+    calculateFuelLogistics();
+}
+
+function calculateFuelLogistics() {
+    // 1. Get Inputs
+    const volM3 = parseFloat(document.getElementById('input-fuel-vol').value) || 0;
+    const pct = parseFloat(document.getElementById('input-fuel-pct').value) || 100;
+    const convFactor = parseFloat(document.getElementById('input-fuel-conv').value) || 264.172;
+    const tankerVol = parseFloat(document.getElementById('input-fuel-tanker').value) || 9000;
+
+    // 2. Calculate Total Volume in Gallons
+    // Formula: Vol(m3) * (%/100) * Conversion
+    const totalGal = volM3 * (pct / 100) * convFactor;
+
+    // 3. Calculate Daily Tankers
+    const days = 365;
+    const tankersPerYear = totalGal / tankerVol;
+    const tankersPerDay = tankersPerYear / days;
+
+    // 4. Calculate Total Events (Round Trip)
+    const dailyEvents = tankersPerDay * 2;
+
+    // 5. Update UI
+    const elTotal = document.getElementById('res-fuel-total');
+    if (elTotal) elTotal.innerText = `${Math.round(totalGal).toLocaleString()} gal`;
+
+    const elTrucks = document.getElementById('res-fuel-trucks');
+    if (elTrucks) elTrucks.innerText = `${tankersPerDay.toFixed(1)} 🚛 /día`;
+
+    const elEvents = document.getElementById('res-fuel-events');
+    if (elEvents) elEvents.innerText = `${dailyEvents.toFixed(1)} viajes/día`;
+}
+
+// Ensure init is called
+document.addEventListener('DOMContentLoaded', initFuelCalculator);
+
+// --- Layer Toggle Logic ---
+function togglePortLabels() {
+    const show = document.getElementById('toggle-port-labels').checked;
+    const mapContainer = document.getElementById('map');
+
+    if (show) {
+        mapContainer.classList.remove('map-hide-port-labels');
+    } else {
+        mapContainer.classList.add('map-hide-port-labels');
+    }
+}
+
+function toggleLandLabels() {
+    const show = document.getElementById('toggle-land-labels').checked;
+    const mapContainer = document.getElementById('map');
+    if (show) {
+        mapContainer.classList.remove('map-hide-land-labels');
+    } else {
+        mapContainer.classList.add('map-hide-land-labels');
+    }
+}
+
+// --- Elevation Points Logic ---
+
+function renderElevationPoints() {
+    if (typeof ELEVATION_POINTS !== 'undefined') {
+        // By default, hide them via CSS class on map container if checkbox is unchecked
+        // Logic will handle the class based on checkbox state on load
+
+        ELEVATION_POINTS.forEach(point => {
+            // Marker
+            const marker = L.circleMarker(point.coords, {
+                radius: 3,
+                color: '#00e676',
+                fillColor: '#000',
+                fillOpacity: 1,
+                weight: 1,
+                zIndexOffset: 500
+            }).addTo(map);
+
+            // Add custom class to marker element? No, Leaflet markers are SVG/Canvas.
+            // We use the Tooltip for the label.
+
+            let slopeText = "";
+            let slopVal = point.slope;
+            if (slopVal !== null && slopVal !== undefined) {
+                let color = "#ffeb3b"; // Yellow
+                if (slopVal < -5) color = "#ff9800"; // Steep Down
+                if (slopVal < -10) color = "#ff5722"; // Very Steep Down
+                if (slopVal > 5) color = "#f44336"; // Steep Up
+
+                slopeText = `<br><span class="elev-slope-val" style="color:${color}">${slopVal.toFixed(1)}%</span>`;
+            }
+
+            marker.bindTooltip(`KM ${point.km}<br>${Math.round(point.alt)} m${slopeText}`, {
+                permanent: true,
+                direction: 'top',
+                className: 'elev-label-container',
+                offset: [0, -5]
+            });
+
+            // Add a reference class to the tooltip (Leaflet 1.x adds className to the definition)
+            // But we need to be able to hide the MARKER (Circle) too?
+            // The request said "removable labels". Usually implies the tags.
+            // If we want to hide the dots too, we need a LayerGroup.
+        });
+
+        // Let's assume we just hide labels as requested ("aparecer o desaparecer... etiquetas").
+        // But better UX is to hide the whole layer?
+        // Let's stick to hiding labels via CSS as derived from previous logic.
+        // If dots remain, it's fine, less clutter than text.
+    }
+
+    // Checkbox State init
+    toggleElevLabels();
+}
+
+function toggleElevLabels() {
+    const show = document.getElementById('toggle-elev-labels').checked;
+    const mapContainer = document.getElementById('map');
+
+    if (show) {
+        mapContainer.classList.remove('map-hide-elev-labels');
+    } else {
+        mapContainer.classList.add('map-hide-elev-labels');
+    }
+}
+
+// init
+document.addEventListener('DOMContentLoaded', () => {
+    // Delay slightly to ensure map is ready or just call it
+    // script.js initApp calls render functions. We can append this call or add it to DOMContentLoaded if independent.
+    // Since we are appending this code to the end, initApp is already defined. 
+    // We should ideally call renderElevationPoints inside initApp, BUT we can't easily edit initApp middle.
+    // So we'll run it separately after map init.
+    // Given script.js structure, 'map' is global.
+
+    setTimeout(renderElevationPoints, 1000); // 1s wait to ensure map is loaded
+});
+
+// --- Alternative Route Logic (Blue Line) ---
+
+function renderAlternativeRoute() {
+    if (typeof ALTERNATIVE_ROUTE_GEOJSON !== 'undefined') {
+        const layer = L.geoJSON(ALTERNATIVE_ROUTE_GEOJSON, {
+            style: {
+                color: '#00bcd4', // Cyan/Blue
+                weight: 6,
+                opacity: 0.9,
+                lineCap: 'round',
+                dashArray: '10, 5'
+            }
+        }).addTo(map);
+
+        // Add Popup
+        layer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#00bcd4; font-size:1.1em;">Ruta Alterna (Baja Pendiente)</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">San Nicolás &rarr; Triángulo &rarr; Norte</span>
+                <hr style="margin:4px 0; border-color:#555;">
+                <span style="font-size:0.9em;">Evita la subida directa de la Línea Verde.</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+    }
+
+    // Optional: Render Points for verification if debug needed
+    // But user asked for visualization of the ROUTE primarily.
+    // We can reuse the toggleElevLabels logic if we add these points to the ELEVATION_POINTS array?
+    // User response: "tus etiquetas con pendienes me hacen ver que seria bien caro ir por alli" -> Implies they want to see slopes on the new route too.
+
+    if (typeof ALTERNATIVE_ROUTE_POINTS !== 'undefined') {
+        // Let's create markers for these too, but maybe with a different color/class to distinguish?
+        // Or just add them to the map.
+
+        ALTERNATIVE_ROUTE_POINTS.forEach(point => {
+            const marker = L.circleMarker(point.coords, {
+                radius: 3,
+                color: '#00bcd4',
+                fillColor: '#000',
+                fillOpacity: 1,
+                weight: 1,
+                zIndexOffset: 600
+            }).addTo(map);
+
+            let slopeText = "";
+            let slopVal = point.slope;
+            if (slopVal !== null && slopVal !== undefined) {
+                let color = "#ffeb3b";
+                if (slopVal > 8) color = "#f44336"; // Warn if steep even here
+
+                slopeText = `<br><span class="elev-slope-val" style="color:${color}">${slopVal.toFixed(1)}%</span>`;
+            }
+
+            marker.bindTooltip(`Alt: ${Math.round(point.alt)}m${slopeText}`, {
+                permanent: true,
+                direction: 'top',
+                className: 'elev-label-container', // Reuse class for styling
+                offset: [0, -5]
+            });
+
+            // Add to a global list if we want to toggle them with the same checkbox?
+            // Currently toggle logic uses CSS class on map container.
+            // If we use the same CSS class 'elev-label-container', the existing checkbox will hide these too!
+            // Perfect.
+        });
+    }
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(renderAlternativeRoute, 1200);
+});
+
+// ========================================
+// CONCESSION LAYERS MANAGEMENT
+// ========================================
+
+// Global layer references
+let shougangLayer = null;
+let marcobreLayer = null;
+let generacionLayer = null;
+
+// Render Shougang Concession
+function renderShougang() {
+    if (typeof SHOUGANG_POLYGON_FEATURE !== 'undefined' && !shougangLayer) {
+        shougangLayer = L.geoJSON(SHOUGANG_POLYGON_FEATURE, {
+            style: {
+                color: '#4a90e2',      // Blue
+                weight: 2,
+                opacity: 0.8,
+                fillColor: '#4a90e2',
+                fillOpacity: 0.2
+            }
+        }).addTo(map);
+
+        shougangLayer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#4a90e2; font-size:1.1em;">Concesión Shougang</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">Concesión Minera</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+    }
+}
+
+// Render Marcobre Concession
+function renderMarcobre() {
+    if (typeof MARCOBRE_GEOJSON !== 'undefined' && !marcobreLayer) {
+        marcobreLayer = L.geoJSON(MARCOBRE_GEOJSON, {
+            style: {
+                color: '#ff6b35',      // Orange/Red
+                weight: 2,
+                opacity: 0.8,
+                fillColor: '#ff6b35',
+                fillOpacity: 0.2
+            }
+        });
+
+        marcobreLayer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#ff6b35; font-size:1.1em;">Concesión Marcobre</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">Concesión Minera</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+
+        // Add numbered vertex markers
+        if (typeof MARCOBRE_VERTICES !== 'undefined') {
+            MARCOBRE_VERTICES.forEach(vertex => {
+                const marker = L.circleMarker(vertex.coords, {
+                    radius: 4,
+                    color: '#ff6b35',
+                    fillColor: '#fff',
+                    fillOpacity: 1,
+                    weight: 2
+                }).addTo(map);
+
+                marker.bindTooltip(`${vertex.id}`, {
+                    permanent: true,
+                    direction: 'center',
+                    className: 'vertex-label',
+                    offset: [0, 0]
+                });
+            });
+        }
+    }
+}
+
+// Render Generacion Electrica Concession
+function renderGeneracionElectrica() {
+    if (typeof GENERACION_ELECTRICA_GEOJSON !== 'undefined' && !generacionLayer) {
+        generacionLayer = L.geoJSON(GENERACION_ELECTRICA_GEOJSON, {
+            style: {
+                color: '#ffd700',      // Gold
+                weight: 2,
+                opacity: 0.8,
+                fillColor: '#ffd700',
+                fillOpacity: 0.2
+            }
+        });
+
+        generacionLayer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#ffd700; font-size:1.1em;">Empresa de Generación Eléctrica Marcona</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">Concesión Eléctrica</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+    }
+}
+
+// Toggle Functions
+function toggleShougang() {
+    const show = document.getElementById('toggle-shougang').checked;
+
+    if (!shougangLayer) {
+        renderShougang();
+    }
+
+    if (show && shougangLayer) {
+        map.addLayer(shougangLayer);
+    } else if (shougangLayer) {
+        map.removeLayer(shougangLayer);
+    }
+}
+
+function toggleMarcobre() {
+    const show = document.getElementById('toggle-marcobre').checked;
+
+    if (!marcobreLayer) {
+        renderMarcobre();
+    }
+
+    if (show && marcobreLayer) {
+        map.addLayer(marcobreLayer);
+    } else if (marcobreLayer) {
+        map.removeLayer(marcobreLayer);
+    }
+}
+
+function toggleGeneracion() {
+    const show = document.getElementById('toggle-generacion').checked;
+
+    if (!generacionLayer) {
+        renderGeneracionElectrica();
+    }
+
+    if (show && generacionLayer) {
+        map.addLayer(generacionLayer);
+    } else if (generacionLayer) {
+        map.removeLayer(generacionLayer);
+    }
+}
+
+// Initialize all concession layers on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        // Render all layers
+        renderShougang();
+        renderMarcobre();
+        renderGeneracionElectrica();
+
+        // Apply initial toggle states
+        toggleShougang();
+        toggleMarcobre();
+        toggleGeneracion();
+    }, 1000);
+});
