@@ -97,7 +97,7 @@ function renderPerimeterSides() {
             // Only popup, no permanent tooltip
             layer.bindPopup(`<b>${feature.properties.name}</b><br>${feature.properties.description}`);
         }
-    }).addTo(map);
+    }); // Removed .addTo(map)
 
     // Create separate labels layer
     window.perimeterLabelsLayer = L.geoJSON(PERIMETER_SIDES_GEOJSON, {
@@ -116,7 +116,7 @@ function renderPerimeterSides() {
                 }).openTooltip();
             }
         }
-    }).addTo(map);
+    }); // Removed .addTo(map)
 }
 
 function togglePerimeter() {
@@ -164,12 +164,23 @@ function initApp() {
     // renderOptimizedRoute(); // Optimized Horizontal Route
     // renderShougangVertices(); // Show Numbers 1-26
     renderSanFernando(); // San Fernando Reserve
-    renderRailway(); // Future Railway
+    renderRailway();
+    // Synchronize initial state with checkboxes
+    togglePortLabels();
+    toggleLandLabels();
+    togglePerimeter();
+    togglePerimeterLabels();
+    toggleRailway();
+    toggleShougang();
+    toggleMarcobre();
+    toggleGeneracion();
+    toggleSouthCorridor();
+    toggleAlternativeRoute();
 }
 
 function renderRailway() {
     if (typeof RAILWAY_MARCONA_ANDAHUAYLAS !== 'undefined') {
-        window.railwayLayer = L.layerGroup().addTo(map);
+        window.railwayLayer = L.layerGroup(); // Removed .addTo(map)
 
         // 1. Thick Yellow Background Line
         L.geoJSON(RAILWAY_MARCONA_ANDAHUAYLAS, {
@@ -212,7 +223,7 @@ function renderShougangVertices() {
                 fillColor: "#000",
                 fillOpacity: 1,
                 weight: 1
-            }).addTo(map).bindTooltip(`${index + 1}`, {
+            }).bindTooltip(`${index + 1}`, { // Removed .addTo(map)
                 permanent: true,
                 direction: 'center',
                 className: 'vertex-label'
@@ -241,7 +252,7 @@ function renderSanFernando() {
                     });
                 }
             }
-        }).addTo(map);
+        }); // Removed .addTo(map)
     }
 }
 
@@ -267,7 +278,7 @@ function renderShougangPolygon() {
                     });
                 }
             }
-        }).addTo(map);
+        }); // Removed .addTo(map)
     }
 }
 
@@ -298,7 +309,7 @@ function renderExtraRoads() {
                     `, { className: 'custom-popup-dark' });
                 }
             }
-        }).addTo(map);
+        }); // Removed .addTo(map)
     }
 
     // PE-30A
@@ -316,7 +327,7 @@ function renderExtraRoads() {
                     layer.bindPopup(`<b>${feature.properties.name}</b><br>ID: ${feature.properties.id}<br>Longitud: ${kms} km`, { className: 'custom-popup-dark' });
                 }
             }
-        }).addTo(map);
+        }); // Removed .addTo(map)
     }
 }
 
@@ -476,7 +487,7 @@ function renderInfraRoads() {
                     `, { className: 'custom-popup-dark' });
                 }
             }
-        }).addTo(map);
+        }); // Removed .addTo(map)
     }
 }
 
@@ -560,7 +571,7 @@ function renderTerrain() {
                     });
                 }
             }
-        }).addTo(map);
+        }); // Removed .addTo(map)
     }
 }
 
@@ -722,18 +733,19 @@ function createInfoBoatIcon(port) {
 function renderPorts(portsData) {
     markers.forEach(m => map.removeLayer(m));
     markers = [];
+    window.portsLayer = L.layerGroup();
 
     portsData.forEach(port => {
         // 1. Info Boat Marker (Define first to use in click handler)
         const boatMarker = L.marker(port.coords, {
             icon: createInfoBoatIcon(port),
             zIndexOffset: 100 // Float above
-        }).addTo(map);
+        }).addTo(window.portsLayer);
 
         // 2. Main Port Marker
         const marker = L.marker(port.coords, {
             icon: createCustomIcon(port)
-        }).addTo(map);
+        }).addTo(window.portsLayer);
 
         // Tooltip content
         let label = `${port.name}`;
@@ -783,10 +795,11 @@ function createMineIcon(mine) {
 }
 
 function renderMines(mines) {
+    window.minesLayer = L.layerGroup();
     mines.forEach(mine => {
         const marker = L.marker(mine.coords, {
             icon: createMineIcon(mine)
-        }).addTo(map);
+        }).addTo(window.minesLayer);
 
         // Mine Label with Leader Line Effect
         marker.bindTooltip(`<div class="mine-label-content">${mine.name}</div>`, {
@@ -1145,8 +1158,10 @@ function togglePortLabels() {
 
     if (show) {
         mapContainer.classList.remove('map-hide-port-labels');
+        if (window.portsLayer) map.addLayer(window.portsLayer);
     } else {
         mapContainer.classList.add('map-hide-port-labels');
+        if (window.portsLayer) map.removeLayer(window.portsLayer);
     }
 }
 
@@ -1155,8 +1170,10 @@ function toggleLandLabels() {
     const mapContainer = document.getElementById('map');
     if (show) {
         mapContainer.classList.remove('map-hide-land-labels');
+        if (window.minesLayer) map.addLayer(window.minesLayer);
     } else {
         mapContainer.classList.add('map-hide-land-labels');
+        if (window.minesLayer) map.removeLayer(window.minesLayer);
     }
 }
 
@@ -1164,9 +1181,7 @@ function toggleLandLabels() {
 
 function renderElevationPoints() {
     if (typeof ELEVATION_POINTS !== 'undefined') {
-        // By default, hide them via CSS class on map container if checkbox is unchecked
-        // Logic will handle the class based on checkbox state on load
-
+        window.elevationPointsLayer = L.layerGroup();
         ELEVATION_POINTS.forEach(point => {
             // Marker
             const marker = L.circleMarker(point.coords, {
@@ -1176,7 +1191,8 @@ function renderElevationPoints() {
                 fillOpacity: 1,
                 weight: 1,
                 zIndexOffset: 500
-            }).addTo(map);
+            }); // Removed .addTo(map)
+            if (window.elevationPointsLayer) window.elevationPointsLayer.addLayer(marker);
 
             // Add custom class to marker element? No, Leaflet markers are SVG/Canvas.
             // We use the Tooltip for the label.
@@ -1216,13 +1232,17 @@ function renderElevationPoints() {
 }
 
 function toggleElevLabels() {
-    const show = document.getElementById('toggle-elev-labels').checked;
+    const el = document.getElementById('toggle-elev-labels');
+    if (!el) return;
+    const show = el.checked;
     const mapContainer = document.getElementById('map');
 
     if (show) {
         mapContainer.classList.remove('map-hide-elev-labels');
+        if (window.elevationPointsLayer) map.addLayer(window.elevationPointsLayer);
     } else {
         mapContainer.classList.add('map-hide-elev-labels');
+        if (window.elevationPointsLayer) map.removeLayer(window.elevationPointsLayer);
     }
 }
 
@@ -1250,7 +1270,9 @@ function renderAlternativeRoute() {
                 lineCap: 'round',
                 dashArray: '10, 5'
             }
-        }).addTo(map);
+        }); // Removed .addTo(map)
+        window.alternativeRouteLayer = L.layerGroup();
+        layer.addTo(window.alternativeRouteLayer);
 
         // Add Popup
         layer.bindPopup(`
@@ -1280,7 +1302,8 @@ function renderAlternativeRoute() {
                 fillOpacity: 1,
                 weight: 1,
                 zIndexOffset: 600
-            }).addTo(map);
+            }); // Removed .addTo(map)
+            if (window.alternativeRouteLayer) window.alternativeRouteLayer.addLayer(marker);
 
             let slopeText = "";
             let slopVal = point.slope;
@@ -1306,9 +1329,26 @@ function renderAlternativeRoute() {
     }
 }
 
+function toggleAlternativeRoute() {
+    const el = document.getElementById('toggle-alternative-route');
+    if (!el) return;
+    const show = el.checked;
+
+    if (!window.alternativeRouteLayer) renderAlternativeRoute();
+
+    if (show && window.alternativeRouteLayer) {
+        map.addLayer(window.alternativeRouteLayer);
+    } else if (window.alternativeRouteLayer) {
+        map.removeLayer(window.alternativeRouteLayer);
+    }
+}
+
 // Init
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(renderAlternativeRoute, 1200);
+    setTimeout(() => {
+        renderAlternativeRoute();
+        toggleAlternativeRoute();
+    }, 1200);
 });
 
 // ========================================
@@ -1331,7 +1371,7 @@ function renderShougang() {
                 fillColor: '#4a90e2',
                 fillOpacity: 0.2
             }
-        }).addTo(map);
+        }); // Removed .addTo(map)
 
         shougangLayer.bindPopup(`
             <div style="font-family:'Rajdhani',sans-serif;">
@@ -1345,7 +1385,9 @@ function renderShougang() {
 // Render Marcobre Concession
 function renderMarcobre() {
     if (typeof MARCOBRE_GEOJSON !== 'undefined' && !marcobreLayer) {
-        marcobreLayer = L.geoJSON(MARCOBRE_GEOJSON, {
+        marcobreLayer = L.layerGroup();
+
+        const poly = L.geoJSON(MARCOBRE_GEOJSON, {
             style: {
                 color: '#ff6b35',      // Orange/Red
                 weight: 2,
@@ -1355,12 +1397,14 @@ function renderMarcobre() {
             }
         });
 
-        marcobreLayer.bindPopup(`
+        poly.bindPopup(`
             <div style="font-family:'Rajdhani',sans-serif;">
                 <strong style="color:#ff6b35; font-size:1.1em;">Concesión Marcobre</strong><br>
                 <span style="font-size:0.9em; color:#ccc;">Concesión Minera</span>
             </div>
         `, { className: 'custom-popup-dark' });
+
+        poly.addTo(marcobreLayer);
 
         // Add numbered vertex markers
         if (typeof MARCOBRE_VERTICES !== 'undefined') {
@@ -1371,7 +1415,7 @@ function renderMarcobre() {
                     fillColor: '#fff',
                     fillOpacity: 1,
                     weight: 2
-                }).addTo(map);
+                }).addTo(marcobreLayer); // Changed from .addTo(map)
 
                 marker.bindTooltip(`${vertex.id}`, {
                     permanent: true,
@@ -1540,7 +1584,7 @@ function renderGreenRoute() {
                 opacity: 0.9,
                 lineCap: 'round'
             }
-        });
+        }); // Removed .addTo(map)
 
         greenRouteLayer.bindPopup(`
             <div style="font-family:'Rajdhani',sans-serif;">
