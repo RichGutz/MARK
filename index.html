@@ -190,7 +190,7 @@
                 <span class="control-label"
                     style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">Concesión</span>
                 <label class="toggle-control">
-                    <input type="checkbox" id="toggle-shougang" checked onchange="toggleShougang()">
+                    <input type="checkbox" id="toggle-shougang" onchange="toggleShougang()">
                     <span class="toggle-text" style="font-size: 8px;">Shougang</span>
                 </label>
                 <div style="width:5px;"></div>
@@ -209,17 +209,17 @@
                 <span class="control-label"
                     style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">PETRAL</span>
                 <label class="toggle-control">
-                    <input type="checkbox" id="toggle-perimeter" checked onchange="togglePerimeter()">
+                    <input type="checkbox" id="toggle-perimeter" onchange="togglePerimeter()">
                     <span class="toggle-text" style="font-size: 8px;">BORDE</span>
                 </label>
                 <div style="width:5px;"></div>
                 <label class="toggle-control">
-                    <input type="checkbox" id="toggle-perimeter-labels" checked onchange="togglePerimeterLabels()">
+                    <input type="checkbox" id="toggle-perimeter-labels" onchange="togglePerimeterLabels()">
                     <span class="toggle-text" style="font-size: 8px;">ETIQUETAS</span>
                 </label>
                 <div style="width:5px;"></div>
                 <label class="toggle-control">
-                    <input type="checkbox" id="toggle-railway" checked onchange="toggleRailway()">
+                    <input type="checkbox" id="toggle-railway" onchange="toggleRailway()">
                     <span class="toggle-text" style="font-size: 8px;">FERROCARRIL</span>
                 </label>
             </div>
@@ -232,12 +232,12 @@
                 <span class="control-label"
                     style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">Capas</span>
                 <label class="toggle-control">
-                    <input type="checkbox" id="toggle-port-labels" checked onchange="togglePortLabels()">
+                    <input type="checkbox" id="toggle-port-labels" onchange="togglePortLabels()">
                     <span class="toggle-text" style="font-size: 8px; color: #2c3e50;">Etiq. Puertos</span>
                 </label>
                 <div style="width:5px;"></div>
                 <label class="toggle-control">
-                    <input type="checkbox" id="toggle-land-labels" checked onchange="toggleLandLabels()">
+                    <input type="checkbox" id="toggle-land-labels" onchange="toggleLandLabels()">
                     <span class="toggle-text" style="font-size: 8px; color: #2c3e50;">Etiq. Tierra</span>
                 </label>
             </div>
@@ -246,7 +246,7 @@
                 <span class="control-label"
                     style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">Infra.</span>
                 <label class="toggle-control">
-                    <input type="checkbox" id="toggle-south-corridor" checked onchange="toggleSouthCorridor()">
+                    <input type="checkbox" id="toggle-south-corridor" onchange="toggleSouthCorridor()">
                     <span class="toggle-text" style="font-size: 8px; color: #2c3e50;">Corredor Sur</span>
                 </label>
             </div>
@@ -265,13 +265,23 @@
                 </label>
                 <div style="width:5px;"></div>
                 <label class="toggle-control">
-                    <input type="checkbox" id="toggle-green-route" checked onchange="toggleGreenRoute()">
+                    <input type="checkbox" id="toggle-green-route" onchange="toggleGreenRoute()">
                     <span class="toggle-text" style="font-size: 8px;">Ruta Verde</span>
+                </label>
+                <div style="width:3px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-green-route-labels" onchange="toggleGreenRouteLabels()">
+                    <span class="toggle-text" style="font-size: 8px; color: #546e7a;">Etiq. Verde</span>
                 </label>
                 <div style="width:5px;"></div>
                 <label class="toggle-control">
-                    <input type="checkbox" id="toggle-coastal-route" checked onchange="toggleCoastalRoute()">
+                    <input type="checkbox" id="toggle-coastal-route" onchange="toggleCoastalRoute()">
                     <span class="toggle-text" style="font-size: 8px;">Ruta Costera</span>
+                </label>
+                <div style="width:3px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-coastal-route-labels" onchange="toggleCoastalRouteLabels()">
+                    <span class="toggle-text" style="font-size: 8px; color: #546e7a;">Etiq. Costera</span>
                 </label>
             </div>
             <div class="control-vr" style="background: rgba(0,0,0,0.1); margin: 0 5px;"></div>

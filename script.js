@@ -1589,16 +1589,22 @@ function renderGreenRoute() {
 
 function toggleGreenRoute() {
     const show = document.getElementById('toggle-green-route').checked;
-
-    if (!greenRouteLayer) {
-        renderGreenRoute();
-    }
+    if (!greenRouteLayer) renderGreenRoute();
 
     if (show) {
         if (greenRouteLayer) map.addLayer(greenRouteLayer);
-        if (greenRoutePointsLayer) map.addLayer(greenRoutePointsLayer);
     } else {
         if (greenRouteLayer) map.removeLayer(greenRouteLayer);
+    }
+}
+
+function toggleGreenRouteLabels() {
+    const show = document.getElementById('toggle-green-route-labels').checked;
+    if (!greenRoutePointsLayer) renderGreenRoute();
+
+    if (show) {
+        if (greenRoutePointsLayer) map.addLayer(greenRoutePointsLayer);
+    } else {
         if (greenRoutePointsLayer) map.removeLayer(greenRoutePointsLayer);
     }
 }
@@ -1607,7 +1613,8 @@ function toggleGreenRoute() {
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         renderGreenRoute();
-        toggleGreenRoute(); // Apply initial state
+        toggleGreenRoute();
+        toggleGreenRouteLabels();
     }, 1600);
 });
 
@@ -1776,16 +1783,22 @@ function renderCoastalRoute() {
 
 function toggleCoastalRoute() {
     const show = document.getElementById('toggle-coastal-route').checked;
-
-    if (!coastalRouteLayer) {
-        renderCoastalRoute();
-    }
+    if (!coastalRouteLayer) renderCoastalRoute();
 
     if (show) {
         if (coastalRouteLayer) map.addLayer(coastalRouteLayer);
-        if (coastalRoutePointsLayer) map.addLayer(coastalRoutePointsLayer);
     } else {
         if (coastalRouteLayer) map.removeLayer(coastalRouteLayer);
+    }
+}
+
+function toggleCoastalRouteLabels() {
+    const show = document.getElementById('toggle-coastal-route-labels').checked;
+    if (!coastalRoutePointsLayer) renderCoastalRoute();
+
+    if (show) {
+        if (coastalRoutePointsLayer) map.addLayer(coastalRoutePointsLayer);
+    } else {
         if (coastalRoutePointsLayer) map.removeLayer(coastalRoutePointsLayer);
     }
 }
@@ -1796,5 +1809,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Coastal Route
         renderCoastalRoute();
         toggleCoastalRoute();
+        toggleCoastalRouteLabels();
     }, 1700);
 });
