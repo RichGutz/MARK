@@ -79,9 +79,50 @@ let currentMapType = 'standard';
 let markers = [];
 const ports = processShipData(); // Initial load
 
+// --- PERIMETER SIDES ---
+function renderPerimeterSides() {
+    if (typeof PERIMETER_SIDES_GEOJSON === 'undefined') return;
+
+
+    // Assign to global var for toggle
+    // Note: L.geoJSON returns the layer, but we didn't assign it in previous code.
+    // Let's fix that.
+    window.perimeterLayer = L.geoJSON(PERIMETER_SIDES_GEOJSON, {
+        style: function (feature) {
+            return {
+                color: feature.properties.stroke || '#3388ff',
+                weight: 3,
+                opacity: 0.8,
+                dashArray: '5, 5'
+            };
+        },
+        onEachFeature: function (feature, layer) {
+            if (feature.properties.name) {
+                layer.bindTooltip(feature.properties.name, {
+                    permanent: true,
+                    direction: 'center',
+                    className: 'perimeter-label'
+                }).openTooltip();
+            }
+            layer.bindPopup(`<b>${feature.properties.name}</b><br>${feature.properties.description}`);
+        }
+    }).addTo(map);
+}
+
+function togglePerimeter() {
+    const show = document.getElementById('toggle-perimeter').checked;
+    if (show && window.perimeterLayer) {
+        map.addLayer(window.perimeterLayer);
+    } else if (window.perimeterLayer) {
+        map.removeLayer(window.perimeterLayer);
+    }
+}
+
+
 // --- Initialization ---
 function initApp() {
     initMap();
+    renderPerimeterSides();
     renderPorts(ports);
     if (typeof MINING_PROJECTS !== 'undefined') {
         renderMines(MINING_PROJECTS);
@@ -470,6 +511,10 @@ function toggleSouthCorridor() {
 function renderTerrain() {
     if (typeof TERRAIN_ROADS !== 'undefined') {
         L.geoJSON(TERRAIN_ROADS, {
+            filter: function (feature) {
+                // Exclude 'perimetro' as it is handled separately
+                return feature.properties.layer !== 'perimetro';
+            },
             style: {
                 color: '#00d2ff', // Cyan/Blue for visibility
                 weight: 3,
