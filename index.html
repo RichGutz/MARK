@@ -183,6 +183,49 @@
         </aside>
 
         <!-- Legend / Controls -->
+        <!-- Top Ribbon: Concessions & PETRAL -->
+        <div class="controls glass-panel"
+            style="position: absolute; bottom: 56px; left: 50%; transform: translateX(-50%); display: flex; background: rgba(255, 255, 255, 0.85); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); z-index: 1000; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); align-items: center; gap: 4px; white-space: nowrap; max-width: 95vw; overflow-x: auto;">
+            <div class="control-group">
+                <span class="control-label"
+                    style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">Concesión</span>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-shougang" checked onchange="toggleShougang()">
+                    <span class="toggle-text" style="font-size: 8px;">Shougang</span>
+                </label>
+                <div style="width:5px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-marcobre" onchange="toggleMarcobre()">
+                    <span class="toggle-text" style="font-size: 8px;">Marcobre</span>
+                </label>
+                <div style="width:5px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-generacion" onchange="toggleGeneracion()">
+                    <span class="toggle-text" style="font-size: 8px;">Gen. Elec.</span>
+                </label>
+            </div>
+            <div class="control-vr" style="background: rgba(0,0,0,0.1); margin: 0 5px;"></div>
+            <div class="control-group">
+                <span class="control-label"
+                    style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">PETRAL</span>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-perimeter" checked onchange="togglePerimeter()">
+                    <span class="toggle-text" style="font-size: 8px;">BORDE</span>
+                </label>
+                <div style="width:5px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-perimeter-labels" checked onchange="togglePerimeterLabels()">
+                    <span class="toggle-text" style="font-size: 8px;">ETIQUETAS</span>
+                </label>
+                <div style="width:5px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-railway" checked onchange="toggleRailway()">
+                    <span class="toggle-text" style="font-size: 8px;">FERROCARRIL</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Bottom Ribbon: Base Layers & Routes -->
         <div class="controls glass-panel"
             style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; background: rgba(255, 255, 255, 0.85); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); z-index: 1000; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); align-items: center; gap: 4px; white-space: nowrap; max-width: 95vw; overflow-x: auto;">
             <div class="control-group" style="display: flex; align-items: center; gap: 4px;">
@@ -211,11 +254,6 @@
             <div class="control-group" style="display: flex; align-items: center; gap: 4px;">
                 <span class="control-label"
                     style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">Vías</span>
-                <label class="toggle-control" style="display:none">
-                    <input type="checkbox" id="toggle-sf-road" onchange="toggleSFRoad()">
-                    <span class="toggle-text">Camino SF</span>
-                </label>
-                <div style="width:5px;"></div>
                 <label class="toggle-control">
                     <input type="checkbox" id="toggle-red-route" onchange="toggleRedRoute()">
                     <span class="toggle-text" style="font-size: 8px;">Ruta Roja</span>
@@ -238,33 +276,10 @@
             </div>
             <div class="control-vr" style="background: rgba(0,0,0,0.1); margin: 0 5px;"></div>
             <div class="control-group">
-                <span class="control-label"
-                    style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">Concesión</span>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-shougang" checked onchange="toggleShougang()">
-                    <span class="toggle-text" style="font-size: 8px;">Shougang</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-marcobre" onchange="toggleMarcobre()">
-                    <span class="toggle-text" style="font-size: 8px;">Marcobre</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-generacion" onchange="toggleGeneracion()">
-                    <span class="toggle-text" style="font-size: 8px;">Gen. Elec.</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-perimeter" checked onchange="togglePerimeter()">
-                    <span class="toggle-text" style="font-size: 8px;">Triángulo</span>
-                </label>
-            </div>
-            <div class="control-vr"></div>
-            <div class="control-group">
-                <span class="control-label">Mapa</span>
-                <button class="btn-control active" id="btn-map-standard" onclick="setMapType('standard')">Plano</button>
-                <button class="btn-control" id="btn-map-satellite" onclick="setMapType('satellite')">Satélite</button>
+                <button class="btn-control active" id="btn-map-standard" style="padding: 2px 6px; font-size: 8px;"
+                    onclick="setMapType('standard')">Plano</button>
+                <button class="btn-control" id="btn-map-satellite" style="padding: 2px 6px; font-size: 8px;"
+                    onclick="setMapType('satellite')">Satélite</button>
             </div>
         </div>
     </div>

@@ -83,10 +83,7 @@ const ports = processShipData(); // Initial load
 function renderPerimeterSides() {
     if (typeof PERIMETER_SIDES_GEOJSON === 'undefined') return;
 
-
-    // Assign to global var for toggle
-    // Note: L.geoJSON returns the layer, but we didn't assign it in previous code.
-    // Let's fix that.
+    // Create perimeter lines layer (without labels)
     window.perimeterLayer = L.geoJSON(PERIMETER_SIDES_GEOJSON, {
         style: function (feature) {
             return {
@@ -97,6 +94,20 @@ function renderPerimeterSides() {
             };
         },
         onEachFeature: function (feature, layer) {
+            // Only popup, no permanent tooltip
+            layer.bindPopup(`<b>${feature.properties.name}</b><br>${feature.properties.description}`);
+        }
+    }).addTo(map);
+
+    // Create separate labels layer
+    window.perimeterLabelsLayer = L.geoJSON(PERIMETER_SIDES_GEOJSON, {
+        style: function () {
+            return {
+                opacity: 0,  // Invisible lines, only labels
+                weight: 0
+            };
+        },
+        onEachFeature: function (feature, layer) {
             if (feature.properties.name) {
                 layer.bindTooltip(feature.properties.name, {
                     permanent: true,
@@ -104,7 +115,6 @@ function renderPerimeterSides() {
                     className: 'perimeter-label'
                 }).openTooltip();
             }
-            layer.bindPopup(`<b>${feature.properties.name}</b><br>${feature.properties.description}`);
         }
     }).addTo(map);
 }
@@ -115,6 +125,25 @@ function togglePerimeter() {
         map.addLayer(window.perimeterLayer);
     } else if (window.perimeterLayer) {
         map.removeLayer(window.perimeterLayer);
+    }
+}
+
+
+function togglePerimeterLabels() {
+    const show = document.getElementById('toggle-perimeter-labels').checked;
+    if (show && window.perimeterLabelsLayer) {
+        map.addLayer(window.perimeterLabelsLayer);
+    } else if (window.perimeterLabelsLayer) {
+        map.removeLayer(window.perimeterLabelsLayer);
+    }
+}
+
+function toggleRailway() {
+    const show = document.getElementById('toggle-railway').checked;
+    if (show && window.railwayLayer) {
+        map.addLayer(window.railwayLayer);
+    } else if (window.railwayLayer) {
+        map.removeLayer(window.railwayLayer);
     }
 }
 
@@ -140,7 +169,7 @@ function initApp() {
 
 function renderRailway() {
     if (typeof RAILWAY_MARCONA_ANDAHUAYLAS !== 'undefined') {
-        const railwayGroup = L.layerGroup().addTo(map);
+        window.railwayLayer = L.layerGroup().addTo(map);
 
         // 1. Thick Yellow Background Line
         L.geoJSON(RAILWAY_MARCONA_ANDAHUAYLAS, {
@@ -151,7 +180,7 @@ function renderRailway() {
                 lineCap: 'round',
                 lineJoin: 'round'
             }
-        }).addTo(railwayGroup);
+        }).addTo(window.railwayLayer);
 
         // 2. Dotted Inner Line (Black/Dark)
         L.geoJSON(RAILWAY_MARCONA_ANDAHUAYLAS, {
@@ -163,7 +192,7 @@ function renderRailway() {
                 lineCap: 'round',
                 lineJoin: 'round'
             }
-        }).addTo(railwayGroup).eachLayer(function (layer) {
+        }).addTo(window.railwayLayer).eachLayer(function (layer) {
             layer.bindTooltip("Ferrocarril Marcona - Andahuaylas", {
                 permanent: false,
                 direction: "center",
