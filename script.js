@@ -377,15 +377,31 @@ function initCalculator() {
 
     inputs.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.addEventListener('input', calculateLogistics);
+        if (el) {
+            el.addEventListener('input', calculateLogistics);
+
+            // Format handling for text inputs (Hierro, Chancas, Trapiche)
+            if (id !== 'input-capacity') {
+                el.addEventListener('focus', () => {
+                    let val = el.value.replace(/,/g, '');
+                    el.value = val;
+                });
+                el.addEventListener('blur', () => {
+                    let val = parseFloat(el.value.replace(/,/g, ''));
+                    if (!isNaN(val)) {
+                        el.value = val.toLocaleString('en-US');
+                    }
+                });
+            }
+        }
     });
 }
 
 function calculateLogistics() {
-    // 1. Get Volumes (Million MT/Year)
-    const v1 = parseFloat(document.getElementById('input-hierro').value) || 0;
-    const v2 = parseFloat(document.getElementById('input-chancas').value) || 0;
-    const v3 = parseFloat(document.getElementById('input-trapiche').value) || 0;
+    // 1. Get Volumes (Million MT/Year) - Sanitized for commas
+    const v1 = parseFloat(document.getElementById('input-hierro').value.replace(/,/g, '')) || 0;
+    const v2 = parseFloat(document.getElementById('input-chancas').value.replace(/,/g, '')) || 0;
+    const v3 = parseFloat(document.getElementById('input-trapiche').value.replace(/,/g, '')) || 0;
 
     const totalVolMM = v1 + v2 + v3;
 
