@@ -29,10 +29,10 @@
 
         <!-- NEW: Port Filters (Top Left Independent) -->
         <div id="port-filter-ribbon" class="glass-panel"
-            style="position: absolute; top: 20px; left: 20px; width: 240px; z-index: 1100; padding: 10px; display:flex; flex-direction:column; gap:5px;">
+            style="position: absolute; top: 20px; left: 20px; width: 340px; z-index: 1100; padding: 10px; display:flex; flex-direction:column; gap:5px;">
             <span class="control-label"
                 style="margin:0 0 5px 0; font-size:11px; text-transform:uppercase; color:#546e7a; font-weight:bold;">Filtros
-                de Puertos</span>
+                de Puertos y Elevacion</span>
             <div style="display:flex; gap:5px; justify-content:space-between;">
                 <button class="btn-control active" style="flex:1; font-size:10px; padding:4px 0;"
                     onclick="setMapFilter('all')">Todos</button>
@@ -42,11 +42,11 @@
                     onclick="setMapFilter('center')">Centro</button>
                 <button class="btn-control" style="flex:1; font-size:10px; padding:4px 0;"
                     onclick="setMapFilter('south')">Sur</button>
+                <a href="elevation_profile.html" class="btn-control"
+                    style="flex:1.5; font-size:10px; padding:4px 0; text-align:center; text-decoration:none; color:inherit; display:flex; align-items:center; justify-content:center;">
+                    Elevacion Z
+                </a>
             </div>
-            <a href="elevation_profile.html" class="btn-control"
-                style="text-align:center; text-decoration:none; margin-top:5px; background:rgba(6, 182, 212, 0.2); color:#06b6d4; border:1px solid rgba(6, 182, 212, 0.4);">
-                📈 Ver Perfil de Elevación (Z)
-            </a>
         </div>
 
         <!-- NEW: Mineral Logistics Calculator Panel -->

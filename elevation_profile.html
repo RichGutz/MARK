@@ -22,10 +22,18 @@
 
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --panel-bg: rgba(30, 41, 59, 0.8);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
+            /* Light Theme Variables */
+            --bg-page: #f8fafc;
+            /* White/Light Grey */
+            --bg-panel: #ffffff;
+            /* Pure White */
+            --text-primary: #1e293b;
+            /* Slate 800 */
+            --text-secondary: #64748b;
+            /* Slate 500 */
+            --border-color: #e2e8f0;
+            /* Slate 200 */
+
             --accent-cyan: #06b6d4;
             --accent-green: #10b981;
             --accent-purple: #8b5cf6;
@@ -34,7 +42,7 @@
         body {
             margin: 0;
             padding: 20px;
-            background-color: var(--bg-dark);
+            background-color: var(--bg-page);
             color: var(--text-primary);
             font-family: 'Rajdhani', sans-serif;
             display: flex;
@@ -49,23 +57,26 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 15px;
+            background: var(--bg-panel);
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         h1 {
             font-family: 'Orbitron', sans-serif;
             font-size: 24px;
             margin: 0;
-            background: linear-gradient(90deg, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-primary);
+            letter-spacing: 1px;
         }
 
         .btn-back {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
+            background: white;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
             padding: 8px 15px;
             cursor: pointer;
             font-family: 'Rajdhani', sans-serif;
@@ -76,75 +87,91 @@
         }
 
         .btn-back:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: white;
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            background: #f0f9ff;
         }
 
         .chart-container {
             flex: 1;
-            background: var(--panel-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 15px;
+            padding: 20px;
             position: relative;
-            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
         .controls {
             display: flex;
             gap: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 0;
+            justify-content: center;
         }
 
         .btn-route {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: white;
+            border: 1px solid var(--border-color);
             color: var(--text-secondary);
-            padding: 8px 16px;
+            padding: 10px 24px;
             cursor: pointer;
             font-family: 'Rajdhani', sans-serif;
-            font-weight: 600;
-            border-radius: 4px;
-            transition: all 0.3s;
+            font-weight: 700;
+            font-size: 16px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-route:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
         }
 
         .btn-route.active {
             color: white;
-            border-color: var(--accent-cyan);
-            background: rgba(6, 182, 212, 0.1);
-            box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+            border-color: transparent;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-route[data-route="blue"].active {
+            background: var(--accent-cyan);
         }
 
         .btn-route[data-route="green"].active {
-            border-color: var(--accent-green);
-            background: rgba(16, 185, 129, 0.1);
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+            background: var(--accent-green);
         }
 
         .stats-panel {
             display: flex;
-            gap: 20px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            margin-top: 10px;
+            gap: 40px;
+            padding: 20px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            justify-content: center;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .stat-item {
             display: flex;
             flex-direction: column;
+            align-items: center;
         }
 
         .stat-label {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-secondary);
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
         }
 
         .stat-value {
-            font-size: 18px;
+            font-size: 24px;
             font-weight: bold;
             font-family: 'Orbitron', sans-serif;
+            color: var(--text-primary);
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -154,16 +181,15 @@
     <header>
         <div>
             <h1>PERFIL DE ELEVACIÓN</h1>
-            <span style="color:var(--text-secondary); font-size:14px;">Análisis de Pendientes y Cortes (Z-Axis)</span>
+            <span style="color:var(--text-secondary); font-size:14px;">Análisis Topográfico (Eje Z)</span>
+        </div>
+        <div class="controls">
+            <button class="btn-route active" onclick="loadProfile('blue')" data-route="blue">Ruta Costera
+                (Actual)</button>
+            <button class="btn-route" onclick="loadProfile('green')" data-route="green">Ruta Verde (Proyectada)</button>
         </div>
         <a href="index.html" class="btn-back">← Volver al Mapa</a>
     </header>
-
-    <div class="controls">
-        <button class="btn-route active" onclick="loadProfile('blue')" data-route="blue">Ruta Costera
-            (Existente)</button>
-        <button class="btn-route" onclick="loadProfile('green')" data-route="green">Ruta Verde (Proyectada)</button>
-    </div>
 
     <div class="chart-container">
         <canvas id="elevationChart"></canvas>
@@ -175,15 +201,15 @@
             <span class="stat-value" id="stat-dist">0 km</span>
         </div>
         <div class="stat-item">
+            <span class="stat-label">Inicio (msnm)</span>
+            <span class="stat-value" id="stat-start-alt">0 m</span>
+        </div>
+        <div class="stat-item">
             <span class="stat-label">Altura Máxima</span>
             <span class="stat-value" id="stat-max-alt">0 m</span>
         </div>
         <div class="stat-item">
-            <span class="stat-label">Altura Mínima</span>
-            <span class="stat-value" id="stat-min-alt">0 m</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Pendiente Máx</span>
+            <span class="stat-label">Pendiente Promedio</span>
             <span class="stat-value" id="stat-slope">0%</span>
         </div>
     </div>
@@ -199,17 +225,21 @@
             let labels = [];
             let dataPoints = [];
             let color = '#06b6d4';
+            let fillColor = 'rgba(6, 182, 212, 0.2)'; // Light Cyan
 
-            // Extract data
-            // Assuming COASTAL_ROUTE_POINTS and NEW_GREEN_ROUTE_POINTS are global variables from the JS files
+            // Raw Data
             let points = [];
 
             if (routeType === 'blue') {
-                points = (typeof COASTAL_ROUTE_POINTS !== 'undefined') ? COASTAL_ROUTE_POINTS : [];
-                color = '#06b6d4'; // Cyan
+                points = (typeof COASTAL_ROUTE_POINTS !== 'undefined') ? JSON.parse(JSON.stringify(COASTAL_ROUTE_POINTS)) : [];
+                color = '#06b6d4';
+                fillColor = 'rgba(6, 182, 212, 0.2)';
             } else if (routeType === 'green') {
-                points = (typeof NEW_GREEN_ROUTE_POINTS !== 'undefined') ? NEW_GREEN_ROUTE_POINTS : [];
-                color = '#10b981'; // Green
+                // Use the REAL extended data generated by Python script
+                points = (typeof NEW_GREEN_ROUTE_POINTS !== 'undefined') ? JSON.parse(JSON.stringify(NEW_GREEN_ROUTE_POINTS)) : [];
+
+                color = '#10b981';
+                fillColor = 'rgba(16, 185, 129, 0.2)';
             }
 
             if (points.length === 0) {
@@ -217,10 +247,10 @@
                 return;
             }
 
-            // Process Data
+            // Process Data for Chart
             let maxAlt = -Infinity;
             let minAlt = Infinity;
-            let maxSlope = 0;
+            let totalSlope = 0;
 
             points.forEach(p => {
                 labels.push(p.km.toFixed(1)); // X-Axis: KM
@@ -228,8 +258,11 @@
 
                 if (p.alt > maxAlt) maxAlt = p.alt;
                 if (p.alt < minAlt) minAlt = p.alt;
-                if (Math.abs(p.slope) > Math.abs(maxSlope)) maxSlope = p.slope;
+                totalSlope += Math.abs(p.slope || 0);
             });
+
+            // Avg Slope calculation (rough)
+            let avgSlope = totalSlope / Math.max(1, points.length);
 
             // Update Chart
             const ctx = document.getElementById('elevationChart').getContext('2d');
@@ -237,11 +270,6 @@
             if (myChart) {
                 myChart.destroy();
             }
-
-            // Create Gradient
-            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, color); // Solid color at top
-            gradient.addColorStop(1, 'rgba(15, 23, 42, 0)'); // Transparent at bottom
 
             myChart = new Chart(ctx, {
                 type: 'line',
@@ -251,45 +279,49 @@
                         label: 'Elevación (msnm)',
                         data: dataPoints,
                         borderColor: color,
-                        backgroundColor: gradient,
-                        borderWidth: 2,
+                        backgroundColor: fillColor,
+                        borderWidth: 3,
                         fill: true,
-                        tension: 0.4, // Smooth curve
-                        pointRadius: 0, // Hide points for clean look
-                        pointHoverRadius: 6
+                        tension: 0.3, // Curve smoothing
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointHitRadius: 10
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: {
-                        mode: 'index',
-                        intersect: false,
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
                     },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            backgroundColor: '#1e293b',
                             titleColor: '#fff',
                             bodyColor: '#cbd5e1',
-                            borderColor: 'rgba(255,255,255,0.1)',
-                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false,
                             callbacks: {
                                 title: (context) => `KM: ${context[0].label}`,
-                                label: (context) => `Alt: ${context.parsed.y} m`
+                                label: (context) => `Altitud: ${Math.round(context.parsed.y)} msnm`
                             }
                         }
                     },
                     scales: {
                         x: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#64748b' },
-                            title: { display: true, text: 'Distancia (KM)', color: '#475569' }
+                            grid: { color: '#e2e8f0', drawBorder: false },
+                            ticks: { color: '#64748b', font: { family: 'Rajdhani' } },
+                            title: { display: true, text: 'Distancia (Kilómetros)', color: '#475569', font: { weight: 'bold' } }
                         },
                         y: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#64748b' },
-                            title: { display: true, text: 'Altitud (msnm)', color: '#475569' }
+                            min: 0, // FORCE START AT 0
+                            beginAtZero: true,
+                            grid: { color: '#e2e8f0', borderDash: [5, 5] },
+                            ticks: { color: '#64748b', font: { family: 'Rajdhani' } },
+                            title: { display: true, text: 'Altitud (Metros sobre nivel del mar)', color: '#475569', font: { weight: 'bold' } }
                         }
                     }
                 }
@@ -297,10 +329,14 @@
 
             // Update Stats
             document.getElementById('stat-dist').innerText = points[points.length - 1].km.toFixed(1) + " km";
+            document.getElementById('stat-start-alt').innerText = points[0].alt.toFixed(0) + " m";
             document.getElementById('stat-max-alt').innerText = maxAlt.toFixed(0) + " m";
-            document.getElementById('stat-min-alt').innerText = minAlt.toFixed(0) + " m";
-            document.getElementById('stat-slope').innerText = maxSlope.toFixed(1) + "%";
-            document.getElementById('stat-slope').style.color = Math.abs(maxSlope) > 8 ? '#ff4444' : '#10b981';
+            // Recalculate slope simpler: Rise / Run
+            let rise = points[points.length - 1].alt - points[0].alt;
+            let run = points[points.length - 1].km * 1000;
+            let globalSlope = (rise / run) * 100;
+
+            document.getElementById('stat-slope').innerText = Math.abs(globalSlope).toFixed(2) + "%";
         }
 
         // Init
