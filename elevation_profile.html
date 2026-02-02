@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Elevación - Rutas Mineras</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Data Scripts -->
+    <script src="coastal_route.js"></script>
+    <script src="new_green_route.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.8);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            margin: 0;
+            background: linear-gradient(90deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
+        }
+
+        .chart-container {
+            flex: 1;
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-route {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .btn-route.active {
+            color: white;
+            border-color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.1);
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+        }
+
+        .btn-route[data-route="green"].active {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.1);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+        }
+
+        .stats-panel {
+            display: flex;
+            gap: 20px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div>
+            <h1>PERFIL DE ELEVACIÓN</h1>
+            <span style="color:var(--text-secondary); font-size:14px;">Análisis de Pendientes y Cortes (Z-Axis)</span>
+        </div>
+        <a href="index.html" class="btn-back">← Volver al Mapa</a>
+    </header>
+
+    <div class="controls">
+        <button class="btn-route active" onclick="loadProfile('blue')" data-route="blue">Ruta Costera
+            (Existente)</button>
+        <button class="btn-route" onclick="loadProfile('green')" data-route="green">Ruta Verde (Proyectada)</button>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="elevationChart"></canvas>
+    </div>
+
+    <div class="stats-panel">
+        <div class="stat-item">
+            <span class="stat-label">Distancia Total</span>
+            <span class="stat-value" id="stat-dist">0 km</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Altura Máxima</span>
+            <span class="stat-value" id="stat-max-alt">0 m</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Altura Mínima</span>
+            <span class="stat-value" id="stat-min-alt">0 m</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Pendiente Máx</span>
+            <span class="stat-value" id="stat-slope">0%</span>
+        </div>
+    </div>
+
+    <script>
+        let myChart = null;
+
+        function loadProfile(routeType) {
+            // Update buttons
+            document.querySelectorAll('.btn-route').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.btn-route[data-route="${routeType}"]`).classList.add('active');
+
+            let labels = [];
+            let dataPoints = [];
+            let color = '#06b6d4';
+
+            // Extract data
+            // Assuming COASTAL_ROUTE_POINTS and NEW_GREEN_ROUTE_POINTS are global variables from the JS files
+            let points = [];
+
+            if (routeType === 'blue') {
+                points = (typeof COASTAL_ROUTE_POINTS !== 'undefined') ? COASTAL_ROUTE_POINTS : [];
+                color = '#06b6d4'; // Cyan
+            } else if (routeType === 'green') {
+                points = (typeof NEW_GREEN_ROUTE_POINTS !== 'undefined') ? NEW_GREEN_ROUTE_POINTS : [];
+                color = '#10b981'; // Green
+            }
+
+            if (points.length === 0) {
+                alert("No hay datos de elevación disponibles para esta ruta.");
+                return;
+            }
+
+            // Process Data
+            let maxAlt = -Infinity;
+            let minAlt = Infinity;
+            let maxSlope = 0;
+
+            points.forEach(p => {
+                labels.push(p.km.toFixed(1)); // X-Axis: KM
+                dataPoints.push(p.alt);       // Y-Axis: Altitude
+
+                if (p.alt > maxAlt) maxAlt = p.alt;
+                if (p.alt < minAlt) minAlt = p.alt;
+                if (Math.abs(p.slope) > Math.abs(maxSlope)) maxSlope = p.slope;
+            });
+
+            // Update Chart
+            const ctx = document.getElementById('elevationChart').getContext('2d');
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            // Create Gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, color); // Solid color at top
+            gradient.addColorStop(1, 'rgba(15, 23, 42, 0)'); // Transparent at bottom
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Elevación (msnm)',
+                        data: dataPoints,
+                        borderColor: color,
+                        backgroundColor: gradient,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4, // Smooth curve
+                        pointRadius: 0, // Hide points for clean look
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            callbacks: {
+                                title: (context) => `KM: ${context[0].label}`,
+                                label: (context) => `Alt: ${context.parsed.y} m`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#64748b' },
+                            title: { display: true, text: 'Distancia (KM)', color: '#475569' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#64748b' },
+                            title: { display: true, text: 'Altitud (msnm)', color: '#475569' }
+                        }
+                    }
+                }
+            });
+
+            // Update Stats
+            document.getElementById('stat-dist').innerText = points[points.length - 1].km.toFixed(1) + " km";
+            document.getElementById('stat-max-alt').innerText = maxAlt.toFixed(0) + " m";
+            document.getElementById('stat-min-alt').innerText = minAlt.toFixed(0) + " m";
+            document.getElementById('stat-slope').innerText = maxSlope.toFixed(1) + "%";
+            document.getElementById('stat-slope').style.color = Math.abs(maxSlope) > 8 ? '#ff4444' : '#10b981';
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile('blue');
+        });
+
+    </script>
+</body>
+
+</html>
