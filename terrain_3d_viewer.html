@@ -166,19 +166,25 @@
             const p2 = { x: toX(V2[0]), y: toY(V2[1]) };
             const p3 = { x: toX(V3[0]), y: toY(V3[1]) };
 
+            // OFICIAL DISTANCES (Synchronized with 2D Map)
+            const distA = "1.44 km";
+            const distB = "4.10 km";
+            const distC = "4.27 km";
+
             // Height for triangle sides (slightly elevated above terrain)
             const SIDE_HEIGHT = 50; // 50m above terrain
 
-            // Side A: V1 -> V2 (Green) with inline text label
+            // Side A: V1 -> V2 (Green) - Label at Midpoint
+            const midA = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
             const lineA = {
-                x: [p1.x, p2.x],
-                y: [p1.y, p2.y],
-                z: [SIDE_HEIGHT, SIDE_HEIGHT],
+                x: [p1.x, midA.x, p2.x],
+                y: [p1.y, midA.y, p2.y],
+                z: [SIDE_HEIGHT, SIDE_HEIGHT, SIDE_HEIGHT],
                 mode: 'lines+text',
                 type: 'scatter3d',
                 line: { color: '#10b981', width: 8 },
-                text: ['', 'LADO A'],
-                textposition: 'middle center',
+                text: ['', `LADO A: ${distA}`, ''],
+                textposition: 'top center',
                 textfont: { size: 14, color: '#000000', family: 'Arial Black' },
                 texttemplate: '%{text}',
                 cliponaxis: false,
@@ -186,16 +192,17 @@
                 hoverinfo: 'name'
             };
 
-            // Side B: V1 -> V3 (Amber) with inline text label
+            // Side B: V1 -> V3 (Amber) - Label at Midpoint
+            const midB = { x: (p1.x + p3.x) / 2, y: (p1.y + p3.y) / 2 };
             const lineB = {
-                x: [p1.x, p3.x],
-                y: [p1.y, p3.y],
-                z: [SIDE_HEIGHT, SIDE_HEIGHT],
+                x: [p1.x, midB.x, p3.x],
+                y: [p1.y, midB.y, p3.y],
+                z: [SIDE_HEIGHT, SIDE_HEIGHT, SIDE_HEIGHT],
                 mode: 'lines+text',
                 type: 'scatter3d',
                 line: { color: '#f59e0b', width: 8 },
-                text: ['', 'LADO B'],
-                textposition: 'middle center',
+                text: ['', `LADO B: ${distB}`, ''],
+                textposition: 'middle right',
                 textfont: { size: 14, color: '#000000', family: 'Arial Black' },
                 texttemplate: '%{text}',
                 cliponaxis: false,
@@ -203,16 +210,17 @@
                 hoverinfo: 'name'
             };
 
-            // Side C: V2 -> V3 (Blue) with inline text label
+            // Side C: V2 -> V3 (Blue) - Label at Midpoint
+            const midC = { x: (p2.x + p3.x) / 2, y: (p2.y + p3.y) / 2 };
             const lineC = {
-                x: [p2.x, p3.x],
-                y: [p2.y, p3.y],
-                z: [SIDE_HEIGHT, SIDE_HEIGHT],
+                x: [p2.x, midC.x, p3.x],
+                y: [p2.y, midC.y, p3.y],
+                z: [SIDE_HEIGHT, SIDE_HEIGHT, SIDE_HEIGHT],
                 mode: 'lines+text',
                 type: 'scatter3d',
                 line: { color: '#3b82f6', width: 8 },
-                text: ['', 'LADO C'],
-                textposition: 'middle center',
+                text: ['', `LADO C: ${distC}`, ''],
+                textposition: 'middle left',
                 textfont: { size: 14, color: '#000000', family: 'Arial Black' },
                 texttemplate: '%{text}',
                 cliponaxis: false,

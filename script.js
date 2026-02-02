@@ -176,6 +176,9 @@ function initApp() {
     toggleGeneracion();
     toggleSouthCorridor();
     toggleAlternativeRoute();
+    toggleInfraRoads();
+    toggleExtraRoads();
+    toggleSanFernando();
 }
 
 function renderRailway() {
@@ -232,9 +235,11 @@ function renderShougangVertices() {
     }
 }
 
+let sanFernandoLayer = null;
+
 function renderSanFernando() {
-    if (typeof SAN_FERNANDO_GEOJSON !== 'undefined') {
-        L.geoJSON(SAN_FERNANDO_GEOJSON, {
+    if (typeof SAN_FERNANDO_GEOJSON !== 'undefined' && !sanFernandoLayer) {
+        sanFernandoLayer = L.geoJSON(SAN_FERNANDO_GEOJSON, {
             style: {
                 color: '#4caf50', // Green
                 weight: 2,
@@ -252,7 +257,21 @@ function renderSanFernando() {
                     });
                 }
             }
-        }); // Removed .addTo(map)
+        });
+    }
+}
+
+function toggleSanFernando() {
+    const el = document.getElementById('toggle-san-fernando');
+    if (!el) return;
+    const show = el.checked;
+
+    if (!sanFernandoLayer) renderSanFernando();
+
+    if (show) {
+        if (sanFernandoLayer) map.addLayer(sanFernandoLayer);
+    } else {
+        if (sanFernandoLayer) map.removeLayer(sanFernandoLayer);
     }
 }
 
@@ -282,16 +301,22 @@ function renderShougangPolygon() {
     }
 }
 
+let extraRoadsLayer = null;
+
 function renderExtraRoads() {
+    if (!extraRoadsLayer) {
+        extraRoadsLayer = L.layerGroup();
+    }
+
     // PE-30B
     if (typeof ROAD_PE30B !== 'undefined') {
-        const feature = ROAD_PE30B; // It's a single feature, not a collection
-        L.geoJSON(feature, {
+        const feature = ROAD_PE30B;
+        const layer = L.geoJSON(feature, {
             style: {
                 color: '#e91e63',
                 weight: 5,
                 opacity: 0.9,
-                dashArray: '10, 5' // Distinctive dash for this added road
+                dashArray: '10, 5'
             },
             onEachFeature: function (feature, layer) {
                 if (feature.properties) {
@@ -309,14 +334,14 @@ function renderExtraRoads() {
                     `, { className: 'custom-popup-dark' });
                 }
             }
-        }); // Removed .addTo(map)
+        });
+        extraRoadsLayer.addLayer(layer);
     }
 
     // PE-30A
     if (typeof ROAD_PE30A !== 'undefined') {
         const feature = ROAD_PE30A;
-        // Assign to global variable for dynamic styling
-        window.layerPE30A = L.geoJSON(feature, {
+        const layer = L.geoJSON(feature, {
             style: { color: '#e91e63', weight: 5, opacity: 0.9, dashArray: '10, 5' },
             onEachFeature: function (feature, layer) {
                 if (feature.properties) {
@@ -327,7 +352,22 @@ function renderExtraRoads() {
                     layer.bindPopup(`<b>${feature.properties.name}</b><br>ID: ${feature.properties.id}<br>Longitud: ${kms} km`, { className: 'custom-popup-dark' });
                 }
             }
-        }); // Removed .addTo(map)
+        });
+        extraRoadsLayer.addLayer(layer);
+    }
+}
+
+function toggleExtraRoads() {
+    const el = document.getElementById('toggle-extra-roads');
+    if (!el) return;
+    const show = el.checked;
+
+    if (!extraRoadsLayer) renderExtraRoads();
+
+    if (show) {
+        if (extraRoadsLayer) map.addLayer(extraRoadsLayer);
+    } else {
+        if (extraRoadsLayer) map.removeLayer(extraRoadsLayer);
     }
 }
 
@@ -456,9 +496,11 @@ function calculateLogistics() {
 // Initialize Calculator on Load
 document.addEventListener('DOMContentLoaded', initCalculator);
 
+let infraRoadsLayer = null;
+
 function renderInfraRoads() {
-    if (typeof INFRA_ROADS !== 'undefined') {
-        L.geoJSON(INFRA_ROADS, {
+    if (typeof INFRA_ROADS !== 'undefined' && !infraRoadsLayer) {
+        infraRoadsLayer = L.geoJSON(INFRA_ROADS, {
             style: function (feature) {
                 return {
                     color: feature.properties.color,
@@ -487,7 +529,21 @@ function renderInfraRoads() {
                     `, { className: 'custom-popup-dark' });
                 }
             }
-        }); // Removed .addTo(map)
+        });
+    }
+}
+
+function toggleInfraRoads() {
+    const el = document.getElementById('toggle-infra-roads');
+    if (!el) return;
+    const show = el.checked;
+
+    if (!infraRoadsLayer) renderInfraRoads();
+
+    if (show) {
+        if (infraRoadsLayer) map.addLayer(infraRoadsLayer);
+    } else {
+        if (infraRoadsLayer) map.removeLayer(infraRoadsLayer);
     }
 }
 

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Perimetro PETRAL</name>
+    <description>Lados A, B y C del perimetro consolidado</description>
+    <Style id="styleGreen">
+      <LineStyle>
+        <color>ff81b910</color>
+        <width>4</width>
+      </LineStyle>
+    </Style>
+    <Style id="styleAmber">
+      <LineStyle>
+        <color>ff0b9ef5</color>
+        <width>4</width>
+      </LineStyle>
+    </Style>
+    <Style id="styleBlue">
+      <LineStyle>
+        <color>fff6823b</color>
+        <width>4</width>
+      </LineStyle>
+    </Style>
+    <Placemark>
+      <name>Lado A (Extensión): 1.44 km</name>
+      <styleUrl>#styleGreen</styleUrl>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>-75.25695083552709,-15.165498334382889,0 -75.26825393885237,-15.172534472456562,0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <name>Lado B (Este): 4.10 km</name>
+      <styleUrl>#styleAmber</styleUrl>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>-75.25695083552709,-15.165498334382889,0 -75.23798892224755,-15.197477563030073,0</coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <name>Lado C (Oeste): 4.27 km</name>
+      <styleUrl>#styleBlue</styleUrl>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>-75.26825393885237,-15.172534472456562,0 -75.23798892224755,-15.197477563030073,0</coordinates>
+      </LineString>
+    </Placemark>
+  </Document>
+</kml>

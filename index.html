@@ -188,7 +188,7 @@
             style="position: absolute; bottom: 56px; left: 50%; transform: translateX(-50%); display: flex; background: rgba(255, 255, 255, 0.85); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); z-index: 1000; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); align-items: center; gap: 4px; white-space: nowrap; max-width: 95vw; overflow-x: auto;">
             <div class="control-group">
                 <span class="control-label"
-                    style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">Concesión</span>
+                    style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">PERÍMETROS</span>
                 <label class="toggle-control">
                     <input type="checkbox" id="toggle-shougang" onchange="toggleShougang()">
                     <span class="toggle-text" style="font-size: 8px;">Shougang</span>
@@ -203,6 +203,11 @@
                     <input type="checkbox" id="toggle-generacion" onchange="toggleGeneracion()">
                     <span class="toggle-text" style="font-size: 8px;">Gen. Elec.</span>
                 </label>
+                <div style="width:5px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-san-fernando" onchange="toggleSanFernando()">
+                    <span class="toggle-text" style="font-size: 8px;">San Fernando</span>
+                </label>
             </div>
             <div class="control-vr" style="background: rgba(0,0,0,0.1); margin: 0 5px;"></div>
             <div class="control-group">
@@ -216,11 +221,6 @@
                 <label class="toggle-control">
                     <input type="checkbox" id="toggle-perimeter-labels" onchange="togglePerimeterLabels()">
                     <span class="toggle-text" style="font-size: 8px;">ETIQUETAS</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-railway" onchange="toggleRailway()">
-                    <span class="toggle-text" style="font-size: 8px;">FERROCARRIL</span>
                 </label>
             </div>
         </div>
@@ -254,6 +254,21 @@
             <div class="control-group" style="display: flex; align-items: center; gap: 4px;">
                 <span class="control-label"
                     style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">Vías</span>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-railway" onchange="toggleRailway()">
+                    <span class="toggle-text" style="font-size: 8px;">Ferrocarril</span>
+                </label>
+                <div style="width:5px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-infra-roads" onchange="toggleInfraRoads()">
+                    <span class="toggle-text" style="font-size: 8px;">PE-1S</span>
+                </label>
+                <div style="width:5px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-extra-roads" onchange="toggleExtraRoads()">
+                    <span class="toggle-text" style="font-size: 8px;">PE-30</span>
+                </label>
+                <div style="width:5px;"></div>
                 <label class="toggle-control">
                     <input type="checkbox" id="toggle-alternative-route" onchange="toggleAlternativeRoute()">
                     <span class="toggle-text" style="font-size: 8px;">Ruta Azul</span>
