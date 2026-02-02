@@ -87,10 +87,10 @@ function initApp() {
         renderMines(MINING_PROJECTS);
     }
     renderTerrain();
-    renderSouthCorridor();
+    // renderSouthCorridor(); // Moved to toggle
     renderInfraRoads();
     renderExtraRoads();
-    renderShougangPolygon(); // New Polygon
+    // renderShougangPolygon(); // Duplicated
     // renderOptimizedRoute(); // Optimized Horizontal Route
     // renderShougangVertices(); // Show Numbers 1-26
     renderSanFernando(); // San Fernando Reserve
@@ -410,9 +410,11 @@ function renderInfraRoads() {
     }
 }
 
+let southCorridorLayer = null;
+
 function renderSouthCorridor() {
-    if (typeof SOUTH_CORRIDOR !== 'undefined') {
-        L.geoJSON(SOUTH_CORRIDOR, {
+    if (typeof SOUTH_CORRIDOR !== 'undefined' && !southCorridorLayer) {
+        southCorridorLayer = L.geoJSON(SOUTH_CORRIDOR, {
             style: {
                 color: '#ff9800', // Orange/Gold for Corridor
                 weight: 4,
@@ -425,16 +427,12 @@ function renderSouthCorridor() {
                     const type = feature.properties.road_type || 'Vía Estandar';
                     const cap = feature.properties.capacity || 'Desconocida';
 
-                    // Permanent Label (TAG) for the Road Name
-                    // Extracting just the code if possible (e.g. "PE-30A") for brevity, 
-                    // but user wants the name. Let's show the whole type string but styled.
                     layer.bindTooltip(`<div class="road-tag">${type}</div>`, {
                         permanent: true,
                         direction: 'center',
                         className: 'road-label-container'
                     });
 
-                    // Detailed Popup (Click to see)
                     let styleColor = '#ff9800';
                     if (cap === 'Alta') styleColor = '#00e676';
                     if (cap === 'Media') styleColor = '#ffea00';
@@ -448,12 +446,24 @@ function renderSouthCorridor() {
                             <span style="color:${styleColor};">🛣️ ${type}</span><br>
                             <span style="font-size:0.9em;">Capacidad: <b>${cap}</b></span>
                         </div>
-                    `, {
-                        className: 'custom-popup-dark'
-                    });
+                    `, { className: 'custom-popup-dark' });
                 }
             }
-        }).addTo(map);
+        });
+    }
+}
+
+function toggleSouthCorridor() {
+    const show = document.getElementById('toggle-south-corridor').checked;
+
+    if (!southCorridorLayer) {
+        renderSouthCorridor();
+    }
+
+    if (show && southCorridorLayer) {
+        map.addLayer(southCorridorLayer);
+    } else if (southCorridorLayer) {
+        map.removeLayer(southCorridorLayer);
     }
 }
 
@@ -1433,7 +1443,7 @@ let landmarkMarker = null;
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
-        renderSFRoad();
+        // renderSFRoad(); // Moved to unified init block
         // renderIntersectionLandmark();
     }, 1500);
 });
@@ -1528,6 +1538,104 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+
+// ========================================
+// RED ROUTE LAYER (PE1S - Marcona)
+// ========================================
+
+let redRouteLayer = null;
+
+function renderRedRoute() {
+    if (typeof LAYER_RED_ROUTE !== 'undefined' && !redRouteLayer) {
+        redRouteLayer = L.geoJSON(LAYER_RED_ROUTE, {
+            style: {
+                color: '#f44336', // RED
+                weight: 5,
+                opacity: 0.9,
+                lineCap: 'round'
+            }
+        });
+
+        redRouteLayer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#f44336; font-size:1.1em;">Ruta Roja</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">PE1S &rarr; Marcona</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+    }
+}
+
+function toggleRedRoute() {
+    const show = document.getElementById('toggle-red-route').checked;
+
+    if (!redRouteLayer) {
+        renderRedRoute();
+    }
+
+    if (show && redRouteLayer) {
+        map.addLayer(redRouteLayer);
+    } else if (redRouteLayer) {
+        map.removeLayer(redRouteLayer);
+    }
+}
+
+// ========================================
+// PURPLE ROUTE LAYER (Marcona - San Nicolas)
+// ========================================
+
+let purpleRouteLayer = null;
+
+function renderPurpleRoute() {
+    if (typeof LAYER_PURPLE_ROUTE !== 'undefined' && !purpleRouteLayer) {
+        purpleRouteLayer = L.geoJSON(LAYER_PURPLE_ROUTE, {
+            style: {
+                color: '#9c27b0', // PURPLE
+                weight: 5,
+                opacity: 0.9,
+                lineCap: 'round'
+            }
+        });
+
+        purpleRouteLayer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#9c27b0; font-size:1.1em;">Ruta Morada</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">Marcona &rarr; San Nicolás</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+    }
+}
+
+function togglePurpleRoute() {
+    const show = document.getElementById('toggle-purple-route').checked;
+
+    if (!purpleRouteLayer) {
+        renderPurpleRoute();
+    }
+
+    if (show && purpleRouteLayer) {
+        map.addLayer(purpleRouteLayer);
+    } else if (purpleRouteLayer) {
+        map.removeLayer(purpleRouteLayer);
+    }
+}
+
+// Initialize New Routes
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        // Red Route
+        renderRedRoute();
+        toggleRedRoute();
+
+        // Purple Route
+        renderPurpleRoute();
+        togglePurpleRoute();
+
+        // Ensure SF Road is handled (checked state in HTML determines visibility)
+        renderSFRoad();
+        toggleSFRoad();
+    }, 1700);
+});
+
 // ========================================
 // COASTAL ROUTE LAYER
 // ========================================
@@ -1611,6 +1719,8 @@ function toggleCoastalRoute() {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
+        // Coastal Route
         renderCoastalRoute();
+        toggleCoastalRoute();
     }, 1700);
 });

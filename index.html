@@ -27,6 +27,24 @@
         <!-- Floating Header -->
 
 
+        <!-- NEW: Port Filters (Top Left Independent) -->
+        <div id="port-filter-ribbon" class="glass-panel"
+            style="position: absolute; top: 20px; left: 20px; width: 240px; z-index: 1100; padding: 10px; display:flex; flex-direction:column; gap:5px;">
+            <span class="control-label"
+                style="margin:0 0 5px 0; font-size:11px; text-transform:uppercase; color:#546e7a; font-weight:bold;">Filtros
+                de Puertos</span>
+            <div style="display:flex; gap:5px; justify-content:space-between;">
+                <button class="btn-control active" style="flex:1; font-size:10px; padding:4px 0;"
+                    onclick="setMapFilter('all')">Todos</button>
+                <button class="btn-control" style="flex:1; font-size:10px; padding:4px 0;"
+                    onclick="setMapFilter('north')">Norte</button>
+                <button class="btn-control" style="flex:1; font-size:10px; padding:4px 0;"
+                    onclick="setMapFilter('center')">Centro</button>
+                <button class="btn-control" style="flex:1; font-size:10px; padding:4px 0;"
+                    onclick="setMapFilter('south')">Sur</button>
+            </div>
+        </div>
+
         <!-- NEW: Mineral Logistics Calculator Panel -->
         <div id="logistics-panel">
             <div class="panel-header">
@@ -76,11 +94,12 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
         <!-- NEW: Fuel Logistics Calculator Panel -->
         <div id="fuel-logistics-panel" class="glass-panel"
-            style="position: absolute; top: 100px; left: 20px; width: 280px; z-index: 1000; padding: 15px; border-radius: 10px;">
+            style="position: absolute; top: 110px; left: 20px; width: 280px; z-index: 1000; padding: 15px; border-radius: 10px;">
             <div class="panel-header">
                 <h3 style="color:#ff4444;">⛽ Logística Combustibles</h3>
                 <span class="panel-subtitle">Proyección Abastecimiento Diesel</span>
@@ -158,14 +177,6 @@
         <!-- Legend / Controls -->
         <div class="controls glass-panel">
             <div class="control-group">
-                <span class="control-label">Filtros</span>
-                <button class="btn-control active" onclick="setMapFilter('all')">Todos</button>
-                <button class="btn-control" onclick="setMapFilter('north')">Norte</button>
-                <button class="btn-control" onclick="setMapFilter('center')">Centro</button>
-                <button class="btn-control" onclick="setMapFilter('south')">Sur</button>
-            </div>
-            <div class="control-vr"></div>
-            <div class="control-group">
                 <span class="control-label">Capas</span>
                 <label class="toggle-control">
                     <input type="checkbox" id="toggle-port-labels" checked onchange="togglePortLabels()">
@@ -178,20 +189,38 @@
                 </label>
             </div>
             <div class="control-vr"></div>
+            <div class="control-vr"></div>
+            <div class="control-group">
+                <span class="control-label">Infraestructura</span>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-south-corridor" checked onchange="toggleSouthCorridor()">
+                    <span class="toggle-text">Corredor Sur (Minas)</span>
+                </label>
+            </div>
+            <div class="control-vr"></div>
             <div class="control-group">
                 <span class="control-label">Caminos</span>
-                <label class="toggle-control">
+                <label class="toggle-control" style="display:none">
                     <input type="checkbox" id="toggle-sf-road" onchange="toggleSFRoad()">
                     <span class="toggle-text">Camino SF</span>
+                </label>
+                <div style="width:10px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-red-route" onchange="toggleRedRoute()">
+                    <span class="toggle-text">Ruta Roja</span>
+                </label>
+                <div style="width:10px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-purple-route" onchange="togglePurpleRoute()">
+                    <span class="toggle-text">Ruta Morada</span>
                 </label>
                 <div style="width:10px;"></div>
                 <label class="toggle-control">
                     <input type="checkbox" id="toggle-green-route" checked onchange="toggleGreenRoute()">
                     <span class="toggle-text">Ruta Verde</span>
                 </label>
-                <div style="width:10px;"></div>
                 <label class="toggle-control">
-                    <input type="checkbox" id="toggle-coastal-route" onchange="toggleCoastalRoute()">
+                    <input type="checkbox" id="toggle-coastal-route" checked onchange="toggleCoastalRoute()">
                     <span class="toggle-text">Ruta Costera</span>
                 </label>
             </div>
@@ -245,6 +274,8 @@
     <script src="layer_marcobre.js"></script>
     <script src="layer_generacion_electrica.js"></script>
     <script src="layer_san_fernando_road.js"></script>
+    <script src="layer_red_route.js"></script>
+    <script src="layer_purple_route.js"></script>
     <script src="landmark_intersection.js"></script>
     <script src="new_green_route.js?v=2"></script>
     <script src="coastal_route.js?v=2"></script>
