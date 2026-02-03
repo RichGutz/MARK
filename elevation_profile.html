@@ -230,6 +230,13 @@
         </div>
 
         <div class="header-controls">
+            <div style="display: flex; flex-direction: column; align-items: flex-end; margin-right: 15px;">
+                <label for="scaleSlider"
+                    style="font-size: 10px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase;">Escala
+                    X (1:<span id="scaleLabel">1</span>)</label>
+                <input type="range" id="scaleSlider" min="1" max="100" value="1" step="1"
+                    style="width: 150px; cursor: pointer;">
+            </div>
             <button class="btn-route active" onclick="loadProfile('blue')" data-route="blue">Ruta Costera</button>
             <button class="btn-route" onclick="loadProfile('green')" data-route="green">Ruta Verde</button>
             <a href="index.html" class="btn-back">← Volver</a>
@@ -244,6 +251,7 @@
 
     <script>
         let myChart = null;
+        let currentScale = 1;
 
         function loadProfile(routeType) {
             // Update buttons
@@ -280,23 +288,52 @@
             let minAlt = Infinity;
             let totalSlope = 0;
 
-            points.forEach(p => {
+            // Labels for slopes (Strict 1km calculation)
+            let slopeLabels = [];
+
+            for (let i = 0; i < points.length; i++) {
+                let p = points[i];
                 labels.push(p.km.toFixed(1)); // X-Axis: KM
                 dataPoints.push(p.alt);       // Y-Axis: Altitude
 
                 if (p.alt > maxAlt) maxAlt = p.alt;
                 if (p.alt < minAlt) minAlt = p.alt;
-                totalSlope += Math.abs(p.slope || 0);
-            });
+
+                // Calculate Slope every 1km (assuming points are roughly 1km apart)
+                // We verify the distance to be sure.
+                if (i < points.length - 1) {
+                    let nextP = points[i + 1];
+                    let distM = (nextP.km - p.km) * 1000;
+                    let altDiff = nextP.alt - p.alt;
+
+                    if (distM > 0) {
+                        let segSlope = (altDiff / distM) * 100;
+
+                        // Always show label if slope is not near zero, or user wants all?
+                        // "Calcla la pendiente cada 1000 metros"
+                        // Let's filter slightly to avoid 0.0% clutter
+                        if (Math.abs(segSlope) >= 0.1) {
+                            slopeLabels.push({
+                                index: i, // Index of point in dataset
+                                slope: segSlope
+                            });
+                        }
+
+                        totalSlope += Math.abs(segSlope); // Use calculated slope for avg
+                    }
+                }
+            }
 
             // Avg Slope calculation (rough)
-            let avgSlope = totalSlope / Math.max(1, points.length);
+            let avgSlope = totalSlope / Math.max(1, points.length - 1);
 
             // --- 1:1 Scale Logic ---
             // 1. Determine Chart Height (Fixed in CSS usually, lets get computed)
             const chartContainer = document.querySelector('.chart-container');
             const wrapper = document.querySelector('.chart-wrapper');
             const containerHeight = 500; // From CSS
+            const slider = document.getElementById('scaleSlider');
+            if (slider) currentScale = parseInt(slider.value, 10);
 
             // Effective drawing area assumption (minus padding/axes/legend)
             // Chart.js fits the chart area inside the canvas
@@ -316,19 +353,62 @@
             // Required Width for 1:1 Ratio
             const requiredWidthPx = totalDistM * pxPerMeter;
 
+            // Apply Scale Factor (1 to 100)
+            // If scale is 1, Width = requiredWidthPx (1:1)
+            // If scale is 100, Width = requiredWidthPx / 100 (1:100)
+            const scaledWidthPx = requiredWidthPx / currentScale;
+
             // Apply Width (Ensure at least wrapper width)
-            const finalWidth = Math.max(wrapper.clientWidth, requiredWidthPx);
+            const finalWidth = Math.max(wrapper.clientWidth, scaledWidthPx);
             chartContainer.style.width = finalWidth + 'px';
 
-            console.log(`1:1 Scale: ${pxPerMeter.toFixed(3)} px/m. Total Dist: ${totalDistKm}km. Width: ${finalWidth}px`);
+            console.log(`Scale 1:${currentScale}. 1:1 Width: ${requiredWidthPx.toFixed(0)}px. Final Width: ${finalWidth.toFixed(0)}px`);
 
             // Update Chart
             const ctx = document.getElementById('elevationChart').getContext('2d');
-            // ... rest of chart creation
 
             if (myChart) {
                 myChart.destroy();
             }
+
+            // Custom Plugin for Slope Labels
+            const slopeLabelPlugin = {
+                id: 'slopeLabels',
+                afterDatasetsDraw(chart, args, options) {
+                    const { ctx, scales: { x, y } } = chart;
+
+                    ctx.save();
+                    ctx.font = 'bold 10px "Rajdhani"';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+
+                    slopeLabels.forEach(label => {
+                        // Get coordinates for the point
+                        const xPos = chart.getDatasetMeta(0).data[label.index].x;
+                        const yPos = chart.getDatasetMeta(0).data[label.index].y;
+
+                        // Color based on slope:
+                        // Negative (Bajada) = RED (#ef4444)
+                        // Positive (Subida) = GREEN (#10b981)
+                        let color = '#10b981';
+                        if (label.slope < 0) {
+                            color = '#ef4444';
+                        }
+
+                        ctx.fillStyle = color;
+
+                        // Draw Text
+                        ctx.fillText(`${label.slope.toFixed(1)}%`, xPos, yPos - 12);
+
+                        // Draw small indicator line/dot
+                        ctx.beginPath();
+                        ctx.arc(xPos, yPos, 3, 0, 2 * Math.PI);
+                        ctx.fill();
+                    });
+
+                    ctx.restore();
+                }
+            };
 
             myChart = new Chart(ctx, {
                 type: 'line',
@@ -347,6 +427,7 @@
                         pointHitRadius: 10
                     }]
                 },
+                plugins: [slopeLabelPlugin], // Register the plugin
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -406,17 +487,35 @@
             document.getElementById('stat-dist').innerText = points[points.length - 1].km.toFixed(1) + " km";
             document.getElementById('stat-start-alt').innerText = points[0].alt.toFixed(0) + " m";
             document.getElementById('stat-max-alt').innerText = maxAlt.toFixed(0) + " m";
-            // Recalculate slope simpler: Rise / Run
+
+            // Recalculate global slope: Rise / Run
             let rise = points[points.length - 1].alt - points[0].alt;
             let run = points[points.length - 1].km * 1000;
             let globalSlope = (rise / run) * 100;
 
-            document.getElementById('stat-slope').innerText = Math.abs(globalSlope).toFixed(2) + "%";
+            document.getElementById('stat-slope').innerText = Math.abs(globalSlope).toFixed(2) + "% (Global)";
         }
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
             loadProfile('blue');
+
+            // Slider Event
+            const slider = document.getElementById('scaleSlider');
+            const label = document.getElementById('scaleLabel');
+
+            if (slider) {
+                slider.addEventListener('input', (e) => {
+                    currentScale = parseInt(e.target.value, 10);
+                    label.innerText = currentScale;
+
+                    // Reload current active route to re-apply scale
+                    const activeBtn = document.querySelector('.btn-route.active');
+                    if (activeBtn) {
+                        loadProfile(activeBtn.dataset.route);
+                    }
+                });
+            }
         });
 
     </script>
