@@ -173,7 +173,7 @@ function initApp() {
     toggleRailway();
     toggleShougang();
     toggleMarcobre();
-    toggleJZ();
+    // toggleJZ(); // Removed by user request
     toggleGeneracion();
     toggleSouthCorridor();
     toggleAlternativeRoute();
