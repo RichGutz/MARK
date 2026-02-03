@@ -173,6 +173,7 @@ function initApp() {
     toggleRailway();
     toggleShougang();
     toggleMarcobre();
+    toggleJZ();
     toggleGeneracion();
     toggleSouthCorridor();
     toggleAlternativeRoute();
@@ -298,6 +299,46 @@ function renderShougangPolygon() {
                 }
             }
         }); // Removed .addTo(map)
+    }
+}
+
+let jzLayer = null;
+
+function renderJZ() {
+    if (typeof JZ_GEOJSON !== 'undefined' && !jzLayer) {
+        jzLayer = L.geoJSON(JZ_GEOJSON, {
+            style: {
+                color: '#9c27b0', // Purple
+                weight: 2,
+                opacity: 0.9,
+                fillColor: '#9c27b0',
+                fillOpacity: 0.2,
+                dashArray: '5, 5'
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.name) {
+                    layer.bindTooltip(feature.properties.name, {
+                        permanent: true,
+                        direction: "center",
+                        className: "road-label-container"
+                    });
+                }
+            }
+        });
+    }
+}
+
+function toggleJZ() {
+    const el = document.getElementById('toggle-jz');
+    if (!el) return;
+    const show = el.checked;
+
+    if (!jzLayer) renderJZ();
+
+    if (show) {
+        if (jzLayer) map.addLayer(jzLayer);
+    } else {
+        if (jzLayer) map.removeLayer(jzLayer);
     }
 }
 
@@ -1670,11 +1711,11 @@ function renderGreenRoute() {
     if (typeof NEW_GREEN_ROUTE_POINTS !== 'undefined' && !greenRoutePointsLayer) {
         greenRoutePointsLayer = L.layerGroup();
 
-                let lastPlottedKm = -0.6;
+        let lastPlottedKm = -0.6;
 
         for (let i = 0; i < NEW_GREEN_ROUTE_POINTS.length; i++) {
             const point = NEW_GREEN_ROUTE_POINTS[i];
-            
+
             // Helper to add marker
             const addMarker = (coords, km, alt) => {
                 const marker = L.circleMarker(coords, {
@@ -1697,23 +1738,23 @@ function renderGreenRoute() {
 
             if (dist >= 0.45) {
                 // Check if we need to interpolate (Gap > 0.9)
-                if (dist >= 0.9) { 
+                if (dist >= 0.9) {
                     if (i > 0) {
-                        const prev = NEW_GREEN_ROUTE_POINTS[i-1];
+                        const prev = NEW_GREEN_ROUTE_POINTS[i - 1];
                         const midCoords = [
                             (prev.coords[0] + point.coords[0]) / 2,
                             (prev.coords[1] + point.coords[1]) / 2
                         ];
                         const midAlt = (prev.alt + point.alt) / 2;
-                        const midKm = (prev.km + point.km) / 2; 
-                        
+                        const midKm = (prev.km + point.km) / 2;
+
                         if (midKm - lastPlottedKm >= 0.45) {
-                             addMarker(midCoords, midKm, midAlt);
-                             lastPlottedKm = midKm; 
+                            addMarker(midCoords, midKm, midAlt);
+                            lastPlottedKm = midKm;
                         }
                     }
                 }
-                
+
                 if (point.km - lastPlottedKm >= 0.45) {
                     addMarker(point.coords, point.km, point.alt);
                     lastPlottedKm = point.km;
@@ -1884,11 +1925,11 @@ function renderCoastalRoute() {
     if (typeof COASTAL_ROUTE_POINTS !== 'undefined' && !coastalRoutePointsLayer) {
         coastalRoutePointsLayer = L.layerGroup();
 
-                let lastPlottedKm = -0.6;
+        let lastPlottedKm = -0.6;
 
         for (let i = 0; i < COASTAL_ROUTE_POINTS.length; i++) {
             const point = COASTAL_ROUTE_POINTS[i];
-            
+
             // Helper to add marker
             const addMarker = (coords, km, alt) => {
                 const marker = L.circleMarker(coords, {
@@ -1908,25 +1949,25 @@ function renderCoastalRoute() {
             };
 
             const dist = point.km - lastPlottedKm;
-            
+
             if (dist >= 0.45) {
                 if (dist >= 0.9) {
-                     if (i > 0) {
-                        const prev = COASTAL_ROUTE_POINTS[i-1];
+                    if (i > 0) {
+                        const prev = COASTAL_ROUTE_POINTS[i - 1];
                         const midCoords = [
                             (prev.coords[0] + point.coords[0]) / 2,
                             (prev.coords[1] + point.coords[1]) / 2
                         ];
                         const midAlt = (prev.alt + point.alt) / 2;
-                        const midKm = (prev.km + point.km) / 2; 
-                        
+                        const midKm = (prev.km + point.km) / 2;
+
                         if (midKm - lastPlottedKm >= 0.45) {
-                             addMarker(midCoords, midKm, midAlt);
-                             lastPlottedKm = midKm; 
+                            addMarker(midCoords, midKm, midAlt);
+                            lastPlottedKm = midKm;
                         }
                     }
                 }
-                
+
                 if (point.km - lastPlottedKm >= 0.45) {
                     addMarker(point.coords, point.km, point.alt);
                     lastPlottedKm = point.km;
