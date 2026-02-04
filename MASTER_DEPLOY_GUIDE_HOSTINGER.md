@@ -116,3 +116,27 @@ mkdir /files_repo
 git clone -b deploy-vps-2026.02.04.18.10 https://github.com/RichGutz/MARK.git /files_repo
 # Then run update.sh
 ```
+
+---
+
+## 6. Configurar el Portal (Login -> App Routing)
+
+La "magia" de que cada usuario vaya a su App (ej: `admin` -> `/petral`, `rrhh` -> `/nominas`) está en el código del Portal.
+
+Cuando subas una nueva App:
+
+1.  Abre `GeekSoft_Portal/index.html`.
+2.  Busca la sección de JavaScript (`// --- AUTH ---`).
+3.  Agrega la lógica para el nuevo usuario.
+
+**Ejemplo:**
+```javascript
+const user = document.getElementById('username').value;
+// ...
+if (user === 'petral') {
+    window.location.href = '/petral/'; // Va a la App 1
+} else if (user === 'rrhh') {
+    window.location.href = '/rrhh/';   // Va a la App 2 (Nueva)
+}
+```
+*Simplemente edita esto, haz Git Push, Update, y listo.*
