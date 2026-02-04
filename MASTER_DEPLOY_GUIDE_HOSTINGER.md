@@ -44,13 +44,20 @@ git push origin deploy-vps-2026.02.04.18.10
 ```
 *(Make sure you are pushing to the active branch used by the server)*
 
-### Step B: Update Server
-1.  **Connect**: `ssh root@91.108.125.253`
-2.  **Execute**:
+### Step B: Update Server (Copy-Paste)
+
+1.  **Abrir Terminal**: Busca "PowerShell" en tu Windows y ábrelo.
+2.  **Conectarse** (Copia y pega este bloque):
+    ```powershell
+    ssh root@91.108.125.253
+    ```
+    *   **Password**: Copia tu contraseña (`...`), haz **CLIC DERECHO** en la ventana negra (no verás nada) y pulsa ENTER.
+
+3.  **Ejecutar Actualización** (Copia y pega):
     ```bash
     cd /files_repo && sh update.sh
     ```
-    *Wait for "✅ DESPLIEQUE COMPLETADO".*
+    *   *Espera hasta ver: "✅ DESPLIEQUE COMPLETADO".*
 
 ---
 
