@@ -52,9 +52,9 @@ Vamos a bajar tu código a la carpeta `/var/www/petral`.
 ```bash
 mkdir -p /var/www/petral
 cd /var/www/petral
-# Importante: Aquí usarás tu URL de Git. Si es privado, necesitarás token o SSH key.
-# Por ahora, asumamos que subiste tu código a GitHub/GitLab.
-git clone https://github.com/TU_USUARIO/Petral.MARK.git .
+# Importante: Aquí usarás tu URL de Git.
+# Usamos la rama congelada de hoy:
+git clone -b deploy-vps-2026.02.04.18.10 https://github.com/RichGutz/MARK.git .
 ```
 
 ### 2. Configurar la Web (Dashboard)

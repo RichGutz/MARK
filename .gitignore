@@ -9,6 +9,10 @@ GAME.PLAN.CLIENTE.MANDATO/
 .gemini/
 .system_generated/
 
+# EXCEPCIONES: ¡SÍ RASTREAR ESTAS CARPETAS!
+!GeekSoft_Portal/
+!Dashboard_Puertos/
+
 # Archivos de Sistema/Temporales
 __pycache__/
 *.pyc
