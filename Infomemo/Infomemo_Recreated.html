@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Infomemo Petral</title>
+    <!-- Roboto Font & Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --color-primary: #061D28;
+            --color-secondary: #0B1F36;
+            --color-accent: #112F51;
+            --font-main: 'Roboto', sans-serif;
+            --page-width: 210mm;
+            --page-height: 297mm;
+            --margin-top: 25mm;
+            --margin-bottom: 25mm;
+            --margin-left: 25mm;
+            --margin-right: 25mm;
+        }
+
+        /* RESET & BASE */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #e0e0e0;
+            font-family: var(--font-main);
+            color: #333;
+        }
+
+        /* A4 PAGE CONTAINER for Screen */
+        .page {
+            width: var(--page-width);
+            min-height: var(--page-height);
+            margin: 20px auto;
+            background: white;
+            padding: var(--margin-top) var(--margin-right) var(--margin-bottom) var(--margin-left);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            /* Ensure content doesn't bleed */
+        }
+
+        /* PRINT SETTINGS */
+        @media print {
+            body {
+                background: none;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .page {
+                margin: 0;
+                box-shadow: none;
+                width: 100%;
+                page-break-after: always;
+                min-height: auto;
+                /* Let content flow naturally for print, or keep fixed if strictly paging */
+            }
+
+            @page {
+                size: A4;
+                margin: 0;
+                /* Control margins in .page div to allow bleeds/headers */
+            }
+        }
+
+        /* COVER PAGE */
+        #cover-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: var(--page-height);
+            /* Force full height */
+            page-break-after: always;
+        }
+
+        .cover-logo {
+            max-width: 60%;
+            margin-bottom: 4rem;
+        }
+
+        .cover-title {
+            font-size: 36pt;
+            color: var(--color-accent);
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .cover-subtitle {
+            font-size: 18pt;
+            color: #666;
+            margin-top: 1rem;
+        }
+
+        .cover-date {
+            margin-top: auto;
+            margin-bottom: 2rem;
+            font-size: 12pt;
+            color: #888;
+        }
+
+        /* TABLE OF CONTENTS */
+        #toc-page {
+            page-break-after: always;
+        }
+
+        .toc-title {
+            font-size: 24pt;
+            color: var(--color-primary);
+            border-bottom: 2px solid var(--color-secondary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toc-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .toc-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: end;
+            margin-bottom: 8px;
+        }
+
+        .toc-item a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Leader dots */
+        .toc-item a::after {
+            content: " ......................................................................................................................................................";
+            position: absolute;
+            margin-left: 5px;
+            color: #999;
+        }
+
+        .toc-page-num {
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        /* CONTENT STYLES */
+        h1 {
+            font-size: 18pt;
+            color: var(--color-primary);
+            text-transform: uppercase;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-top: 1.5rem;
+            page-break-before: always;
+            /* Start H1 on new page */
+        }
+
+        /* Except the first H1 if it follows TOC immediately */
+        h1:first-of-type {
+            page-break-before: auto;
+        }
+
+        h2 {
+            font-size: 14pt;
+            color: var(--color-secondary);
+            margin-top: 1.2rem;
+        }
+
+        h3 {
+            font-size: 12pt;
+            color: var(--color-secondary);
+            margin-top: 1rem;
+        }
+
+        p {
+            font-size: 11pt;
+            line-height: 1.5;
+            text-align: justify;
+            margin-bottom: 1em;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1rem auto;
+        }
+
+        /* FOOTER / PAGE NUMBERS */
+        /* Note: Browser print footers are hard to control perfectly without tools like PrinceXML or Paged.js.
+           We will use a fixed footer approach for screen, but for print, we often rely on browser settings or Paged.js.
+           Simple CSS Counters approximation: */
+
+        body {
+            counter-reset: page-num;
+        }
+
+        .page-content-wrapper {
+            /* Wrapper for content to allow counting, though standard HTML flow makes per-page counting hard without Paged.js */
+        }
+
+        /* If we want strict page numbers in standard browser print, we put them in @page margin boxes, 
+           but CSS standard doesn't support content property there in Chrome yet.
+           We'll use a visual footer on the bottom of pages if we can control breaks, 
+           BUT for a robust solution, we should accept browser default numbering OR use a JS library (Paged.js) 
+           Since I cannot fetch external JS easily given constraint, I will stick to clean standard CSS 
+           and let the browser handle basic page numbering or add a footer div if content is segmented. 
+           
+           DECISION: I will trust the User's browser to add page numbers (Standard Headers/Footers) 
+           OR I will try to implement a footer on every page using `position: fixed` technique (often buggy).
+           
+           Better: I will just ensure the LAYOUT is correct. The "Reveranda porqueria" comment implies 
+           fundamental layout breakage (margins, etc). I'll focus on margins and typography first.
+        */
+    </style>
+</head>
+
+<body>
+
+    <!-- COVER PAGE -->
+    <div id="cover-page" class="page">
+        <!-- Logo placeholder - Update src with actual path -->
+        <img src="assets/image_1.png" alt="Logo" class="cover-logo">
+
+        <h1 class="cover-title">INFOMEMO</h1>
+        <div class="cover-subtitle">Infomemo</div>
+
+        <div class="cover-date">2026</div>
+    </div>
+
+    <!-- TOC PAGE -->
+    <div id="toc-page" class="page">
+        <div class="toc-title">Índice</div>
+        <div class="toc-list">
+            <div class="toc">
+<ul>
+<li><a href="#introduccion">Introducción</a></li>
+<li><a href="#el-proyecto-b-tank">El Proyecto B-TANK</a><ul>
+<li><a href="#descripcion-del-proyecto">Descripción del proyecto</a></li>
+<li><a href="#modelo-de-ingresos">Modelo de ingresos</a></li>
+<li><a href="#contratacion-por-tanque">Contratación por tanque</a></li>
+<li><a href="#inversiones-de-capital-capex">Inversiones de capital (CAPEX)</a></li>
+<li><a href="#costo-de-venta-cogs">Costo de venta (COGS)</a></li>
+<li><a href="#gasto-operativo-opex">Gasto Operativo (OPEX)</a></li>
+</ul>
+</li>
+<li><a href="#escenario-base">Escenario base</a><ul>
+<li><a href="#entendimiento-de-la-evaluacion-a-realizar">Entendimiento de la evaluación a realizar</a></li>
+<li><a href="#aproximacion-practica-para-la-evaluacion-financiera">Aproximación práctica para la evaluación financiera</a></li>
+<li><a href="#descripcion-del-escenario-base">Descripción del escenario base</a></li>
+<li><a href="#supuestos-comerciales-y-operativos">Supuestos comerciales y operativos</a></li>
+</ul>
+</li>
+<li><a href="#variables-economico-financieras">Variables económico financieras</a><ul>
+<li><a href="#capital-de-trabajo-y-aspectos-tributarios">Capital de trabajo y aspectos tributarios</a></li>
+<li><a href="#financiamiento">Financiamiento</a></li>
+<li><a href="#supuestos-adicionales-y-escenarios-de-salida">Supuestos adicionales y escenarios de salida</a></li>
+<li><a href="#costo-de-capital-ke-no-apalancado">Costo de Capital (Ke – No Apalancado)</a></li>
+<li><a href="#valor-terminal">Valor Terminal</a></li>
+</ul>
+</li>
+<li><a href="#resultados-del-analisis">Resultados del análisis</a><ul>
+<li><a href="#ingresos">Ingresos</a></li>
+<li><a href="#margenes">Márgenes</a></li>
+<li><a href="#retornos">Retornos</a></li>
+<li><a href="#mark-ups-implicitos-en-las-tarifas-comerciales-asumidas-en-el-escenario-base">Mark-Ups implícitos en las tarifas comerciales asumidas en el escenario base.</a></li>
+<li><a href="#sensibilidades">Sensibilidades</a></li>
+</ul>
+</li>
+<li><a href="#conclusiones-y-recomendaciones">Conclusiones y recomendaciones</a><ul>
+<li><a href="#conclusiones">Conclusiones</a></li>
+<li><a href="#recomendaciones">Recomendaciones</a></li>
+<li><a href="#control">Control</a></li>
+<li><a href="#activo-estrategico-que-forma-parte-de-un-negocio-en-marcha">Activo estratégico que forma parte de un negocio en marcha</a></li>
+<li><a href="#opciones-reales-cruzadas">Opciones reales “cruzadas”</a></li>
+<li><a href="#vision-de-kaizen-capital-para-un-deal-win-win">Visión de Kaizen Capital para un deal WIN WIN</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+        </div>
+    </div>
+
+    <!-- CONTENT PAGES -->
+    <div class="page" id="main-content">
+        <p>Brief</p>
+<p>El presente documento analiza la atractividad de inversión de un terminal dedicado principalmente a la descarga, el almacenamiento y embarque de ácido sulfúrico.</p>
+<p>PETRAL ha identificado la necesidad de ofrecer al mercado un terminal moderno, eficiente y seguro que le permita competir con ventaja sobre las opciones actuales.</p>
+<p>A lo largo del presente análisis, se presentarán diversos supuestos relativos al modelo de negocio, inversiones necesarias, costos directos y gastos operativos, así como retornos adecuados para este tipo de inversión.</p>
+<p>Finalmente, el análisis presentará diversos escenarios, los riesgos asociados a cada uno de ellos y brindará recomendaciones de inversión para cada uno de dichos escenarios.</p>
+<p>Tabla de Contenido</p>
+<h1 id="introduccion">Introducción</h1>
+<p>Naviera PETRAL posee un amplio conocimiento de la cadena del suministro del ácido sulfúrico en el Perú. Su posición como principal actor del transporte marítimo de dicho producto, le ha permitido a lo largo de más de 4 décadas, acumular la experiencia necesaria para identificar correctamente oportunidades de negocios en otros eslabones de la cadena de suministro que considera desatendidos.</p>
+<p>PETRAL estima que existe una gran oportunidad para desarrollar un terminal de almacenamiento para ácido sulfúrico en el puerto del Callao, aprovechando el suministro para exportación que recibe el puerto vía el Ferrocarril Central y potencialmente el flujo de producto importado que se almacena en terminal y es transportado luego en camiones. El presente documento, evalúa a detalle, la atractividad de dicha oportunidad de negocios y brinda una recomendación de inversión a PETRAL.</p>
+<p>La presente versión del informe incorpora una actualización de supuestos y cifras clave (principalmente CAPEX y requerimientos de inversión). El objetivo se mantiene: evaluar la factibilidad económico-financiera del desarrollo del terminal bajo un enfoque conservador.</p>
+<h1 id="el-proyecto-b-tank">El Proyecto B-TANK</h1>
+<h2 id="descripcion-del-proyecto">Descripción del proyecto</h2>
+<p>El proyecto consiste en la construcción de una estación de descarga desde coches tanque del ferrocarril central, tres tanques de almacenamiento de 18,600 toneladas en conjunto y un sistema de embarque dedicado en acero inoxidable.</p>
+<p>El diseño actualizado mejora sustancialmente la seguridad y la eficiencia operativa. Aunque el CAPEX se ha revisado al alza por el mayor alcance (tres tanques), el proyecto sigue siendo atractivo por la mejora en confiabilidad y por la optimización de costos recurrentes y riesgos operativos frente a alternativas de múltiples tanques pequeños con descarga por aire comprimido.</p>
+<h2 id="modelo-de-ingresos">Modelo de ingresos</h2>
+<p>Los ingresos provienen de i) dos tipos de tarifa sujetas a ajustes por indicadores a negociar con el cliente y ii) el volumen de producto despachado:</p>
+<ul>
+<li>Capacidad o Almacenaje: Pago por la capacidad del tanque que está a disposición del cliente. Su valor está en USD/TM. No se puede variar a lo largo del tiempo sin tener que hacer inversiones de capital.</li>
+<li>Despacho: Pago por las toneladas que se embarcan desde el tanque o hacia el tanque (importación o exportación de ácido sulfúrico). Su magnitud depende de las veces en que se vacía y/o llena el tanque.</li>
+<li>Turnover:  Representa las veces que el tanque se carga y descarga en un mes. Depende del volumen comprometido de ingreso y la disponibilidad para retirar el producto a tiempo del tanque.
+Los ingresos tienen entonces, dos componentes, uno fijo que proviene de la capacidad del tanque y uno variable que proviene de las toneladas embarcadas.</li>
+</ul>
+<h2 id="contratacion-por-tanque">Contratación por tanque</h2>
+<p>El hecho de que NEXA entregue el 100% del manejo de su volumen de ácido sulfúrico a un operador nuevo implica la necesidad de una homologación estricta y garantizar la disponibilidad de una infraestructura adecuada y suficiente. Sobre todo, considerando que NEXA no tiene capacidad para almacenarlo más allá de la frecuencia con la que se cargan los coches tanques del ferrocarril central. En este sentido, el contar con tres tanques garantizará a NEXA la disponibilidad de la capacidad necesaria para absorber fluctuaciones logísticas. De otro lado, el contar con estos tres tanques proporciona la capacidad de potencialmente atender a clientes INBOUND.</p>
+<p>Por ello debemos considerar la opcionalidad de contratación para cada tanque de la siguiente manera</p>
+<ul>
+<li>Tanques 1 y 2: Contratados exclusivamente para el NEXA OUTBOUND, bajo un contrato de 7 años con tarifas iniciales ajustables anualmente por inflación usando marcadores internacionales usuales. Su rotación en caso de ser los únicos dedicados al contrato sería de 2.4 veces al mes, mientras que en caso de requerirse los tres tanques la rotación sería de 1.6 veces al mes.</li>
+<li>Tanque 3: Dedicado a atender a NEXA en caso de menor rotación OUTBOUND.</li>
+</ul>
+<h2 id="inversiones-de-capital-capex">Inversiones de capital (CAPEX)</h2>
+<p>El Terminal B-TANK tiene como objetivo principal la recepción de ácido sulfúrico desde vagones, su almacenamiento en tres tanques y el embarque posterior en buques de 15,000 TM. Esto implica la construcción de:</p>
+<p>Una estación de descarga de vagones.</p>
+<p>Tres tanques de almacenamiento de gran capacidad (6,200 toneladas o 3,400 m³ cada uno).</p>
+<p>Un sistema de embarque con tubería y bombas inoxidables.</p>
+<p>Cuadro 1: Desglose de la Inversión (CAPEX en USD sin IGV)</p>
+<h2 id="costo-de-venta-cogs">Costo de venta (COGS)</h2>
+<p>El costo de venta contempla todos aquellos costos que son considerados están involucrados directamente en la producción del servicio ofrecido por B-TANK.</p>
+<p>Cuadro 2: Desglose de COGS (Mensual)</p>
+<h2 id="gasto-operativo-opex">Gasto Operativo (OPEX)</h2>
+<p>El gasto operativo involucra todos los gastos que son necesarios para la operación pero no forman parte del costo directo.</p>
+<p>Cuadro 3: Desglose de Gastos Operativos (OPEX Mensual)</p>
+<h1 id="escenario-base">Escenario base</h1>
+<h2 id="entendimiento-de-la-evaluacion-a-realizar">Entendimiento de la evaluación a realizar</h2>
+<p>PETRAL está interesado en desarrollar el proyecto B-TANK en un activo propiedad de BARCINO, empresa que opera un terminal de líquidos. Dicho activo tiene ventajas significativas como acceso a las líneas del Ferrocarril Central, tuberías autorizadas por APMT, entre otros.</p>
+<p>PETRAL busca asociarse con BARCINO a través de un JV que le permita utilizar el activo y volcar toda su experiencia en ácido sulfúrico a la operación del nuevo terminal. PETRAL tiene la capacidad de atraer a los principales jugadores en el mercado de ácido sulfúrico con los que ya tiene relaciones comerciales como armador naviero altamente especializado en ácido sulfúrico.</p>
+<p>Valorizar el proyecto B-TANK debería seguir la siguiente metodología:</p>
+<p>Valorizar a BARCINO (hoy): Determinar el valor actual de la empresa en su estado operativo presente.</p>
+<p>Valorizar BARCINO más el proyecto B-TANK que propone PETRAL: Proyectar nuevas fuentes de ingresos, sinergias y valorizar la empresa combinada incorporando el nuevo proyecto que trae PETRAL.</p>
+<p>Calcular el Valor Creado: La diferencia entre ambas valorizaciones representa el valor total que el proyecto conjunto trae a la mesa.</p>
+<p>Gráfico 1: Valuation waterfall</p>
+<p>Después de ejecutar el método descrito líneas arriba, es natural preguntarse: ¿El valor creado es 100% atribuible a PETRAL y B-TANK?. BARCINO argumentaría que su aporte es:</p>
+<p>Activo Estratégico: El proyecto no se puede realizar en Callao sin BARCINO, ya que es un activo clave para la operación.</p>
+<p>Economías de Alcance: BARCINO viene operando como terminal de almacenamiento de líquidos por décadas. Algunos de los servicios de soporte que atienden actualmente a su operación podrían eventualmente ser compartidos con la operación del proyecto B-TANK.</p>
+<p>Sin embargo, realizar la valorización según los términos descritos, es por ahora imposible pues no contamos con la información financiera completa de BARCINO. Posteriormente a ejecutar dicha valorización, se deberá definir qué porción del valor creado corresponde a cada parte. De llegarse a abrir la negociación para un posible JV, ambas partes tendrían que nombrar a su equipo de asesores (principalmente financieros y legales) que en conjunto y vía negociación encuentren una respuesta a la interrogante arriba planteada.</p>
+<h2 id="aproximacion-practica-para-la-evaluacion-financiera">Aproximación práctica para la evaluación financiera</h2>
+<p>Dado el desafío anterior, es necesario usar una aproximación para simular el proyecto "en el vientre de BARCINO" mientras avanzan las negociaciones y se logra obtener la información necesaria para ejecutar el método de valorización descrito anteriormente.</p>
+<p>Aunque BARCINO ha descartado un modelo de alquiler de sus instalaciones, el análisis asume que PETRAL "alquila" la tierra a su propietario. El monto del alquiler está basado en valor de transacción de activos similares en la zona donde se ubica el activo en cuestión y aplica un CAP RATE típico de instalaciones logísticas e industriales.</p>
+<p>Esta aproximación nos permite realizar una evaluación inicial que incluye todos los costos asociados a una operación real: CAPEX, COGS, OPEX y uso de la tierra a través de alquiler.</p>
+<h2 id="descripcion-del-escenario-base">Descripción del escenario base</h2>
+<p>La inversión está orientada a atender las necesidades logísticas de NEXA (contrato principal); sin embargo, diseñando una operación adecuada para mantener el nivel de servicio a NEXA en dos tanques, es viable destinar uno de los tres tanques para atender a otros clientes, aprovechando las ventajas geográficas y de conectividad del terminal. En ese caso, sin embargo como el producto a almacenarse en los tanques será sólo ácido sulfúrico, en concentraciones iguales o ligeramente mayores a las del producto de NEXA. La evaluación se realiza en términos de proyecto y de accionista, empleando flujos descontados en dólares, y todos los valores mencionados son aproximaciones extraídas del modelo financiero base. El caso base excluye upsides no contratados y prioriza supuestos verificables para evaluar factibilidad y bancabilidad.</p>
+<h2 id="supuestos-comerciales-y-operativos">Supuestos comerciales y operativos</h2>
+<p>Contratos y tarifas</p>
+<p>Tanques 1 a 3 – contrato con NEXA (Outbound). Se asume un contrato inicial de 7 años, renovable por otros 7 años. La estructura tarifaria contempla un cargo de manipuleo (throughput) de USD 6.00 por TM y un cargo de almacenaje de USD 16.00 por TM. Estas tarifas representan un descuento de entre 20% y 25% respecto de los valores de mercado investigados. Se prevé el aprovechamiento completo de la capacidad de 6 200 TM con una rotación de inventarios de 1.6 veces al mes, lo que se traduce en un throughput anual de 350 000 TM.</p>
+<p>Volúmenes y rotación</p>
+<p>Los volúmenes de manejo se modelan multiplicando la capacidad efectiva de cada tanque por la rotación mensual asumida, partiendo del supuesto de dedicación exclusiva a NEXA (OUTBOUND). En el escenario base la rotación se mantiene en 1.6 veces/mes para cada tanque. El producto tiene un peso específico de 1.84 TM/m³, lo que permite convertir m³ en toneladas. Cabe aclarar aca que esta rotación supone que los 3 tanques se dedican solo a NEXA.</p>
+<h1 id="variables-economico-financieras">Variables económico financieras</h1>
+<h2 id="capital-de-trabajo-y-aspectos-tributarios">Capital de trabajo y aspectos tributarios</h2>
+<p>El capital de trabajo se calcula suponiendo 15 días de cuentas por cobrar y 30 días de cuentas por pagar. Las cuentas por cobrar representan el 100 % de los ingresos, mientras que las cuentas por pagar equivalen al 60 % del costo de servicio. Asimismo, forman parte de los requerimientos de capital de trabajo el IGV durante la etapa de construcción. El modelo aplica el régimen tributario peruano con tasas marginales de 29.5% de impuesto a la renta y 18% de IGV.</p>
+<h2 id="financiamiento">Financiamiento</h2>
+<p>El requerimiento total de capital asciende a USD 16.6 millones, compuesto por USD 14.1 millones de CAPEX, USD 2.5 millones de capital de trabajo (incluido el IGV de la construcción) y unos USD 27 mil de servicio de deuda durante la construcción. La estructura de financiamiento contempla:</p>
+<p>Aportes de capital (equity): USD 12.6 millones (aprox. 76 % de los requerimientos). Se mantuvo el supuesto de nivel de deuda inicial como postura conservadora; sin embargo, Kaizen Capital considera que con una estructuración más fina, en conjunto con la banca, se podría financiar con deuda, conservadoramente, 40% de los requerimientos.</p>
+<p>Deuda senior: USD 4,0 millones, desembolsada en mayo de 2026, con tasa de interés de 8.0 % anual, comisión total (all‑in fees) de 4.0 %, plazo total de 12 años, pagos trimestrales y dos períodos de gracia para la amortización del principal.</p>
+<p>Contribución operativa inicial: alrededor de USD 8.0 mil generados durante los primeros meses de operación.</p>
+<p>El esquema financiero se proyecta en dólares y no considera coberturas cambiarias.</p>
+<h2 id="supuestos-adicionales-y-escenarios-de-salida">Supuestos adicionales y escenarios de salida</h2>
+<p>Para la valoración final se utiliza un múltiplo de salida equivalente a una perpetuidad descontada en un 50 %; esta penalización pretende evitar que el valor terminal distorsione los retornos en escenarios de corto plazo. También se asume que los contratos se renuevan o reemplazan al término de cada periodo, sin costes adicionales significativos.</p>
+<h2 id="costo-de-capital-ke-no-apalancado">Costo de Capital (Ke – No Apalancado)</h2>
+<p>A fin de tener una referencia de retorno para el proyecto y evaluar su viabilidad económica, se calcula una tasa de descuento de flujos sin apalancamiento, basándonos en la metodología CAPM modificada. Se ha calculado un costo patrimonial no apalancado (Ke) que cumple el rol de tasa de descuento. La ecuación para obtener este valor:</p>
+<p>: Tasa libre de riesgo (bono del Tesoro EE.UU. a 10 años): 4.9%</p>
+<p>: Prima de riesgo de mercado de EEUU = 5.0%</p>
+<p>: Beta desapalancado (peer group = Transporte) = 0.83</p>
+<p>: Prima de riesgo país (Perú) = 1.9%</p>
+<p>DI: Descuento por inflación estructural de largo plazo = 0.0%</p>
+<p>SP: Prima por tamaño y liquidez (empresa privada mediana) = 2.5%</p>
+<h2 id="valor-terminal">Valor Terminal</h2>
+<p>El valor terminal se calcula aplicando la fórmula de perpetuidad de Gordon-Shapiro sobre el Flujo de Caja Libre para la Firma (FCFF) normalizado del año de vencimiento del contrato principal:</p>
+<p>FCFF: según proyección en modelo financiero</p>
+<p>Tasa de crecimiento a perpetuidad (g): 0% a fin de tomar un punto conservador</p>
+<p>: 13.3%</p>
+<p>Ajuste por vencimiento de contrato: 50%</p>
+<h1 id="resultados-del-analisis">Resultados del análisis</h1>
+<h2 id="ingresos">Ingresos</h2>
+<p>El siguiente gráfico resume los ingresos provenientes por almacenaje y por embarque.</p>
+<p>Gráfico 2: Revenues by Service</p>
+<p>Asimismo, el siguiente gráfico resume los ingresos provenientes por cada tanque basado en el escenario base descrito anteriormente.</p>
+<h2 id="margenes">Márgenes</h2>
+<p>El siguiente gráfico muestra la evolución del resultado y margen bruto:</p>
+<p>Gráfico 3: Gross Result &amp; Gross Margin</p>
+<p>El siguiente gráfico muestra la evolución del resultado y margen EBITDA, resalta la elevada capacidad de generación de caja del proyecto, relativa a la inversión:</p>
+<p>Gráfico 4: EBITDA &amp; EBITDA Margin</p>
+<p>El siguiente gráfico muestra la evolución del resultado y margen neto, destacando la velocidad para alcanzar rentabilidad:</p>
+<p>Gráfico 5: Net Result &amp; Net Margin</p>
+<h2 id="retornos">Retornos</h2>
+<p>Los resultados financieros del modelo base indican una operación sólida con una rápida recuperación de la inversión:</p>
+<p>Cuadro 4: Indicadores Clave de Rentabilidad</p>
+<p>Estas cifras muestran un proyecto robusto con retornos atractivos. Es importante destacar que la estructura de costos fijos hace que el volumen y la rotación sean palancas clave: reducciones en el throughput tienen un impacto significativo en la rentabilidad. Asimismo, el apalancamiento moderado (deuda/capital inferior a 1.0 x) proporciona resiliencia frente a posibles fluctuaciones de mercado.</p>
+<h2 id="mark-ups-implicitos-en-las-tarifas-comerciales-asumidas-en-el-escenario-base">Mark-Ups implícitos en las tarifas comerciales asumidas en el escenario base.</h2>
+<p>El escenario base asume dos tarifas para el contrato NEXA que son entre 20% y 25% menores a las obtenidas en base a inteligencia comercial:</p>
+<p>Cargo de despacho (throughput) de USD 6.00 / TM</p>
+<p>Cargo de almacenaje de USD 16.00 / TM</p>
+<p>Nuestro modelo financiero se ha estructurado de manera que los costos puedan reflejar la metodología ABC. Dicho de otra manera, hemos segregado los costos asociados tanto al DESPACHO como al ALMACENAJE.</p>
+<p>La mencionada segregación nos permite calcular el MARK UP y el margen bruto sobre los costos directos que se aplican implícitamente en las tarifas asumidas.</p>
+<p>A continuación, presentamos los resultados de dicho análisis para las tarifas asumidas para el escenario base.</p>
+<p>Gráfico 6: Storage Fee Components &amp; Mark up</p>
+<p>Gráfico 7: Handling Fee Components &amp; Mark up</p>
+<p>Como se puede apreciar, los mark-ups implícitos sugieren holgura para absorber desviaciones razonables de costos y sostener una estructura tarifaria defendible, sujeto a negociación y condiciones del contrato ancla.</p>
+<p>Asimismo, de utilizarse las tarifas obtenidas en base a inteligencia comercial, los mark-ups para el cargo de despacho y almacenaje se incrementarían a 396% y 62%, respectivamente.</p>
+<h2 id="sensibilidades">Sensibilidades</h2>
+<p>Se analizó la sensibilidad del proyecto a variaciones de 10% en las variables clave tradicionales de un proyecto de infraestructura. La mayor sensibilidad de los retornos a nivel de proyecto se produce como es natural en proyectos de infraestructura, por posibles variaciones en el CAPEX con la menor sensibilidad observándose para cambios en el OPEX:</p>
+<p>Gráfico 8: Tornado chart</p>
+<p>Como se observa en el gráfico, y en orden de sensibilidad:</p>
+<ul>
+<li>CAPEX: Incrementos del 10% en el mismo reducen la TIR proyecto en 2.4%, mientras que ahorros de 10% la incrementan en 3.0%</li>
+<li>Tarifas de Almacenaje: Incrementos del 10% aumentan la TIR proyecto en 1.5%, mientras que reducciones de 10% la reducen en 1.5%</li>
+<li>Tarifas de Despacho: Incrementos del 10% aumentan la TIR proyecto en 0.9%, mientras que reducciones de 10% la reducen en 0.9%</li>
+<li>OPEX: Incrementos del 10% en el mismo reducen la TIR proyecto en 0.7%, mientras que ahorros de 10% la incrementan en 0.7%</li>
+<li>Compensación por Uso del Activo: De reducirse a la mitad la compensación por el uso del activo la TIR proyecto aumenta en 1.4%</li>
+</ul>
+<h1 id="conclusiones-y-recomendaciones">Conclusiones y recomendaciones</h1>
+<h2 id="conclusiones">Conclusiones</h2>
+<ul>
+<li>El análisis integrando los supuestos técnicos, comerciales y financieros en el Escenario Base muestra un proyecto con alto potencial de rentabilidad y un horizonte de recuperación corto si se compara con la vida de los activos. El acuerdo con un cliente ancla, combinado con la posibilidad de expandirse mediante el segundo tanque, asegura una base de ingresos recurrentes.</li>
+<li>Los retornos están fuertemente ligados a la rotación de inventario y a las tarifas negociadas, de modo que cualquier plan de negocio debe contemplar contratos firmes y mecanismos de ajuste inflacionario.</li>
+<li>La estructura de deuda moderada y la cobertura elevada brindan flexibilidad para soportar shocks y mantener la viabilidad del proyecto.</li>
+<li>Dado el nivel de los mark-ups, es justo anticipar que la alternativa actual respondería con descuentos para nivelarse con la oferta de B-TANK. La negociación con NEXA debe ser manejada colaborativamente, brindado una opción más económica y a la vez un seguro contra el riesgo operativo.</li>
+</ul>
+<h2 id="recomendaciones">Recomendaciones</h2>
+<p>Si bien el objetivo del presente análisis es ofrecer una respuesta sobre la atractividad del proyecto B-TANK, nos permitimos ofrecerles nuestra visión de las consideraciones relevantes para la arquitectura del potencial deal.</p>
+<h2 id="control">Control</h2>
+<p>Es nuestra apreciación que ambas partes buscarían estar niveladas en su participación en un potencial JV. Resulta poco probable que una parte obtenga una porción controladora en una futura negociación.</p>
+<h2 id="activo-estrategico-que-forma-parte-de-un-negocio-en-marcha">Activo estratégico que forma parte de un negocio en marcha</h2>
+<p>Con la información recabada a lo largo del presenta análisis, resulta poco probable encontrar una alternativa al activo que BARCINO posee. Como describimos líneas arriba, hemos simulado una empresa “Stand Alone” que alquila dicho activo. En una potencial negociación, BARCINO incluirá sobre el valor de transacción de su activo (será un reto encontrar un valor de transacción de un activo similar a precios actuales), diversos intangibles como sus permisos, sus “ancillary facilities”, y un largo etcétera. Solo a través de una negociación colaborativa se podrá definir dichos intangibles.</p>
+<h2 id="opciones-reales-cruzadas">Opciones reales “cruzadas”</h2>
+<p>Una opción real en finanzas es el derecho, pero no la obligación, de tomar una decisión sobre un proyecto de inversión en el futuro, como expandirlo, reducirlo o abandonarlo, dependiendo de cómo se desarrollen las condiciones del mercado. A diferencia de las opciones financieras, las opciones reales se aplican a activos no financieros (aplican a activos que tienen “realidad” física de allí el nombre “real options”) y ayudan a valorar proyectos considerando la flexibilidad estratégica ante la incertidumbre, lo que permite tomar decisiones más realistas y adaptables.</p>
+<p>Tipos comunes de opciones reales:</p>
+<p>Opciones de crecimiento/expansión:  El derecho a ampliar un proyecto si las condiciones del mercado son favorables.</p>
+<p>Opciones de abandono/reducción: El derecho a terminar o reducir un proyecto si los resultados son desfavorables.</p>
+<p>Opciones de diferir:  El derecho a posponer una inversión para esperar a que haya más claridad o mejores condiciones de mercado.</p>
+<p>Opciones de producción: La posibilidad de cambiar el tipo de bien o servicio que produce un activo en el futuro.</p>
+<p>Ambas partes están en capacidad de ofrecer a la otra parte opciones reales que facilitarían la negociación pues incrementarían el valor de una potencial asociación:</p>
+<p>Opción de crecimiento/Expansión otorgada por BARCINO a PETRAL: El activo tiene la capacidad de construir más tanques si el negocio va bien. Indudablemente, si BARCINO otorga esa opción a PETRAL, el valor incremental seria mayor que el calculado para B-TANK</p>
+<p>Opciones de producción: PETRAL puede ofrecer a BARCINO cambiar el giro de negocio de sus servicios menos rentables a otros que pueda atraer comercialmente para los ACTIVOS YA EXISTENTES de BARCINO</p>
+<h2 id="vision-de-kaizen-capital-para-un-deal-win-win">Visión de Kaizen Capital para un deal WIN WIN</h2>
+<p>Aunque no es parte del presente análisis, creemos valioso para PETRAL reflexionar sobre una potencial arquitectura de deal. Sugerimos evaluar el siguiente deal en dos etapas.</p>
+<p>Etapa I – El JV:  En esta etapa BARCINO aporta del derecho de uso del activo y algunos intangibles producto de su experiencia en terminales, además de sinergias por mejor explotación de su overhead corporativo. El escenario más probable es que el equity se divida 50/50 por cuestiones de control como sustentamos líneas arriba. La discusión se centraría en asignarle un valor monetario al aporte del activo que incluya los intangibles que BARCINO trae al JV. La variable que le queda a PETRAL para inclinar la balanza es solicitar un aporte adicional de equity dependiendo de la negociación. La siguiente tabla de doble entrada describe como resultaría el retorno del equity para diversas combinaciones del valor del activo y el “cash equity” adicional que pediría PETRAL a BARCINO (o subsidio que otorgaría) para lograr el 50%. Esta etapa contempla que BARCINO otorgue la opción real a PETRAL para desarrollar negocios en conjunto expandiéndose a todo el activo disponible (pasar de 2 tanques a potencialmente 5 tanques). El análisis se efectuó a nivel proyecto y asumiendo no endeudamiento para liberar el resultado de los efectos “distorsionadores” de la deuda. Anticipamos  que la percepción de BARCINO respecto al aporte del activo será que este entrará antes que el “cash equity” de PETRAL y que el mismo además pasará a ser parte de la garantía de cualquier financiamiento a obtenerse y/o por parte de los clientes.</p>
+<p>Si damos por sentado que BARCINO no aceptaría menos que el 50% de las acciones del JV, podemos analizar el efecto de “subsidio” que PETRAL tendría que hacer para completar con un aporte de “cash equity” lo que falte para que su aporte sea igual al 50% del CAPEX TOTAL (Valor asignado a la tierra + CAPEX).</p>
+<p>Etapa II – La Fusión por absorción:  Esta etapa es también una opción real que BARCINO otorgaría a PETRAL sujeta al logro de metas de generación de valor en el JV. Si dicha metas se alcanzaran, PETRAL tendría la opción de hacer un “swap” de sus acciones en el JV por acciones del BARCINO. El JV desaparecería, y PETRAL pasaría a ser accionista de BARCINO. El ratio de intercambio debería considerar el valor de la opción real que PETRAL otorgaría a BARCINO de hacer su negocio más rentable reconvirtiendo activos dedicados hoy a productos de menor valor.</p>
+    </div>
+
+</body>
+
+</html>

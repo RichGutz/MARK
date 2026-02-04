@@ -1,0 +1,13 @@
+Aquí tienes la transcripción literal y completa del audio:
+
+Gemini, vamos a hacer unas modificaciones a nuestro app mapa interactivo.
+
+Primero, deseo que retires el layer Camino SF. Cuando digo retiro, no quiero que lo borres. Quiero que ese layer deje de ser mostrado.
+
+Siguiente.
+
+[Pausa significativa]
+
+Quiero que la ruta roja que va desde la PE1S hasta San Juan de Marcona, sea un layer independiente. Asimismo, la ruta morada que va desde San Juan de Marcona a San Nicolás, también necesito que sea un layer independiente.
+
+Escucha este mensaje y hagamos un plan de ejecución.
