@@ -10,36 +10,42 @@ git fetch --all
 echo "🔀 Resetting to branch: deploy-vps-2026.02.04.18.10"
 git reset --hard origin/deploy-vps-2026.02.04.18.10
 
-# 2. Desplegar Portal (Login)
-echo "🧹 Limpiando archivos basura (Parking Page)..."
+# 2. SECCIÓN DE APLICACIONES (Agrega tus apps aquí) ------------------------------
+
+# --- APP 1: PORTAL GEEKSOFT (Raíz) ---
+echo "📂 [APP 1] Desplegando Portal..."
+# Limpieza de archivos default de Hostinger si existen
 rm -f /var/www/html/index.php /var/www/html/default.php /var/www/html/index.nginx-debian.html
 
-echo "📂 Copiando Portal (GeekSoft_Portal)..."
 if [ -d "GeekSoft_Portal" ]; then
     cp -r GeekSoft_Portal/* /var/www/html/
-    echo "   -> Portal copiado."
+    echo "   -> OK: Portal actualizado."
 else
-    echo "⚠️ ERROR: No se encuentra la carpeta GeekSoft_Portal"
+    echo "⚠️ ERROR: No se encuentra GeekSoft_Portal"
 fi
 
-# 3. Desplegar Dashboard (Petral)
-echo "📂 Copiando Dashboard (Dashboard_Puertos)..."
+# --- APP 2: DASHBOARD PETRAL (/petral) ---
+echo "📂 [APP 2] Desplegando Dashboard Petral..."
 mkdir -p /var/www/html/petral
 if [ -d "Dashboard_Puertos" ]; then
-    # Chequear si existe index.html
-    if [ -f "Dashboard_Puertos/index.html" ]; then
-        echo "   -> index.html encontrado."
-    else
-        echo "⚠️ ALERTA: Dashboard_Puertos/index.html NO encontrado en el repo."
-    fi
-    
     cp -r Dashboard_Puertos/* /var/www/html/petral/
-    echo "   -> Dashboard copiado a /var/www/html/petral/"
+    if [ -f "Dashboard_Puertos/index.html" ]; then echo "   -> OK: index.html detectado."; else echo "⚠️ ALERTA: Sin index.html"; fi
+    echo "   -> OK: Dashboard actualizado en /petral"
 else
-    echo "⚠️ ERROR: No se encuentra la carpeta Dashboard_Puertos"
+    echo "⚠️ ERROR: No se encuentra Dashboard_Puertos"
 fi
 
-# 4. Corregir Permisos
+# --- EJEMPLO PARA NUEVA APP (Descomentar y editar) ---
+# echo "📂 [APP NUEVA] Desplegando MiApp..."
+# mkdir -p /var/www/html/miapp
+# if [ -d "CarpetaDeTuApp" ]; then
+#     cp -r CarpetaDeTuApp/* /var/www/html/miapp/
+#     echo "   -> OK: MiApp actualizada."
+# fi
+
+# --------------------------------------------------------------------------------
+
+# 3. Corregir Permisos (Global)
 echo "🔒 Ajustando Permisos..."
 chown -R www-data:www-data /var/www/html
 find /var/www/html -type d -exec chmod 755 {} \;
