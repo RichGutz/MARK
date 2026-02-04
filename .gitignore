@@ -1,0 +1,23 @@
+# Ignorar todo excepto Dashboard_Puertos y archivos de configuración clave
+
+# Carpetas de Documentación y Trabajo Interno
+Infomemo/
+audio_transcrip/
+Research/
+GAME.PLAN.CLIENTE.MANDATO/
+.gemini/
+.system_generated/
+
+# Archivos de Sistema/Temporales
+__pycache__/
+*.pyc
+*.rar
+*.zip
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Configuración Agente
+task.md
+prompt.md
