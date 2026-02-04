@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Ignorar todo excepto Dashboard_Puertos y archivos de configuración clave
 
 # Carpetas de Documentación y Trabajo Interno
@@ -21,3 +22,13 @@ Thumbs.db
 # Configuración Agente
 task.md
 prompt.md
+=======
+.env
+__pycache__
+*.pyc
+node_modules
+*.log
+gemini_work_log.txt
+scraper_log.txt
+vesselfinder_result.html
+>>>>>>> ef388337c5dbb45098c5028c1dad5872e31b4a39
