@@ -4,8 +4,8 @@ echo "🔄 Iniciando Despliegue..."
 echo "📅 Fecha: $(date)"
 
 # 1. Actualizar Código
-cd /tmp/mark_repo
-echo "⬇️ Fetching updates..."
+cd /files_repo
+echo "⬇️ Fetching updates in /files_repo..."
 git fetch --all
 echo "🔀 Resetting to branch: deploy-vps-2026.02.04.18.10"
 git reset --hard origin/deploy-vps-2026.02.04.18.10
