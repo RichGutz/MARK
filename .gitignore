@@ -1,19 +1,4 @@
-<<<<<<< HEAD
-# Ignorar todo excepto Dashboard_Puertos y archivos de configuración clave
-
-# Carpetas de Documentación y Trabajo Interno
-Infomemo/
-audio_transcrip/
-Research/
-GAME.PLAN.CLIENTE.MANDATO/
-.gemini/
-.system_generated/
-
-# EXCEPCIONES: ¡SÍ RASTREAR ESTAS CARPETAS!
-!GeekSoft_Portal/
-!Dashboard_Puertos/
-
-# Archivos de Sistema/Temporales
+# Exclusiones Generales
 __pycache__/
 *.pyc
 *.rar
@@ -22,17 +7,30 @@ __pycache__/
 *.tmp
 .DS_Store
 Thumbs.db
+node_modules/
 
-# Configuración Agente
+# Directorios de Documentación y Trabajo Interno (Ignorar)
+Infomemo/
+audio_transcrip/
+Research/
+GAME.PLAN.CLIENTE.MANDATO/
+.gemini/
+.system_generated/
+.idea/
+.vscode/
+
+# Configuración Agente (Ignorar)
 task.md
 prompt.md
-=======
-.env
-__pycache__
-*.pyc
-node_modules
-*.log
 gemini_work_log.txt
 scraper_log.txt
-vesselfinder_result.html
->>>>>>> ef388337c5dbb45098c5028c1dad5872e31b4a39
+
+# --- EXCEPCIONES: SÍ RASTREAR ESTO ---
+!GeekSoft_Portal/
+!Dashboard_Puertos/
+!GUIA_DEPLOY_HOSTINGER.md
+!CONEXION_HOSTINGER.md
+!GUIA_SETUP_VPS.md
+!update.sh
+!table_schema.sql
+
