@@ -24,6 +24,7 @@ task.md
 prompt.md
 gemini_work_log.txt
 scraper_log.txt
+CLAVES_PRIVADAS.txt
 
 # --- EXCEPCIONES: SÍ RASTREAR ESTO ---
 !GeekSoft_Portal/
