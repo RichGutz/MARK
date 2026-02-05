@@ -11,6 +11,9 @@ echo "🔀 Resetting to branch: deploy-vps-2026.02.04.18.10"
 git reset --hard origin/deploy-vps-2026.02.04.18.10
 
 # 2. Desplegar Portal (Login)
+echo "🧹 Limpiando archivos basura (Parking Page)..."
+rm -f /var/www/html/index.php /var/www/html/default.php /var/www/html/index.nginx-debian.html
+
 echo "📂 Copiando Portal (GeekSoft_Portal)..."
 if [ -d "GeekSoft_Portal" ]; then
     cp -r GeekSoft_Portal/* /var/www/html/
