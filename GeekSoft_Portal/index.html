@@ -73,6 +73,8 @@
         .logo {
             width: 150px;
             margin-bottom: 2rem;
+            background: none !important;
+            /* FORCE TRANSPARENCY */
             filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
         }
 
@@ -151,7 +153,8 @@
 
     <div class="content-wrapper">
         <div class="login-card">
-            <img src="logo_geek.png" alt="GeekSoft Logo" class="logo">
+            <!-- LOGO FIXED v3 -->
+            <img src="logo_final_v3.png" alt="GeekSoft Logo" class="logo">
 
             <form id="loginForm">
                 <div class="input-group">
@@ -170,7 +173,7 @@
                     Denegado</p>
             </form>
 
-            <p class="copyright">© 2026 GE-EK SOFT.</p>
+            <p class="copyright">© 2026 GEEK SOFT.</p>
         </div>
     </div>
 
@@ -276,9 +279,6 @@
 
         function animate() {
             ctx.clearRect(0, 0, width, height);
-
-            // Connect nearby particles slightly (Constellation effect? Maybe too messy. Keep clean for now)
-
             particles.forEach(p => {
                 p.update();
                 p.draw();
