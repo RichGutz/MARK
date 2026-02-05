@@ -140,3 +140,383 @@ if (user === 'petral') {
 }
 ```
 *Simplemente edita esto, haz Git Push, Update, y listo.*
+
+---
+
+## 8. Automated Data Scraper (24/7)
+
+Tu aplicación puede scrapear datos automáticamente cada hora y subirlos a Supabase para análisis histórico.
+
+### Configuración Inicial (Una Sola Vez)
+
+**Requisitos:**
+- Python 3 (ya instalado en el VPS)
+- Dependencias: `requests`, `beautifulsoup4`, `python-dotenv`, `supabase`
+
+**Instalación:**
+```bash
+# Conectarse al VPS
+ssh root@91.108.125.253
+
+# Instalar dependencias
+pip3 install requests beautifulsoup4 python-dotenv supabase
+
+# Crear directorio
+mkdir -p /files_repo/Dashboard_Puertos
+cd /files_repo/Dashboard_Puertos
+```
+
+### Archivos Necesarios
+
+Los siguientes archivos deben estar en `/files_repo/Dashboard_Puertos/`:
+
+1. **scraper_apu.py** - Scraper principal (scrapea APN y guarda `ships_data.js`)
+2. **sync_supabase.py** - Sincroniza datos a Supabase
+3. **.env** - Credenciales de Supabase
+4. **/files_repo/run_scraper.sh** - Script de automatización
+
+**Nota:** Estos archivos ya están configurados en el VPS. Ver implementación en el repositorio.
+
+### Cron Job (Ejecución Automática)
+
+El scraper se ejecuta **cada hora en punto** (24 veces al día):
+
+```bash
+# Ver configuración actual
+crontab -l
+
+# Debería mostrar:
+# 0 * * * * /bin/bash /files_repo/run_scraper.sh
+```
+
+### Flujo Automático
+
+Cada hora (00:00, 01:00, 02:00... 23:00):
+1. Scraper descarga datos de https://eredenaves.apn.gob.pe
+2. Guarda en `/var/www/html/petral/ships_data.js`
+3. Frontend lee el archivo actualizado
+4. Sync sube datos a Supabase (histórico)
+5. Todo se registra en `/var/log/scraper.log`
+
+### Verificación y Logs
+
+```bash
+# Ver últimas ejecuciones
+tail -50 /var/log/scraper.log
+
+# Ejecutar manualmente (para probar)
+/bin/bash /files_repo/run_scraper.sh
+
+# Ver archivo generado
+ls -lh /var/www/html/petral/ships_data.js
+```
+
+### Troubleshooting
+
+**El scraper no se ejecuta:**
+```bash
+# Verificar que el cron está activo
+crontab -l | grep scraper
+
+# Verificar permisos del script
+ls -lh /files_repo/run_scraper.sh
+# Debe mostrar: -rwxr-xr-x (ejecutable)
+
+# Si no tiene permisos:
+chmod +x /files_repo/run_scraper.sh
+```
+
+**Error de conexión a APN:**
+- El sitio de APN puede estar en mantenimiento
+- Verificar en el log: `tail -20 /var/log/scraper.log`
+- El scraper reintentará en la próxima hora
+
+**Error de Supabase:**
+- Verificar credenciales en `/files_repo/Dashboard_Puertos/.env`
+- Verificar que la tabla `port_arrivals` existe en Supabase
+- Ver error específico en el log
+
+---
+
+## 9. Workflow: Actualizar Apps SIN Romper el Scraper
+
+**⚠️ IMPORTANTE:** Cuando agregues funcionalidad a tu app, debes entender qué se actualiza y qué NO.
+
+### Flujo Normal de Actualización
+
+#### Paso 1: Modificar en tu PC
+```powershell
+cd C:\Users\rguti\Petral.MARK
+# Editas tu código (HTML/CSS/JS)
+git add .
+git commit -m "Nueva funcionalidad X"
+git push origin deploy-vps-2026.02.04.18.10
+```
+
+#### Paso 2: Actualizar en VPS
+```bash
+ssh root@91.108.125.253
+cd /files_repo && sh update.sh
+```
+
+### ✅ Archivos que NO se Sobrescriben (SEGUROS)
+
+Estos permanecen intactos después de `update.sh`:
+
+| Archivo/Config | Ubicación | Descripción |
+|----------------|-----------|-------------|
+| **Cron job** | Sistema (`crontab`) | Configuración de ejecución automática |
+| **Scraper Python** | `/files_repo/Dashboard_Puertos/` | Scripts de scraping |
+| **Logs** | `/var/log/scraper.log` | Historial de ejecuciones |
+| **ships_data.js** | `/var/www/html/petral/` | Se regenera automáticamente cada hora |
+| **Dependencias Python** | Sistema | Librerías instaladas con `pip3` |
+
+### ❌ Archivos que SÍ se Actualizan
+
+Estos se sobrescriben con `update.sh`:
+
+| Archivo | Ubicación | Solución |
+|---------|-----------|----------|
+| **Frontend** (HTML/CSS/JS) | `/var/www/html/petral/` | ✅ Normal, es lo que quieres actualizar |
+| **Archivos en Git** | Todo lo que esté en el repo | Usar `.gitignore` para proteger archivos |
+
+### 🛡️ Proteger Archivos Críticos
+
+**Agregar a `.gitignore`:**
+```
+# Archivos del scraper que NO deben subirse a Git
+Dashboard_Puertos/.env
+Dashboard_Puertos/scraper_log.txt
+Dashboard_Puertos/tanker_cache.json
+Dashboard_Puertos/ships_data.js
+```
+
+### 📋 Workflows Específicos
+
+#### Actualizar SOLO el Frontend
+```powershell
+# En tu PC
+git add Dashboard_Puertos/*.html Dashboard_Puertos/*.css Dashboard_Puertos/*.js
+git commit -m "Update UI"
+git push
+
+# En VPS
+cd /files_repo && sh update.sh
+```
+✅ **Scraper NO se afecta**
+
+#### Actualizar el Scraper
+
+**Opción A: Editar directamente en VPS (Recomendado para cambios rápidos)**
+```bash
+ssh root@91.108.125.253
+nano /files_repo/Dashboard_Puertos/scraper_apu.py
+# Editar, guardar (Ctrl+O, Enter, Ctrl+X)
+```
+
+**Opción B: Desde Git (Para cambios importantes)**
+```powershell
+# 1. En tu PC
+git add Dashboard_Puertos/scraper_apu.py
+git commit -m "Update scraper logic"
+git push
+
+# 2. En VPS
+cd /files_repo
+git pull
+# El scraper se actualiza automáticamente en la próxima ejecución
+```
+
+### ⚠️ Reglas de Oro
+
+1. **NUNCA** borres el cron job (`crontab -e`)
+2. **NUNCA** borres `/files_repo/Dashboard_Puertos/` manualmente
+3. **SIEMPRE** usa `.gitignore` para archivos sensibles (`.env`)
+4. **VERIFICA** después de actualizar: `tail -20 /var/log/scraper.log`
+
+### 🔍 Verificación Post-Deploy
+
+Después de cada actualización, verifica que todo sigue funcionando:
+
+```bash
+# 1. Verificar que el cron sigue activo
+crontab -l | grep scraper
+
+# 2. Verificar que el scraper existe
+ls -lh /files_repo/Dashboard_Puertos/scraper_apu.py
+
+# 3. Ver últimas ejecuciones
+tail -20 /var/log/scraper.log
+
+# 4. Probar manualmente
+/bin/bash /files_repo/run_scraper.sh
+```
+
+---
+
+## 10. 🚨 Plan de Emergencia: Si Algo Se Rompe
+
+**Si el próximo agente (o tú) rompe algo, aquí está cómo recuperarlo.**
+
+### 🔄 Backup Automático del Scraper
+
+**Crear backup AHORA (antes de que algo se rompa):**
+
+```bash
+# Conectar al VPS
+ssh root@91.108.125.253
+
+# Crear backup completo
+tar -czf /root/scraper_backup_$(date +%Y%m%d).tar.gz \
+  /files_repo/Dashboard_Puertos/scraper_apu.py \
+  /files_repo/Dashboard_Puertos/sync_supabase.py \
+  /files_repo/Dashboard_Puertos/.env \
+  /files_repo/run_scraper.sh
+
+# Guardar cron job
+crontab -l > /root/crontab_backup.txt
+
+# Verificar backups
+ls -lh /root/*backup*
+```
+
+### 🛟 Restaurar desde Backup
+
+**Si algo se rompió:**
+
+```bash
+# 1. Conectar al VPS
+ssh root@91.108.125.253
+
+# 2. Ver backups disponibles
+ls -lh /root/*backup*
+
+# 3. Restaurar archivos
+cd /
+tar -xzf /root/scraper_backup_YYYYMMDD.tar.gz
+
+# 4. Restaurar cron job
+crontab /root/crontab_backup.txt
+
+# 5. Verificar
+crontab -l | grep scraper
+ls -lh /files_repo/Dashboard_Puertos/scraper_apu.py
+```
+
+### 🔧 Fixes Rápidos para Problemas Comunes
+
+#### Problema 1: Cron Job Desapareció
+
+```bash
+# Restaurar cron job manualmente
+crontab -e
+# Agregar esta línea:
+# 0 * * * * /bin/bash /files_repo/run_scraper.sh
+```
+
+#### Problema 2: Scraper No Existe
+
+```bash
+# Verificar si existe
+ls -lh /files_repo/Dashboard_Puertos/scraper_apu.py
+
+# Si no existe, restaurar desde backup
+tar -xzf /root/scraper_backup_*.tar.gz
+
+# O copiar desde Git
+cd /files_repo
+git pull
+cp Dashboard_Puertos/scraper_apu.py /files_repo/Dashboard_Puertos/
+```
+
+#### Problema 3: Permisos Incorrectos
+
+```bash
+# Arreglar permisos
+chmod +x /files_repo/run_scraper.sh
+chmod 644 /files_repo/Dashboard_Puertos/scraper_apu.py
+chmod 644 /files_repo/Dashboard_Puertos/sync_supabase.py
+chmod 600 /files_repo/Dashboard_Puertos/.env
+```
+
+#### Problema 4: Dependencias Faltantes
+
+```bash
+# Reinstalar todas las dependencias
+pip3 install requests beautifulsoup4 python-dotenv supabase
+```
+
+### 📋 Checklist de Verificación Completa
+
+**Ejecuta esto para verificar que TODO está bien:**
+
+```bash
+# 1. Cron job activo
+echo "=== CRON JOB ==="
+crontab -l | grep scraper
+
+# 2. Archivos del scraper
+echo "=== ARCHIVOS ==="
+ls -lh /files_repo/Dashboard_Puertos/scraper_apu.py
+ls -lh /files_repo/Dashboard_Puertos/sync_supabase.py
+ls -lh /files_repo/run_scraper.sh
+
+# 3. Dependencias Python
+echo "=== DEPENDENCIAS ==="
+pip3 list | grep -E "requests|beautifulsoup4|supabase|python-dotenv"
+
+# 4. Última ejecución
+echo "=== ÚLTIMO LOG ==="
+tail -10 /var/log/scraper.log
+
+# 5. Probar ejecución manual
+echo "=== PRUEBA MANUAL ==="
+/bin/bash /files_repo/run_scraper.sh
+```
+
+### 🆘 Comandos de Emergencia (Copia y Pega)
+
+**Si TODO falla, ejecuta este bloque completo:**
+
+```bash
+# RESTAURACIÓN COMPLETA DE EMERGENCIA
+ssh root@91.108.125.253 << 'ENDSSH'
+
+# 1. Reinstalar dependencias
+pip3 install requests beautifulsoup4 python-dotenv supabase
+
+# 2. Recrear cron job
+(crontab -l 2>/dev/null | grep -v scraper; echo "0 * * * * /bin/bash /files_repo/run_scraper.sh") | crontab -
+
+# 3. Verificar estructura
+mkdir -p /files_repo/Dashboard_Puertos
+
+# 4. Arreglar permisos
+chmod +x /files_repo/run_scraper.sh
+chmod 644 /files_repo/Dashboard_Puertos/*.py
+chmod 600 /files_repo/Dashboard_Puertos/.env
+
+# 5. Probar
+/bin/bash /files_repo/run_scraper.sh
+
+echo "✅ Restauración completada"
+ENDSSH
+```
+
+### 📞 Contacto de Emergencia
+
+**Si nada funciona, contacta con:**
+- Soporte de Hostinger: https://hpanel.hostinger.com
+- Documentación de este setup: `MASTER_DEPLOY_GUIDE_HOSTINGER.md`
+
+### 💾 Recomendación: Backups Programados
+
+**Crear backup automático semanal:**
+
+```bash
+# Agregar a crontab
+crontab -e
+
+# Agregar esta línea (backup cada domingo a las 3am):
+# 0 3 * * 0 tar -czf /root/scraper_backup_$(date +\%Y\%m\%d).tar.gz /files_repo/Dashboard_Puertos/ /files_repo/run_scraper.sh
+```

@@ -1,0 +1,77 @@
+# INSTRUCCIONES OBLIGATORIAS PARA AGENTES DE IA
+
+## ⚠️ ANTES DE HACER CUALQUIER COSA
+
+1. **LEE COMPLETAMENTE:** `MASTER_DEPLOY_GUIDE_HOSTINGER.md`
+2. **LEE ESPECIALMENTE:** Secciones 8, 9 y 10
+3. **VERIFICA:** Qué archivos NO debes modificar
+
+## 🚨 ARCHIVOS CRÍTICOS - NO MODIFICAR SIN AUTORIZACIÓN
+
+Estos archivos están en el VPS y controlan el scraper automático (24/7):
+- `/files_repo/Dashboard_Puertos/scraper_apu.py`
+- `/files_repo/Dashboard_Puertos/sync_supabase.py`
+- `/files_repo/Dashboard_Puertos/.env`
+- `/files_repo/run_scraper.sh`
+- Cron job del sistema
+
+**Si los modificas sin entender, romperás la recolección automática de datos.**
+
+## ✅ LO QUE SÍ PUEDES MODIFICAR
+
+- Frontend: `Dashboard_Puertos/*.html`, `*.css`, `*.js` (archivos del dashboard)
+- Portal: `GeekSoft_Portal/*`
+- Documentación
+
+## 📋 WORKFLOW OBLIGATORIO
+
+### Para cambios en Frontend:
+```
+1. Modificar archivos localmente
+2. git add + commit + push
+3. SSH al VPS: cd /files_repo && sh update.sh
+4. VERIFICAR que el scraper sigue funcionando
+```
+
+### Para cambios en Scraper:
+```
+1. LEER Sección 9 de la guía
+2. Pedir autorización al usuario
+3. Crear backup ANTES de modificar
+4. Modificar directamente en VPS (NO desde Git)
+```
+
+## 🆘 SI ROMPES ALGO
+
+Ejecuta inmediatamente:
+```bash
+ssh root@91.108.125.253 << 'ENDSSH'
+(crontab -l 2>/dev/null | grep -v scraper; echo "0 * * * * /bin/bash /files_repo/run_scraper.sh") | crontab -
+chmod +x /files_repo/run_scraper.sh
+pip3 install requests beautifulsoup4 python-dotenv supabase
+/bin/bash /files_repo/run_scraper.sh
+ENDSSH
+```
+
+## 🎯 REGLAS DE ORO
+
+1. **NUNCA** ejecutes `git init` dentro de carpetas de apps
+2. **NUNCA** borres el cron job
+3. **SIEMPRE** verifica después de actualizar: `tail -20 /var/log/scraper.log`
+4. **SIEMPRE** pregunta al usuario antes de modificar el scraper
+5. **SIEMPRE** crea backup antes de cambios críticos
+
+## 📚 DOCUMENTACIÓN
+
+- **Guía principal:** `MASTER_DEPLOY_GUIDE_HOSTINGER.md`
+- **README:** `README.md`
+- **Credenciales:** `CLAVES_PRIVADAS.txt` (NO subir a Git)
+
+## ⚡ VERIFICACIÓN RÁPIDA
+
+Antes de terminar tu sesión, ejecuta:
+```bash
+ssh root@91.108.125.253 "crontab -l | grep scraper && ls -lh /files_repo/Dashboard_Puertos/scraper_apu.py && tail -5 /var/log/scraper.log"
+```
+
+Si algo falla, RESTAURA antes de terminar.
