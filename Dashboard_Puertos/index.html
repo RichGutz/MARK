@@ -31,8 +31,8 @@
         <div id="port-filter-ribbon" class="glass-panel"
             style="position: absolute; top: 20px; left: 20px; width: 340px; z-index: 1100; padding: 10px; display:flex; flex-direction:column; gap:5px;">
             <span class="control-label"
-                style="margin:0 0 5px 0; font-size:11px; text-transform:uppercase; color:#546e7a; font-weight:bold;">Filtros
-                de Puertos y Elevacion</span>
+                style="margin:0 0 5px 0; font-size:11px; text-transform:uppercase; color:#546e7a; font-weight:bold;">FUNCIONES,
+                PUERTOS Y HERRAMIENTAS</span>
             <div style="display:flex; gap:5px; justify-content:space-between;">
                 <button class="btn-control active" style="flex:1; font-size:10px; padding:4px 0;"
                     onclick="setMapFilter('all')">Todos</button>
@@ -47,14 +47,18 @@
                     Elevacion Z
                 </a>
                 <a href="terrain_3d_viewer.html" target="_blank" class="btn-control"
-                    style="flex:1.5; font-size:10px; padding:4px 0; text-align:center; text-decoration:none; color:#00e676; border-color:#00e676; display:flex; align-items:center; justify-content:center;">
+                    style="flex:1.5; font-size:10px; padding:4px 0; text-align:center; text-decoration:none; color:#00e676; border-color:#00e676; display:flex; align-items: center; justify-content:center;">
                     Modelo 3D
+                </a>
+                <a href="Suply.Chain.Iron.Ore/ubicacion_fajas_map.html" target="_blank" class="btn-control"
+                    style="flex:1.5; font-size:10px; padding:4px 0; text-align:center; text-decoration:none; color:#ff6b6b; border-color:#ff6b6b; display:flex; align-items:center; justify-content:center;">
+                    Supply Chain Map
                 </a>
             </div>
         </div>
 
         <!-- NEW: Mineral Logistics Calculator Panel -->
-        <div id="logistics-panel" style="display: none;">
+        <div id="logistics-panel">
             <div class="panel-header">
                 <h3>🚛 Logística Minera</h3>
                 <span class="panel-subtitle">Proyección de Flota vs Capacidad (Ruta 30A)</span>
@@ -107,7 +111,7 @@
 
         <!-- NEW: Fuel Logistics Calculator Panel -->
         <div id="fuel-logistics-panel" class="glass-panel"
-            style="position: absolute; top: 110px; left: 20px; width: 280px; z-index: 1000; padding: 15px; border-radius: 10px; display: none;">
+            style="position: absolute; top: 110px; left: 20px; width: 280px; z-index: 1000; padding: 15px; border-radius: 10px;">
             <div class="panel-header">
                 <h3 style="color:#ff4444;">⛽ Logística Combustibles</h3>
                 <span class="panel-subtitle">Proyección Abastecimiento Diesel</span>
@@ -223,20 +227,6 @@
                     <span class="toggle-text" style="font-size: 8px;">ETIQUETAS</span>
                 </label>
             </div>
-            <div class="control-vr" style="background: rgba(0,0,0,0.1); margin: 0 5px;"></div>
-            <div class="control-group">
-                <span class="control-label"
-                    style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">CALCULADORAS</span>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-mining-logistics" onchange="toggleMiningLogistics()">
-                    <span class="toggle-text" style="font-size: 8px;">Log. Minera</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-fuel-logistics" onchange="toggleFuelLogistics()">
-                    <span class="toggle-text" style="font-size: 8px;">Log. Combustible</span>
-                </label>
-            </div>
         </div>
 
         <!-- Bottom Ribbon: Base Layers & Routes -->
@@ -245,11 +235,7 @@
             <div class="control-group" style="display: flex; align-items: center; gap: 4px;">
                 <span class="control-label"
                     style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">Capas</span>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-port-labels" onchange="togglePortLabels()">
-                    <span class="toggle-text" style="font-size: 8px; color: #2c3e50;">Etiq. Puertos</span>
-                </label>
-                <div style="width:5px;"></div>
+
                 <label class="toggle-control">
                     <input type="checkbox" id="toggle-land-labels" onchange="toggleLandLabels()">
                     <span class="toggle-text" style="font-size: 8px; color: #2c3e50;">Etiq. Tierra</span>
@@ -295,6 +281,13 @@
                     <input type="checkbox" id="toggle-green-route-labels" onchange="toggleGreenRouteLabels()">
                     <span class="toggle-text" style="font-size: 8px; color: #546e7a;">Etiq. Verde</span>
                 </label>
+                <div style="width:3px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-calculators" onchange="toggleCalculators()">
+                    <span class="toggle-text"
+                        style="font-size: 8px; color: black; font-weight:bold;">CALCULADORAS</span>
+                </label>
+
                 <div style="width:5px;"></div>
                 <label class="toggle-control">
                     <input type="checkbox" id="toggle-coastal-route" onchange="toggleCoastalRoute()">
@@ -346,6 +339,7 @@
     <script src="new_green_route.js?v=2"></script>
     <script src="coastal_route.js?v=2"></script>
     <script src="perimeter_sides.js"></script>
+    <script src="port_layout_simulation.js"></script>
 
     <!-- App Logic -->
     <script src="script.js?v=2.6"></script>
