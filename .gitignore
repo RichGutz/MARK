@@ -1,48 +1,63 @@
-# Exclusiones Generales
-__pycache__/
-*.pyc
-*.rar
-*.zip
-*.log
-*.tmp
+# --- EXCLUSIONES GLOBALES (PESADOS) ---
 *.mp4
 *.mp3
 *.m4a
 *.mov
 *.avi
 *.wmv
+*.flv
+*.mkv
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.pdf
+*.kmz
+*.kml
 *.png
-# Solo permitir los pngs específicos de UI en carpetas de assets
+*.jpg
+*.jpeg
+*.svg
+*.gif
+
+# --- EXCEPCIONES: SÍ RASTREAR ESTO (UI y CÓDIGO) ---
+!*.html
+!*.css
+!*.js
+!*.py
+!*.sh
+!*.bat
+!*.md
+!*.txt
+!.gitignore
+!.agent-instructions
+!.agent/**
+
+# Icons/Assets específicos para Dashboard_Puertos y Portal
 !Dashboard_Puertos/**/assets/*.png
 !Dashboard_Puertos/**/assets/*.jpg
 !GeekSoft_Portal/**/assets/*.png
+!GeekSoft_Portal/**/assets/*.jpg
+
+# --- TRABAJO INTERNO E IDENTIFICADORES ---
+__pycache__/
+*.pyc
 .DS_Store
 Thumbs.db
 node_modules/
-
-# Directorios de Documentación y Trabajo Interno (Ignorar)
-Infomemo/
-audio_transcrip/
-Research/
-GAME.PLAN.CLIENTE.MANDATO/
-.gemini/
-.system_generated/
 .idea/
 .vscode/
 
-# Configuración Agente (Ignorar)
+# --- DIRECTORIOS PRIVADOS ---
+audio_transcrip/
+Research/
+Infomemo/
+.gemini/
+.system_generated/
+CLAVES_PRIVADAS.txt
+VPS_SSH_KEY.txt
 task.md
 prompt.md
 gemini_work_log.txt
 scraper_log.txt
-CLAVES_PRIVADAS.txt
-
-# --- EXCEPCIONES: SÍ RASTREAR ESTO ---
-!GeekSoft_Portal/
-!Dashboard_Puertos/
-!GUIA_DEPLOY_HOSTINGER.md
-!CONEXION_HOSTINGER.md
-!GUIA_SETUP_VPS.md
-!update.sh
-!table_schema.sql
-
