@@ -1,8 +1,10 @@
 # MASTER GUIDE: Deploying Multiple Private Apps on Hostinger VPS
 
-**Goal**: Host multiple private web applications (e.g., Dashboard, Finance, HR) on a single VPS, accessible via a central Portal, using a unified Git workflow.
-
----
+> [!IMPORTANT]
+> **PROTOCOLO PARA AGENTES IA (ANTIGRAVITY/GEMINI):**
+> 1. **NUNCA** subas archivos "basura" (videos, audios, zips gigantes, logs).
+> 2. **SIEMPRE** verifica el `.gitignore` antes de cualquier `git add`.
+> 3. **PASO A PASO**: No ejecutes comandos encadenados (`&&`). Hazlo uno por uno y pide autorización humana tras cada paso (`status` -> `add` -> `commit` -> `push`).
 
 ## 1. Architecture (The "Monorepo" Concept)
 
@@ -58,6 +60,28 @@ git push origin deploy-vps-2026.02.04.18.10
     cd /files_repo && sh update.sh
     ```
     *   *Espera hasta ver: "✅ DESPLIEQUE COMPLETADO".*
+
+---
+
+## 2.1. Protocolo Obligatorio para AGENTES IA
+
+Si eres una IA, **DEBES** seguir estos pasos sin excepción para evitar subir archivos pesados o corromper el repo:
+
+### Fase 1: Auditoría de Archivos
+1. Ejecuta `git status` y revisa la lista de archivos.
+2. Si ves archivos `.mp4`, `.mp3`, `.zip` o similares que no sean código puro, **DETENTE**.
+3. Verifica que el `.gitignore` actual los bloquee. Si no, edítalo **PRIMERO**.
+
+### Fase 2: Ejecución Atómica (Uno por Uno)
+**No uses `&&`. Pide permiso antes de cada paso:**
+
+1.  **Status**: Muestra el `git status` al usuario y espera autorización.
+2.  **Add**: Usa `git add <archivo_especifico>` o `git add .` solo si estás 100% seguro. Muestra qué agregaste.
+3.  **Commit**: Realiza el commit y muestra el mensaje.
+4.  **Push**: Pregunta al usuario antes de hacer el push final.
+
+> [!WARNING]
+> La conexión SSH a Hostinger y el comando `update.sh` los realiza el **USUARIO MANUALMENTE** a menos que él pida lo contrario. No intentes automatizar el SSH si el usuario prefiere controlarlo.
 
 ---
 
