@@ -180,6 +180,7 @@ function initApp() {
     toggleInfraRoads();
     toggleExtraRoads();
     toggleSanFernando();
+    if (typeof togglePortSimulation === 'function') togglePortSimulation();
 }
 
 function renderRailway() {
@@ -1166,15 +1167,35 @@ function closeSidebar() {
     map.flyTo(CONFIG.initialCenter, CONFIG.initialZoom, { duration: 1.5 });
 }
 
+// Global state to track active filter
+let activeFilter = 'all';
+
 function setMapFilter(filter) {
+    const clickedBtn = event ? event.target : null;
+
+    // Check if clicking the already active filter
+    if (activeFilter === filter) {
+        // Toggle OFF behavior
+        // If it was 'all', we hide all. If it was specific, we hide all specialized, potentially showing nothing or resetting?
+        // Instruction says: "al volverlo a pretar, desaparezcan todos los puertos"
+
+        activeFilter = null; // No filter active = No ports shown
+        renderPorts([]); // Clear ports
+
+        // Remove active class from all
+        document.querySelectorAll('.btn-control').forEach(btn => btn.classList.remove('active'));
+        return;
+    }
+
+    // New Filter Activation
+    activeFilter = filter;
+
     // Update button states
     const buttons = document.querySelectorAll('.btn-control');
     buttons.forEach(btn => btn.classList.remove('active'));
 
-    // Attempt to match event target if passed implicitly (browsers)
-    // But since we use onclick="setMapFilter('...')", event might be available global
-    if (typeof event !== 'undefined' && event.target) {
-        event.target.classList.add('active');
+    if (clickedBtn) {
+        clickedBtn.classList.add('active');
     }
 
     // Filter ports
@@ -2007,4 +2028,34 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleCoastalRoute();
         toggleCoastalRouteLabels();
     }, 1700);
+});
+
+// ========================================
+// LOGISTICS CALCULATORS TOGGLE
+// ========================================
+
+function toggleCalculators() {
+    const el = document.getElementById('toggle-calculators');
+    if (!el) return;
+    const show = el.checked;
+
+    // Toggle Mineral Logistics Panel
+    const minPanel = document.getElementById('logistics-panel');
+    if (minPanel) {
+        minPanel.style.display = show ? 'block' : 'none';
+    }
+
+    // Toggle Fuel Logistics Panel
+    const fuelPanel = document.getElementById('fuel-logistics-panel');
+    if (fuelPanel) {
+        fuelPanel.style.display = show ? 'block' : 'none';
+    }
+}
+
+// Init calculators state on load
+document.addEventListener('DOMContentLoaded', () => {
+    // Hide by default if checkbox is unchecked (or handle based on initial HTML state)
+    setTimeout(() => {
+        toggleCalculators();
+    }, 500);
 });

@@ -132,3 +132,16 @@ ENDSSH
 **Última actualización:** 2026-02-04  
 **Mantenedor:** Usuario (rguti)  
 **VPS:** Hostinger - 91.108.125.253
+
+---
+
+## ☁️ Supabase (Base de Datos)
+
+**Acceso:**
+- **Login:** [supabase.com](https://supabase.com)
+- **Cuenta:** GitHub (**RichGutz**)
+- **Proyecto:** `mancsrsbtzgctgorpogs` (Dashboard Puertos)
+
+**Credenciales:**
+- Ver `CLAVES_PRIVADAS.txt` (local) o `.env` (VPS).
+
