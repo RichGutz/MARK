@@ -13,9 +13,9 @@ const CONFIG = {
 // Data Source: APN / Operator Websites (Approximate Max Operational Limits)
 // DWT = Deadweight Tonnage
 const PORT_CONFIG = {
-    'PETAL': { id: 'talara', name: "Talara", type: 'norte', coords: [-4.5772, -81.2719], draft: 10.5, max_dwt: "52k" },
-    'PEPAI': { id: 'paita', name: "Paita", type: 'norte', coords: [-5.0830, -81.1144], draft: 13.0, max_dwt: "50k" },
-    'PESAL': { id: 'salaverry', name: "Salaverry", type: 'norte', coords: [-8.2289, -78.9796], draft: 10.5, max_dwt: "65k" },
+    'PETAL': { id: 'talara', name: "Talara", type: 'north', coords: [-4.5772, -81.2719], draft: 10.5, max_dwt: "52k" },
+    'PEPAI': { id: 'paita', name: "Paita", type: 'north', coords: [-5.0830, -81.1144], draft: 13.0, max_dwt: "50k" },
+    'PESAL': { id: 'salaverry', name: "Salaverry", type: 'north', coords: [-8.2289, -78.9796], draft: 10.5, max_dwt: "65k" },
     'PECHM': { id: 'chimbote', name: "Chimbote", type: 'center', coords: [-9.0765, -78.5916], draft: 11.0, max_dwt: "40k" },
     'PECHY': { id: 'chancay', name: "Chancay (Cosco)", type: 'center', coords: [-11.5930, -77.2770], draft: 17.8, max_dwt: "160k" },
     'PECLL': { id: 'callao', name: "Callao", type: 'center', coords: [-12.0508, -77.1373], draft: 16.0, max_dwt: "150k" },
@@ -23,7 +23,10 @@ const PORT_CONFIG = {
     'PEPIO': { id: 'pisco', name: "Pisco", type: 'south', coords: [-13.8055, -76.2922], draft: 14.0, max_dwt: "60k" },
     'PEMAT': { id: 'matarani', name: "Matarani", type: 'south', coords: [-17.0016, -72.1065], draft: 18.0, max_dwt: "60k" },
     'PEILO': { id: 'ilo', name: "Ilo", type: 'south', coords: [-17.6450, -71.3468], draft: 11.0, max_dwt: "35k" },
-    'PESQN': { id: 'sannicolas', name: "San Nicolás", type: 'south', coords: [-15.2600, -75.2400], draft: 18.0, max_dwt: "300k" }
+    'PESQN': { id: 'sannicolas', name: "San Nicolás", type: 'south', coords: [-15.2600, -75.2400], draft: 18.0, max_dwt: "300k" },
+    // Virtual Terminals (Linked to Callao Data with Filtering)
+    'VALER': { id: 'valero', name: "Terminal Valero (Callao)", type: 'terminal', coords: [-11.9684, -77.1483], draft: 12.0, max_dwt: "50k", filterTerminal: "VALERO" },
+    'TRALS': { id: 'tralsa', name: "Terminal TRALSA (Callao)", type: 'terminal', coords: [-11.9734, -77.1462], draft: 11.0, max_dwt: "40k", filterTerminal: "TRALSA" }
 };
 
 // Helper: Process Real Data
@@ -42,16 +45,32 @@ function processShipData() {
     if (typeof REAL_TIME_SHIPS !== 'undefined') {
         REAL_TIME_SHIPS.forEach(ship => {
             const code = ship.port_id;
+            const shipTerminal = (ship.terminal || "").toUpperCase();
+
+            // 1. Regular Port Mapping
             if (portStats[code]) {
                 portStats[code].count++;
                 portStats[code].ships.push(ship);
-
-                // Check if Tanker
                 const type = (ship.type || "").toUpperCase();
                 if (type.includes("TANQUE") || type.includes("GASERO")) {
                     portStats[code].tankers++;
                 }
             }
+
+            // 2. Terminal Specific Mapping (Filter by Keyword)
+            Object.keys(PORT_CONFIG).forEach(pCode => {
+                const conf = PORT_CONFIG[pCode];
+                if (conf.filterTerminal && ship.port_id === 'PECLL') {
+                    if (shipTerminal.includes(conf.filterTerminal)) {
+                        portStats[pCode].count++;
+                        portStats[pCode].ships.push(ship);
+                        const type = (ship.type || "").toUpperCase();
+                        if (type.includes("TANQUE") || type.includes("GASERO")) {
+                            portStats[pCode].tankers++;
+                        }
+                    }
+                }
+            });
         });
     }
 
@@ -77,6 +96,7 @@ let layers = {
 };
 let currentMapType = 'standard';
 let markers = [];
+let currentFilter = 'all';
 const ports = processShipData(); // Initial load
 
 // --- PERIMETER SIDES ---
@@ -152,19 +172,19 @@ function toggleRailway() {
 function initApp() {
     initMap();
     renderPerimeterSides();
+    renderRailway();
+
+    // 2. Initial render of ports and mines
     renderPorts(ports);
     if (typeof MINING_PROJECTS !== 'undefined') {
         renderMines(MINING_PROJECTS);
     }
     renderTerrain();
-    // renderSouthCorridor(); // Moved to toggle
     renderInfraRoads();
     renderExtraRoads();
-    // renderShougangPolygon(); // Duplicated
-    // renderOptimizedRoute(); // Optimized Horizontal Route
-    // renderShougangVertices(); // Show Numbers 1-26
-    renderSanFernando(); // San Fernando Reserve
-    renderRailway();
+    renderSanFernando();
+
+    // 3. Synchronize initial state with checkboxes (this will respect the 'checked' state from HTML)
     // Synchronize initial state with checkboxes
     togglePortLabels();
     toggleLandLabels();
@@ -180,6 +200,15 @@ function initApp() {
     toggleInfraRoads();
     toggleExtraRoads();
     toggleSanFernando();
+    toggleCalculators();
+}
+
+function toggleCalculators() {
+    const show = document.getElementById('toggle-calculators').checked;
+    const p1 = document.getElementById('logistics-panel');
+    const p2 = document.getElementById('fuel-logistics-panel');
+    if (p1) p1.style.display = show ? 'block' : 'none';
+    if (p2) p2.style.display = show ? 'block' : 'none';
 }
 
 function renderRailway() {
@@ -844,20 +873,22 @@ function createInfoBoatIcon(port) {
 }
 
 function renderPorts(portsData) {
-    markers.forEach(m => map.removeLayer(m));
+    if (!window.portsLayer) window.portsLayer = L.layerGroup().addTo(map);
+    window.portsLayer.clearLayers();
     markers = [];
-    window.portsLayer = L.layerGroup();
 
     portsData.forEach(port => {
         // 1. Info Boat Marker (Define first to use in click handler)
         const boatMarker = L.marker(port.coords, {
             icon: createInfoBoatIcon(port),
-            zIndexOffset: 100 // Float above
+            zIndexOffset: 100, // Float above
+            portCode: port.code
         }).addTo(window.portsLayer);
 
         // 2. Main Port Marker
         const marker = L.marker(port.coords, {
-            icon: createCustomIcon(port)
+            icon: createCustomIcon(port),
+            portCode: port.code
         }).addTo(window.portsLayer);
 
         // Tooltip content
@@ -908,7 +939,8 @@ function createMineIcon(mine) {
 }
 
 function renderMines(mines) {
-    window.minesLayer = L.layerGroup();
+    if (!window.minesLayer) window.minesLayer = L.layerGroup().addTo(map);
+    window.minesLayer.clearLayers();
     mines.forEach(mine => {
         const marker = L.marker(mine.coords, {
             icon: createMineIcon(mine)
@@ -1166,22 +1198,90 @@ function closeSidebar() {
     map.flyTo(CONFIG.initialCenter, CONFIG.initialZoom, { duration: 1.5 });
 }
 
+function selectPortByCode(code) {
+    const port = ports.find(p => p.code === code);
+    if (!port) return;
+
+    // 1. Reset filter to show all ports so the target is visible
+    currentFilter = 'all';
+
+    // 2. Ensure "Encender" (Show) landmarks
+    const checkbox = document.getElementById('toggle-port-labels');
+    if (checkbox && !checkbox.checked) {
+        checkbox.checked = true;
+        togglePortLabels();
+    }
+
+    renderPorts(ports);
+
+    // Update Ribbon UI
+    const ribbon = document.getElementById('port-filter-ribbon');
+    if (ribbon) {
+        const buttons = ribbon.querySelectorAll('.btn-control');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        // Find "Todos" and set it active (since we reset to 'all')
+        const allBtn = Array.from(buttons).find(b => b.innerText.toLowerCase().includes('todos'));
+        if (allBtn) allBtn.classList.add('active');
+    }
+
+    // 3. Find and trigger marker click
+    const marker = markers.find(m => m.options.portCode === code);
+    if (marker) {
+        marker.fire('click');
+        map.flyTo(port.coords, 13, { duration: 1.5 });
+    }
+}
+window.selectPortByCode = selectPortByCode;
+
 function setMapFilter(filter) {
-    // Update button states
-    const buttons = document.querySelectorAll('.btn-control');
+    const ribbon = document.getElementById('port-filter-ribbon');
+    if (!ribbon) return;
+
+    // 1. Specific Selector: Only buttons in THIS ribbon
+    const buttons = ribbon.querySelectorAll('.btn-control');
+
+    // 2. Toggle Logic (Apagar/Encender)
+    const checkbox = document.getElementById('toggle-port-labels');
+
+    if (currentFilter === filter) {
+        // Toggle overall visibility if clicking same button
+        if (checkbox) {
+            checkbox.checked = !checkbox.checked;
+            togglePortLabels();
+            // Update active visual state
+            if (checkbox.checked) {
+                // Keep the active class
+            } else {
+                buttons.forEach(btn => btn.classList.remove('active'));
+                currentFilter = null; // Unset
+                return;
+            }
+        }
+    }
+
+    currentFilter = filter;
     buttons.forEach(btn => btn.classList.remove('active'));
 
-    // Attempt to match event target if passed implicitly (browsers)
-    // But since we use onclick="setMapFilter('...')", event might be available global
-    if (typeof event !== 'undefined' && event.target) {
+    // Highlight the clicked button
+    const targetBtn = Array.from(buttons).find(b => b.innerText.toLowerCase().includes(filter === 'all' ? 'todos' : (filter === 'north' ? 'norte' : (filter === 'center' ? 'centro' : 'sur'))));
+    if (targetBtn) targetBtn.classList.add('active');
+
+    // Explicitly target by event if possible for better accuracy
+    if (typeof event !== 'undefined' && event.target && event.target.classList.contains('btn-control')) {
         event.target.classList.add('active');
     }
 
-    // Filter ports
+    // 3. Ensure "Encender" (Show) landmarks when filtering
+    if (checkbox && !checkbox.checked) {
+        checkbox.checked = true;
+        togglePortLabels();
+    }
+
+    // 4. Actual Filtering
     if (filter === 'all') {
         renderPorts(ports);
     } else {
-        const filtered = ports.filter(p => p.type === filter);
+        const filtered = ports.filter(p => p.type === filter || (filter === 'center' && p.type === 'terminal'));
         renderPorts(filtered);
     }
 }
@@ -1266,7 +1366,9 @@ document.addEventListener('DOMContentLoaded', initFuelCalculator);
 
 // --- Layer Toggle Logic ---
 function togglePortLabels() {
-    const show = document.getElementById('toggle-port-labels').checked;
+    const el = document.getElementById('toggle-port-labels');
+    if (!el) return;
+    const show = el.checked;
     const mapContainer = document.getElementById('map');
 
     if (show) {
@@ -1279,7 +1381,9 @@ function togglePortLabels() {
 }
 
 function toggleLandLabels() {
-    const show = document.getElementById('toggle-land-labels').checked;
+    const el = document.getElementById('toggle-land-labels');
+    if (!el) return;
+    const show = el.checked;
     const mapContainer = document.getElementById('map');
     if (show) {
         mapContainer.classList.remove('map-hide-land-labels');
@@ -2025,21 +2129,3 @@ function toggleFuelLogistics() {
         panel.style.display = show ? 'block' : 'none';
     }
 }
-
-// Master toggle for both calculators
-function toggleCalculators() {
-    const checkbox = document.getElementById('toggle-calculators');
-    if (!checkbox) return;
-
-    const show = checkbox.checked;
-    const miningPanel = document.getElementById('logistics-panel');
-    const fuelPanel = document.getElementById('fuel-logistics-panel');
-
-    if (miningPanel) {
-        miningPanel.style.display = show ? 'block' : 'none';
-    }
-    if (fuelPanel) {
-        fuelPanel.style.display = show ? 'block' : 'none';
-    }
-}
-

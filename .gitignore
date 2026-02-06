@@ -5,6 +5,17 @@ __pycache__/
 *.zip
 *.log
 *.tmp
+*.mp4
+*.mp3
+*.m4a
+*.mov
+*.avi
+*.wmv
+*.png
+# Solo permitir los pngs específicos de UI en carpetas de assets
+!Dashboard_Puertos/**/assets/*.png
+!Dashboard_Puertos/**/assets/*.jpg
+!GeekSoft_Portal/**/assets/*.png
 .DS_Store
 Thumbs.db
 node_modules/

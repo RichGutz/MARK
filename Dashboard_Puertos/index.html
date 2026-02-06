@@ -33,32 +33,48 @@
             <span class="control-label"
                 style="margin:0 0 5px 0; font-size:11px; text-transform:uppercase; color:#546e7a; font-weight:bold;">FUNCIONES,
                 PUERTOS Y HERRAMIENTAS</span>
-            <div style="display:flex; gap:5px; justify-content:space-between;">
-                <button class="btn-control active" style="flex:1; font-size:10px; padding:4px 0;"
+
+            <!-- Row 1: Port/Terminal Filters -->
+            <div style="display:flex; gap:5px; justify-content:space-between; flex-wrap: wrap;">
+                <button class="btn-control active" style="flex:1; font-size:9px; padding:3px 0;"
                     onclick="setMapFilter('all')">Todos</button>
-                <button class="btn-control" style="flex:1; font-size:10px; padding:4px 0;"
+                <button class="btn-control" style="flex:1; font-size:9px; padding:3px 0;"
                     onclick="setMapFilter('north')">Norte</button>
-                <button class="btn-control" style="flex:1; font-size:10px; padding:4px 0;"
+                <button class="btn-control" style="flex:1; font-size:9px; padding:3px 0;"
                     onclick="setMapFilter('center')">Centro</button>
-                <button class="btn-control" style="flex:1; font-size:10px; padding:4px 0;"
+                <button class="btn-control" style="flex:1; font-size:9px; padding:3px 0;"
                     onclick="setMapFilter('south')">Sur</button>
+                <button class="btn-control"
+                    style="flex:1.2; font-size:9px; padding:3px 0; color:#ff9800; border-color:#ff9800;"
+                    onclick="selectPortByCode('TRALS')">TRALSA</button>
+                <button class="btn-control"
+                    style="flex:1.2; font-size:9px; padding:3px 0; color:#ff5722; border-color:#ff5722;"
+                    onclick="selectPortByCode('VALER')">VALERO</button>
+            </div>
+
+            <!-- Row 2: Tools Navigation -->
+            <div style="display:flex; gap:5px; justify-content:space-between;">
                 <a href="elevation_profile.html" class="btn-control"
-                    style="flex:1.5; font-size:10px; padding:4px 0; text-align:center; text-decoration:none; color:inherit; display:flex; align-items:center; justify-content:center;">
+                    style="flex:1; font-size:9px; padding:4px 0; text-align:center; text-decoration:none; color:inherit; display:flex; align-items:center; justify-content:center;">
                     Elevacion Z
                 </a>
                 <a href="terrain_3d_viewer.html" target="_blank" class="btn-control"
-                    style="flex:1.5; font-size:10px; padding:4px 0; text-align:center; text-decoration:none; color:#00e676; border-color:#00e676; display:flex; align-items: center; justify-content:center;">
+                    style="flex:1; font-size:9px; padding:4px 0; text-align:center; text-decoration:none; color:#00e676; border-color:#00e676; display:flex; align-items: center; justify-content:center;">
                     Modelo 3D
                 </a>
                 <a href="Suply.Chain.Iron.Ore/ubicacion_fajas_map.html" target="_blank" class="btn-control"
-                    style="flex:1.5; font-size:10px; padding:4px 0; text-align:center; text-decoration:none; color:#ff6b6b; border-color:#ff6b6b; display:flex; align-items:center; justify-content:center;">
-                    Supply Chain Map
+                    style="flex:1; font-size:9px; padding:4px 0; text-align:center; text-decoration:none; color:#ff6b6b; border-color:#ff6b6b; display:flex; align-items:center; justify-content:center;">
+                    Supply Chain
+                </a>
+                <a href="Suply.Chain.Iron.Ore/ore_flow_isometric.html" class="btn-control"
+                    style="flex:1; font-size:9px; padding:4px 0; text-align:center; text-decoration:none; color:#00bcd4; border-color:#00bcd4; display:flex; align-items: center; justify-content:center;">
+                    Layout Equipos
                 </a>
             </div>
         </div>
 
         <!-- NEW: Mineral Logistics Calculator Panel -->
-        <div id="logistics-panel">
+        <div id="logistics-panel" style="display: none;">
             <div class="panel-header">
                 <h3>🚛 Logística Minera</h3>
                 <span class="panel-subtitle">Proyección de Flota vs Capacidad (Ruta 30A)</span>
@@ -111,7 +127,7 @@
 
         <!-- NEW: Fuel Logistics Calculator Panel -->
         <div id="fuel-logistics-panel" class="glass-panel"
-            style="position: absolute; top: 110px; left: 20px; width: 280px; z-index: 1000; padding: 15px; border-radius: 10px;">
+            style="position: absolute; top: 110px; left: 20px; width: 280px; z-index: 1000; padding: 15px; border-radius: 10px; display: none;">
             <div class="panel-header">
                 <h3 style="color:#ff4444;">⛽ Logística Combustibles</h3>
                 <span class="panel-subtitle">Proyección Abastecimiento Diesel</span>
@@ -237,6 +253,11 @@
                     style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">Capas</span>
 
                 <label class="toggle-control">
+                    <input type="checkbox" id="toggle-port-labels" onchange="togglePortLabels()">
+                    <span class="toggle-text" style="font-size: 8px; color: #2c3e50;">Etiq. Puertos</span>
+                </label>
+                <div style="width:5px;"></div>
+                <label class="toggle-control">
                     <input type="checkbox" id="toggle-land-labels" onchange="toggleLandLabels()">
                     <span class="toggle-text" style="font-size: 8px; color: #2c3e50;">Etiq. Tierra</span>
                 </label>
@@ -297,7 +318,6 @@
                 <label class="toggle-control">
                     <input type="checkbox" id="toggle-coastal-route-labels" onchange="toggleCoastalRouteLabels()">
                     <span class="toggle-text" style="font-size: 8px; color: #546e7a;">Etiq. Costera</span>
-                </label>
             </div>
             <div class="control-vr" style="background: rgba(0,0,0,0.1); margin: 0 5px;"></div>
             <div class="control-group">
