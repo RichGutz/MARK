@@ -2025,3 +2025,21 @@ function toggleFuelLogistics() {
         panel.style.display = show ? 'block' : 'none';
     }
 }
+
+// Master toggle for both calculators
+function toggleCalculators() {
+    const checkbox = document.getElementById('toggle-calculators');
+    if (!checkbox) return;
+
+    const show = checkbox.checked;
+    const miningPanel = document.getElementById('logistics-panel');
+    const fuelPanel = document.getElementById('fuel-logistics-panel');
+
+    if (miningPanel) {
+        miningPanel.style.display = show ? 'block' : 'none';
+    }
+    if (fuelPanel) {
+        fuelPanel.style.display = show ? 'block' : 'none';
+    }
+}
+
