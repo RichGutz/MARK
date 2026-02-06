@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Isla Shougang</name>
+    <description>Concesión Shougang - Polígono con huecos internos</description>
+    
+    <Style id="shougangStyle">
+      <LineStyle>
+        <color>ff00ebff</color>
+        <width>3</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4000ebff</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    
+    <Placemark>
+      <name>Concesión Shougang</name>
+      <description>Isla Shougang con islas internas (huecos)</description>
+      <styleUrl>#shougangStyle</styleUrl>
+      <Polygon>
+        <extrude>0</extrude>
+        <altitudeMode>clampToGround</altitudeMode>
+        
+        <!-- Outer Boundary (Perímetro exterior) -->
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              -74.956170,-15.310100,0
+              -75.117497,-15.400447,0
+              -75.151088,-15.343915,0
+              -75.141812,-15.343921,0
+              -75.141801,-15.325839,0
+              -75.151117,-15.325833,0
+              -75.151129,-15.343847,0
+              -75.256948,-15.165533,0
+              -75.095742,-15.075283,0
+              -75.086531,-15.090799,0
+              -75.095123,-15.090796,0
+              -75.095142,-15.136002,0
+              -75.113757,-15.135993,0
+              -75.113775,-15.172158,0
+              -75.038190,-15.172183,0
+              -74.956170,-15.310100,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+        
+        <!-- Inner Boundary 1 (Isla interna 1) -->
+        <innerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              -75.182890,-15.248961,0
+              -75.180186,-15.248963,0
+              -75.179000,-15.248068,0
+              -75.178996,-15.243292,0
+              -75.179640,-15.242489,0
+              -75.185173,-15.235580,0
+              -75.190437,-15.239548,0
+              -75.182890,-15.248961,0
+            </coordinates>
+          </LinearRing>
+        </innerBoundaryIs>
+        
+        <!-- Inner Boundary 2 (Isla interna 2) -->
+        <innerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              -75.124860,-15.304581,0
+              -75.080106,-15.288137,0
+              -75.079163,-15.323540,0
+              -75.109395,-15.339076,0
+              -75.124860,-15.304581,0
+            </coordinates>
+          </LinearRing>
+        </innerBoundaryIs>
+        
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>
