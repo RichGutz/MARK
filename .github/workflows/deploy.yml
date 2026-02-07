@@ -1,0 +1,35 @@
+name: Deploy to Hostinger VPS
+
+on:
+  push:
+    branches:
+      - deploy-vps-2026.02.04.18.10
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Auto-Deploy via SSH
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Execute Update Script on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22
+          script: |
+            echo "🚀 [GitHub Actions] Iniciando despliegue automático..."
+            date
+            
+            # Navegar al repositorio y ejecutar script de actualización
+            cd /files_repo
+            
+            # Ejecutar update.sh (que ya maneja git reset y copiado de archivos)
+            sh update.sh
+            
+            echo "✅ [GitHub Actions] Despliegue completado."

@@ -543,4 +543,30 @@ crontab -e
 
 # Agregar esta línea (backup cada domingo a las 3am):
 # 0 3 * * 0 tar -czf /root/scraper_backup_$(date +\%Y\%m\%d).tar.gz /files_repo/Dashboard_Puertos/ /files_repo/run_scraper.sh
+
+---
+
+## 11. Automatización Total con GitHub Actions (Nuevo)
+
+Para evitar entrar por SSH manualmente, puedes configurar GitHub para que lo haga por ti.
+
+### Paso 1: Configurar Secretos en GitHub
+1.  Ve a tu repositorio en GitHub -> **Settings**.
+2.  En el menú lateral: **Secrets and variables** -> **Actions**.
+3.  Haz clic en **New repository secret** y agrega estos 3:
+
+| Nombre | Valor (Ejemplo) |
+|--------|-----------------|
+| `VPS_HOST` | `91.108.125.253` |
+| `VPS_USER` | `root` |
+| `VPS_PASSWORD` | *(Tu contraseña del VPS)* |
+
+### Paso 2: Funcionamiento
+Una vez configurado, cada vez que hagas un **git push**, GitHub:
+1.  Se conectará automáticamente al VPS.
+2.  Ejecutará `update.sh`.
+3.  Podrás ver el resultado en la pestaña **Actions** de tu repositorio.
+
+> [!NOTE]
+> Si el despliegue falla, recibirás un correo de GitHub. Revisa los logs en la pestaña Actions para ver qué pasó.
 ```
