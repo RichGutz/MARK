@@ -1,16 +1,18 @@
-# Plan de Migración: `petral.geeksoft.tech` (Vía GitHub Actions)
+# Guía Definitiva de Migración: Petral a Subdominio en Hostinger
 
-Este plan aprovecha la automatización ya existente en `.github/workflows/deploy.yml` para realizar el despliegue automático al hacer `git push`, eliminando la necesidad de comandos SSH manuales para subir el código.
+Esta guía documenta los pasos exactos realizados para desplegar `petral.geeksoft.tech`. Fue diseñada para ser replicable con otros clientes utilizando el flujo de GitHub Actions + SSH VPS.
 
-## 1. Automatización Actual (Confirmada)
-- [x] **GitHub Actions**: El archivo `deploy.yml` ya está configurado para conectarse al VPS y ejecutar `sh update.sh` automáticamente al subir cambios a la rama de despliegue.
-- [x] **Script de Actualización**: `update.sh` en el servidor ya gestiona la descarga del código y los permisos.
+## 1. Configuración de Infraestructura (VPS)
 
-## 2. Tareas de Infraestructura (Una sola vez)
-Para que el subdominio funcione, necesitamos configurar Nginx en el servidor:
+### A. Registro DNS (Hostinger)
+Para crear el subdominio dentro del panel de Hostinger:
+- **Tipo**: `A`
+- **Nombre/Host**: `petral` (esto crea `petral.geeksoft.tech`)
+- **Apunta a**: `91.108.125.253` (IP de tu VPS)
+- **TTL**: `3600` (Predefinido)
 
-### A. Configuración de Nginx
-Crear un nuevo archivo de sitio en el VPS (ej: `/etc/nginx/sites-available/petral.conf`):
+### B. Configuración de Nginx
+Crear el archivo en el servidor: `/etc/nginx/sites-available/petral.conf` e incluir:
 ```nginx
 server {
     listen 80;
@@ -21,23 +23,65 @@ server {
     location / {
         try_files $uri $uri/ =404;
     }
+
+    # Recomendado: Gzip para archivos de datos 3D pesados
+    gzip on;
+    gzip_types text/plain text/css application/javascript application/json;
 }
 ```
+**Comandos SSH Activación:**
+```bash
+sudo ln -s /etc/nginx/sites-available/petral.conf /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
 
-### B. DNS en Hostinger
-- [ ] Crear registro **Tipo A**:
-  - **Host**: `petral`
-  - **Apunta a**: `91.108.125.253` (IP del VPS).
+### C. Seguridad SSL (Certbot)
+Una vez que el DNS ha propagado (puedes verificar en el navegador), ejecutar:
+```bash
+sudo certbot --nginx -d petral.geeksoft.tech
+```
 
-### C. SSL (Certbot)
-- [ ] Ejecutar en el VPS (una vez): `certbot --nginx -d petral.geeksoft.tech`
+## 2. Automatización con GitHub Actions
 
-## 3. Flujo de Trabajo Diario (Sin SSH Manual)
-1. **Local**: Modificas el código en `Dashboard_Puertos/`.
-2. **Git**: Haces `add`, `commit` y `push`.
-3. **GitHub Actions**: Se dispara el workflow, actualiza el VPS y tus cambios aparecen en `https://petral.geeksoft.tech`.
+El repositorio centraliza todo. Al hacer `push origin main`, GitHub despliega automáticamente:
 
-## Próximos Pasos
-1. [ ] Autorizar `git push` de los cambios del visor 3D realizados hoy.
-2. [ ] Crear el registro DNS en Hostinger.
-3. [ ] Preparar el archivo de configuración de Nginx para subirlo al VPS.
+### Estructura en el VPS
+El código se sincroniza en `/var/www/html/petral`. No mezclar con el root de `geeksoft.tech`.
+
+### Script de Despliegue (`update.sh`)
+El script en el servidor debe ejecutar:
+```bash
+cd /var/www/html/petral
+git fetch --all
+git reset --hard origin/main
+# Asegurar permisos
+chown -R www-data:www-data /var/www/html/petral
+```
+
+## 3. Lógica de Aplicación (Ajustes de Código)
+
+Para mantener la seguridad y la UX en el subdominio:
+
+1. **Gateway de Autenticación**: 
+   - El archivo principal es `index.html` (el portal de login de GeekSoft).
+   - El dashboard real se renombra a `dashboard.html`.
+   - El login exitoso redirige a `./dashboard.html`.
+
+2. **Enlaces de Navegación**:
+   - Todos los botones "Volver" en sub-páginas (visores 3D, perfiles, etc.) deben apuntar a `dashboard.html` para no sacar al usuario de la aplicación.
+
+## 4. Solución de Problemas (Gotchas)
+
+> [!IMPORTANT]
+> **Archivos Ignorados por Git**: 
+> Si usas `.gitignore` globales, archivos grandes como `terrain_mesh_cut.js` (3.5MB) o logos estéticos pueden no subirse.
+> **Solución**: Forzar el rastreo: `git add -f path/to/file.js`.
+
+> [!WARNING]
+> **Caché de Nginx**: 
+> Si cambias la configuración de Nginx, recuerda siempre hacer `sudo systemctl reload nginx`.
+
+> [!TIP]
+> **Permisos de Archivo**:
+> Si el navegador da error 403, verifica que los archivos pertenezcan al usuario `www-data` en el VPS.
