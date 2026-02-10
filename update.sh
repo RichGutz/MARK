@@ -7,8 +7,8 @@ echo "📅 Fecha: $(date)"
 cd /files_repo
 echo "⬇️ Fetching updates in /files_repo..."
 git fetch --all
-echo "🔀 Resetting to branch: deploy-vps-2026.02.04.18.10"
-git reset --hard origin/deploy-vps-2026.02.04.18.10
+echo "🔀 Resetting to branch: main"
+git reset --hard origin/main
 
 # 2. SECCIÓN DE APLICACIONES (Agrega tus apps aquí) ------------------------------
 
