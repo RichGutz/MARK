@@ -95,9 +95,20 @@
             background: #ff9800;
         }
 
-        .info-panel {
+        .btn-actions-container {
             position: absolute;
             top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1001;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 120px;
+            /* Ajustado para no solapar con los botones */
             right: 20px;
             background: rgba(255, 255, 255, 0.95);
             padding: 15px;
@@ -139,7 +150,10 @@
     </div>
 
     <div class="controls">
-        <a href="../dashboard.html" class="btn-control">⬅ Volver al Mapa</a>
+        <a href="../dashboard.html" class="btn-back">⬅ Volver al Mapa</a>
+    </div>
+
+    <div class="btn-actions-container">
         <button onclick="toggleAnimation()">▶️ Animar Flujo</button>
         <button onclick="toggleLabels()">🏷️ Etiquetas</button>
     </div>
