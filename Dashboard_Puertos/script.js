@@ -200,6 +200,8 @@ function initApp() {
     toggleInfraRoads();
     toggleExtraRoads();
     toggleSanFernando();
+    toggleAreaAcuatica();
+    toggleAreaRiberena();
     toggleCalculators();
 }
 
@@ -302,6 +304,143 @@ function toggleSanFernando() {
         if (sanFernandoLayer) map.addLayer(sanFernandoLayer);
     } else {
         if (sanFernandoLayer) map.removeLayer(sanFernandoLayer);
+    }
+}
+
+// --- DICAPI Layers ---
+
+let areaAcuaticaLayer = null;
+let areaRiberenaLayer = null;
+
+// Helper to add vertex labels
+function addVertexLabels(layer, layerName, map) {
+    if (!layer || !layer.getLayers || layer.getLayers().length === 0) return;
+
+    // Get the first feature (polygon)
+    const poly = layer.getLayers()[0];
+    if (!poly || !poly.feature) return;
+
+    const coords = poly.feature.geometry.coordinates[0];
+    // Definitions based on convert_dicapi.py
+    let labels = [];
+    if (layerName === 'acuatica') {
+        // A, B, C, D, K, E, F, G, H, I, J
+        labels = ['A', 'B', 'C', 'D', 'K', 'E', 'F', 'G', 'H', 'I', 'J'];
+    } else if (layerName === 'riberena') {
+        // J, I, H, G, F, E, K, L, M, N, O, P
+        labels = ['J', 'I', 'H', 'G', 'F', 'E', 'K', 'L', 'M', 'N', 'O', 'P'];
+    }
+
+    coords.forEach((coord, index) => {
+        if (index >= labels.length) return; // Skip closing vertex or extras
+        const lat = coord[1];
+        const lon = coord[0];
+        const label = labels[index];
+
+        const icon = L.divIcon({
+            className: 'vertex-label-icon',
+            html: `<div style="background:white; border:1px solid black; padding:0px 3px; font-size:10px; font-weight:bold; border-radius:3px;">${label}</div>`
+        });
+
+        // Store marker in a custom property on the layer object to remove it later
+        if (!layer.vertexMarkers) layer.vertexMarkers = [];
+        const marker = L.marker([lat, lon], { icon: icon }).addTo(map);
+        layer.vertexMarkers.push(marker);
+    });
+}
+
+function removeVertexLabels(layer, map) {
+    if (layer && layer.vertexMarkers) {
+        layer.vertexMarkers.forEach(m => map.removeLayer(m));
+        layer.vertexMarkers = [];
+    }
+}
+
+function renderAreaAcuatica() {
+    if (typeof AREA_ACUATICA_GEOJSON !== 'undefined' && !areaAcuaticaLayer) {
+        areaAcuaticaLayer = L.geoJSON(AREA_ACUATICA_GEOJSON, {
+            style: {
+                color: '#00bfff', // Deep Sky Blue
+                weight: 2,
+                opacity: 0.8,
+                fillColor: '#00bfff',
+                fillOpacity: 0.3, // Transparent Blue
+                dashArray: '5, 5'
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.name) {
+                    layer.bindTooltip(feature.properties.name, {
+                        permanent: true,
+                        direction: "center",
+                        className: "road-label-container"
+                    });
+                }
+            }
+        });
+    }
+}
+
+function toggleAreaAcuatica() {
+    const el = document.getElementById('toggle-area-acuatica');
+    if (!el) return;
+    const show = el.checked;
+
+    if (!areaAcuaticaLayer) renderAreaAcuatica();
+
+    if (show) {
+        if (areaAcuaticaLayer) {
+            map.addLayer(areaAcuaticaLayer);
+            // addVertexLabels(areaAcuaticaLayer, 'acuatica', map);
+        }
+    } else {
+        if (areaAcuaticaLayer) {
+            map.removeLayer(areaAcuaticaLayer);
+            // removeVertexLabels(areaAcuaticaLayer, map);
+        }
+    }
+}
+
+function renderAreaRiberena() {
+    if (typeof AREA_RIBERENA_GEOJSON !== 'undefined' && !areaRiberenaLayer) {
+        areaRiberenaLayer = L.geoJSON(AREA_RIBERENA_GEOJSON, {
+            style: {
+                color: '#ff4500', // Orange Red
+                weight: 2,
+                opacity: 0.8,
+                fillColor: '#ff4500',
+                fillOpacity: 0.3, // Transparent Red/Orange
+                dashArray: '5, 5'
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.name) {
+                    layer.bindTooltip(feature.properties.name, {
+                        permanent: true,
+                        direction: "center",
+                        className: "road-label-container"
+                    });
+                }
+            }
+        });
+    }
+}
+
+function toggleAreaRiberena() {
+    const el = document.getElementById('toggle-area-riberena');
+    if (!el) return;
+    const show = el.checked;
+
+    if (!areaRiberenaLayer) renderAreaRiberena();
+
+    if (show) {
+        if (areaRiberenaLayer) {
+            map.addLayer(areaRiberenaLayer);
+            // addVertexLabels(areaRiberenaLayer, 'riberena', map);
+        }
+    } else {
+        if (areaRiberenaLayer) {
+            map.removeLayer(areaRiberenaLayer);
+            // removeVertexLabels(areaRiberenaLayer, map);
+        }
     }
 }
 
