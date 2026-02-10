@@ -329,6 +329,18 @@
             <span class="toggle-label" style="color: #ffca28;">Tren</span>
         </div>
 
+        <!-- A. Marítima -->
+        <div class="toggle-group" title="Área Acuática DICAPI">
+            <input type="checkbox" id="toggle-acuatica">
+            <span class="toggle-label" style="color: #00bfff;">A. Marítima</span>
+        </div>
+
+        <!-- A. Ribereña -->
+        <div class="toggle-group" title="Área Ribereña DICAPI">
+            <input type="checkbox" id="toggle-riberena">
+            <span class="toggle-label" style="color: #ff4500;">A. Ribereña</span>
+        </div>
+
         <!-- Islas -->
         <div class="toggle-group" title="Áreas de las Islas">
             <input type="checkbox" id="toggle-islands" checked>
@@ -367,6 +379,76 @@
     <script src="../perimeter_sides.js"></script>
     <script src="../coastal_route.js"></script>
     <script src="../railway_marcona_andahuaylas.js"></script>
+
+    <!-- INLINED DICAPI DATA (Robust Method) -->
+    <script>
+        const AREA_ACUATICA_GEOJSON = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Área Acuática",
+                        "area_m2": 284552.168,
+                        "layer": "area_acuatica"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [-75.25333638888888, -15.196233333333334],
+                                [-75.25584944444444, -15.193564722222222],
+                                [-75.25241444444444, -15.190513888888889],
+                                [-75.25115777777778, -15.191848333333333],
+                                [-75.24790722222222, -15.188961666666668],
+                                [-75.24825083333333, -15.189266666666667],
+                                [-75.24791388888889, -15.189624444444444],
+                                [-75.24740833333334, -15.190094166666666],
+                                [-75.24716444444445, -15.190485833333334],
+                                [-75.24716777777778, -15.190654166666667],
+                                [-75.24705722222222, -15.190656944444445],
+                                [-75.25333638888888, -15.196233333333334]
+                            ]
+                        ]
+                    }
+                }
+            ]
+        };
+
+        const AREA_RIBERENA_GEOJSON = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Área Ribereña",
+                        "area_m2": 9999.969,
+                        "layer": "area_riberena"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [-75.24705722222222, -15.190656944444445],
+                                [-75.24716777777778, -15.190654166666667],
+                                [-75.24716444444445, -15.190485833333334],
+                                [-75.24740833333334, -15.190094166666666],
+                                [-75.24791388888889, -15.189624444444444],
+                                [-75.24825083333333, -15.189266666666667],
+                                [-75.24790722222222, -15.188961666666668],
+                                [-75.24757027777778, -15.189319444444445],
+                                [-75.24706472222222, -15.18978888888889],
+                                [-75.24682111111112, -15.190180833333333],
+                                [-75.24682416666667, -15.190349166666667],
+                                [-75.24671388888889, -15.190351944444444],
+                                [-75.24705722222222, -15.190656944444445]
+                            ]
+                        ]
+                    }
+                }
+            ]
+        };
+    </script>
 
     <!-- MapLibre -->
     <script src='https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js'></script>
@@ -516,6 +598,50 @@
                 });
             }
 
+            // --- A. MARITIMA (DICAPI) ---
+            if (typeof AREA_ACUATICA_GEOJSON !== 'undefined') {
+                map.addSource('acuatica-poly', {
+                    'type': 'geojson',
+                    'data': AREA_ACUATICA_GEOJSON
+                });
+                map.addLayer({
+                    'id': 'acuatica-poly-fill',
+                    'type': 'fill',
+                    'source': 'acuatica-poly',
+                    'layout': { 'visibility': 'none' }, // Start hidden
+                    'paint': { 'fill-color': '#00bfff', 'fill-opacity': 0.3 }
+                });
+                map.addLayer({
+                    'id': 'acuatica-poly-line',
+                    'type': 'line',
+                    'source': 'acuatica-poly',
+                    'layout': { 'visibility': 'none' },
+                    'paint': { 'line-color': '#00bfff', 'line-width': 2 }
+                });
+            }
+
+            // --- A. RIBEREÑA (DICAPI) ---
+            if (typeof AREA_RIBERENA_GEOJSON !== 'undefined') {
+                map.addSource('riberena-poly', {
+                    'type': 'geojson',
+                    'data': AREA_RIBERENA_GEOJSON
+                });
+                map.addLayer({
+                    'id': 'riberena-poly-fill',
+                    'type': 'fill',
+                    'source': 'riberena-poly',
+                    'layout': { 'visibility': 'none' }, // Start hidden
+                    'paint': { 'fill-color': '#ff4500', 'fill-opacity': 0.3 }
+                });
+                map.addLayer({
+                    'id': 'riberena-poly-line',
+                    'type': 'line',
+                    'source': 'riberena-poly',
+                    'layout': { 'visibility': 'none' },
+                    'paint': { 'line-color': '#ff4500', 'line-width': 2 }
+                });
+            }
+
             // --- 5. PERMANENT CONVEYOR LENGTH LABELS (Always Visible) ---
             addPermanentLabel([(-75.184444 + -75.227222) / 2, (-15.241667 + -15.198056) / 2], '6.61 km'); // Brown 1
             addPermanentLabel([(-75.227222 + -75.243611) / 2, (-15.198056 + -15.192778) / 2], '1.56 km'); // Brown 2
@@ -595,6 +721,20 @@
                 document.getElementById('loading').innerHTML = "<h3>Error</h3><p>Could not fetch elevations via API.</p>";
             }
 
+        });
+
+        // 6. A. Marítima (DICAPI)
+        document.getElementById('toggle-acuatica').addEventListener('change', (e) => {
+            const val = e.target.checked ? 'visible' : 'none';
+            if (map.getLayer('acuatica-poly-fill')) map.setLayoutProperty('acuatica-poly-fill', 'visibility', val);
+            if (map.getLayer('acuatica-poly-line')) map.setLayoutProperty('acuatica-poly-line', 'visibility', val);
+        });
+
+        // 7. A. Ribereña (DICAPI)
+        document.getElementById('toggle-riberena').addEventListener('change', (e) => {
+            const val = e.target.checked ? 'visible' : 'none';
+            if (map.getLayer('riberena-poly-fill')) map.setLayoutProperty('riberena-poly-fill', 'visibility', val);
+            if (map.getLayer('riberena-poly-line')) map.setLayoutProperty('riberena-poly-line', 'visibility', val);
         });
 
         // --- FUNCTIONS ---
