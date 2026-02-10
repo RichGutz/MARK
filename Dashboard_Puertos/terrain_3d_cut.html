@@ -258,6 +258,28 @@
                 };
             }
 
+            // --- 2.2 Hex Wall Trace (Wireframe) ---
+            let hexTrace = null;
+            if (TERRAIN_MESH_DATA.hex_x && TERRAIN_MESH_DATA.hex_x.length > 0) {
+                const hx_m = TERRAIN_MESH_DATA.hex_x.map(val => val === null ? null : toX(val));
+                const hy_m = TERRAIN_MESH_DATA.hex_y.map(val => val === null ? null : toY(val));
+                const hz_m = TERRAIN_MESH_DATA.hex_z;
+
+                hexTrace = {
+                    x: hx_m,
+                    y: hy_m,
+                    z: hz_m,
+                    mode: 'lines',
+                    type: 'scatter3d',
+                    line: {
+                        color: '#000000', // Black
+                        width: 2 // Thin
+                    },
+                    name: 'Malla Hexagonal',
+                    hoverinfo: 'none'
+                };
+            }
+
             // --- 2.3 DICAPI Areas (Lines Only, Z=30m) ---
             function createPolygonLines(geojson, name, color, zLevel) {
                 if (typeof geojson === 'undefined' || !geojson.features || !geojson.features.length) return null;
@@ -344,7 +366,12 @@
             ];
 
             if (floorTrace) dataPlot.push(floorTrace);
-            if (wallTrace) dataPlot.push(wallTrace);
+            if (wallTrace) {
+                dataPlot.push(wallTrace);
+            }
+            if (hexTrace) {
+                dataPlot.push(hexTrace);
+            }
 
             // Add DICAPI lines
             if (acuaticaLines) dataPlot.push(acuaticaLines);
