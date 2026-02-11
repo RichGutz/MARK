@@ -202,6 +202,7 @@ function initApp() {
     toggleSanFernando();
     toggleAreaAcuatica();
     toggleAreaRiberena();
+    toggleServidumbre();
     toggleCalculators();
 }
 
@@ -507,6 +508,69 @@ function toggleJZ() {
         if (jzLayer) map.addLayer(jzLayer);
     } else {
         if (jzLayer) map.removeLayer(jzLayer);
+    }
+}
+
+let servidumbreLayer = null;
+
+function renderServidumbre() {
+    if (typeof SERVIDUMBRE_GEOJSON !== 'undefined' && !servidumbreLayer) {
+        servidumbreLayer = L.layerGroup();
+
+        // 1. Polygon Layer
+        const polyLayer = L.geoJSON(SERVIDUMBRE_GEOJSON, {
+            style: {
+                color: '#ff0000', // Rojo
+                weight: 3,
+                opacity: 0.9,
+                fillColor: '#ff0000',
+                fillOpacity: 0.2,
+                dashArray: '5, 5'
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.name) {
+                    layer.bindTooltip("Área de Servidumbre", {
+                        permanent: false,
+                        direction: "center",
+                        className: "road-label-container"
+                    });
+                }
+            }
+        });
+        polyLayer.addTo(servidumbreLayer);
+
+        // 2. Vertex Labels (1, 2, 3...) from Feature Collection
+        SERVIDUMBRE_GEOJSON.features.forEach((feature) => {
+            if (feature.properties && feature.properties.type === "vertex") {
+                const label = feature.properties.vertice;
+                const coord = feature.geometry.coordinates;
+
+                const marker = L.marker([coord[1], coord[0]], {
+                    icon: L.divIcon({
+                        className: 'vertex-label-icon',
+                        html: `<div style="background:#ff0000; color:white; border:1px solid white; padding:1px 4px; font-size:10px; font-weight:bold; border-radius:50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${label}</div>`,
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10]
+                    })
+                });
+                marker.bindTooltip(`Vértice ${label}`, { direction: 'top' });
+                marker.addTo(servidumbreLayer);
+            }
+        });
+    }
+}
+
+function toggleServidumbre() {
+    const el = document.getElementById('toggle-servidumbre');
+    if (!el) return;
+    const show = el.checked;
+
+    if (!servidumbreLayer) renderServidumbre();
+
+    if (show) {
+        if (servidumbreLayer) map.addLayer(servidumbreLayer);
+    } else {
+        if (servidumbreLayer) map.removeLayer(servidumbreLayer);
     }
 }
 
