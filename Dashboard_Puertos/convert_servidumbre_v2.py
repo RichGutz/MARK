@@ -19,27 +19,12 @@ def convert_coords():
     features = []
     latlon_polygon = []
     
-    # Process each vertex for the polygon and individual points (for labels)
+    # Process polygon coordinates
     for item in coords_raw:
-        v = item["vertice"]
         e = item["este"]
         n = item["norte"]
-        
         lon, lat = transformer.transform(e, n)
         latlon_polygon.append([lon, lat])
-        
-        # Add a point feature for each vertex (useful for labeling if needed)
-        features.append({
-            "type": "Feature",
-            "properties": {
-                "vertice": v,
-                "type": "vertex"
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [lon, lat]
-            }
-        })
 
     # Close the polygon
     if latlon_polygon[0] != latlon_polygon[-1]:
@@ -59,10 +44,9 @@ def convert_coords():
         }
     }
     
-    # We prepend the polygon so it renders under the vertices (if rendered)
     geojson = {
         "type": "FeatureCollection",
-        "features": [polygon_feature] + features
+        "features": [polygon_feature]
     }
 
     js_content = f"const SERVIDUMBRE_GEOJSON = {json.dumps(geojson, indent=4)};"
