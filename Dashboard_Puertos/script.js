@@ -540,6 +540,25 @@ function renderServidumbre() {
         polyLayer.addTo(servidumbreLayer);
 
         // 2. Vertex Labels (Removed as requested by user)
+        /* 
+        SERVIDUMBRE_GEOJSON.features.forEach((feature) => {
+            if (feature.properties && feature.properties.type === "vertex") {
+                const label = feature.properties.vertice;
+                const coord = feature.geometry.coordinates;
+                
+                const marker = L.marker([coord[1], coord[0]], {
+                    icon: L.divIcon({
+                        className: 'vertex-label-icon',
+                        html: `<div style="background:#ff0000; color:white; border:1px solid white; padding:1px 4px; font-size:10px; font-weight:bold; border-radius:50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${label}</div>`,
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10]
+                    })
+                });
+                marker.bindTooltip(`Vértice ${label}`, { direction: 'top' });
+                marker.addTo(servidumbreLayer);
+            }
+        });
+        */
     }
 }
 
