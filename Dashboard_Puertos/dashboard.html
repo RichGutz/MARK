@@ -335,6 +335,17 @@
                     <span class="toggle-text"
                         style="font-size: 8px; color: #ff0000; font-weight:bold;">SERVIDUMBRE</span>
                 </label>
+                <div style="width:5px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-ferrocarril-ext" onchange="toggleFerrocarrilExt()">
+                    <span class="toggle-text" style="font-size: 8px; color: #9c27b0; font-weight:bold;">FERROCARRIL
+                        EXT</span>
+                </label>
+                <div style="width:3px;"></div>
+                <label class="toggle-control">
+                    <input type="checkbox" id="toggle-ferrocarril-ext-labels" onchange="toggleFerrocarrilExtLabels()">
+                    <span class="toggle-text" style="font-size: 8px; color: #9c27b0; font-weight:bold;">ETIQUETAS</span>
+                </label>
             </div>
             <div class="control-vr" style="background: rgba(0,0,0,0.1); margin: 0 5px;"></div>
             <div class="control-group">
@@ -379,6 +390,8 @@
     <script src="new_green_route.js?v=2"></script>
     <script src="coastal_route.js?v=2"></script>
     <script src="perimeter_sides.js"></script>
+    <script src="layer_ferrocarril_ext.js"></script>
+    <script src="layer_ferrocarril_ext_labels.js"></script>
     <script src="port_layout_simulation.js"></script>
 
     <!-- App Logic -->

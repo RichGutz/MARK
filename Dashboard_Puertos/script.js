@@ -172,7 +172,10 @@ function toggleRailway() {
 function initApp() {
     initMap();
     renderPerimeterSides();
+
     renderRailway();
+    renderFerrocarrilExt();
+    renderFerrocarrilExtLabels();
 
     // 2. Initial render of ports and mines
     renderPorts(ports);
@@ -191,6 +194,8 @@ function initApp() {
     togglePerimeter();
     togglePerimeterLabels();
     toggleRailway();
+    toggleFerrocarrilExt();
+    toggleFerrocarrilExtLabels();
     toggleShougang();
     toggleMarcobre();
     // toggleJZ(); // Removed by user request
@@ -248,6 +253,92 @@ function renderRailway() {
         });
     }
 }
+
+function renderFerrocarrilExt() {
+    if (typeof FERROCARRIL_EXT_GEOJSON !== 'undefined') {
+        window.ferrocarrilExtLayer = L.layerGroup();
+
+        // 1. Thick Purple Background Line
+        L.geoJSON(FERROCARRIL_EXT_GEOJSON, {
+            style: {
+                color: '#9c27b0', // Purple
+                weight: 6,
+                opacity: 1,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }
+        }).addTo(window.ferrocarrilExtLayer);
+
+        // 2. Dotted Inner Line (Black/Dark)
+        L.geoJSON(FERROCARRIL_EXT_GEOJSON, {
+            style: {
+                color: '#000000', // Black
+                weight: 2,
+                opacity: 0.8,
+                dashArray: '2, 8', // Dots
+                lineCap: 'round',
+                lineJoin: 'round'
+            }
+        }).addTo(window.ferrocarrilExtLayer).eachLayer(function (layer) {
+            layer.bindTooltip("Ferrocarril Extensión", {
+                permanent: false,
+                direction: "center",
+                className: "road-label-container"
+            });
+        });
+    }
+}
+
+function toggleFerrocarrilExt() {
+    const show = document.getElementById('toggle-ferrocarril-ext').checked;
+    if (show && window.ferrocarrilExtLayer) {
+        map.addLayer(window.ferrocarrilExtLayer);
+    } else if (window.ferrocarrilExtLayer) {
+        map.removeLayer(window.ferrocarrilExtLayer);
+    }
+}
+
+function renderFerrocarrilExtLabels() {
+    if (typeof FERROCARRIL_EXT_LABELS_GEOJSON !== 'undefined') {
+        window.ferrocarrilExtLabelsLayer = L.geoJSON(FERROCARRIL_EXT_LABELS_GEOJSON, {
+            pointToLayer: function (feature, latlng) {
+                if (feature.properties && feature.properties.label) {
+                    const elevation = feature.properties.elevation ? Math.round(feature.properties.elevation) : 0;
+                    const kmLabel = feature.properties.label.replace(' km', ''); // "0.5"
+                    // Match Coastal Route Style exactly
+                    const marker = L.circleMarker(latlng, {
+                        radius: 5,
+                        color: '#9c27b0', // Purple
+                        fillColor: '#fff',
+                        fillOpacity: 1,
+                        weight: 2
+                    });
+
+                    marker.bindTooltip(`KM ${kmLabel}<br>Alt: ${elevation}m`, {
+                        permanent: true,
+                        direction: 'top',
+                        className: 'elev-label-container',
+                        offset: [0, -10]
+                    });
+
+                    return marker;
+                }
+                return null;
+            }
+        });
+        // Note: Not adding to map by default, controlled by checkbox
+    }
+}
+
+function toggleFerrocarrilExtLabels() {
+    const show = document.getElementById('toggle-ferrocarril-ext-labels').checked;
+    if (show && window.ferrocarrilExtLabelsLayer) {
+        map.addLayer(window.ferrocarrilExtLabelsLayer);
+    } else if (window.ferrocarrilExtLabelsLayer) {
+        map.removeLayer(window.ferrocarrilExtLabelsLayer);
+    }
+}
+
 
 function renderShougangVertices() {
     if (window.SHOUGANG_RAW_COORDS) {

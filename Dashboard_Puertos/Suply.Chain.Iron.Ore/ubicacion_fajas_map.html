@@ -43,7 +43,7 @@
             border-radius: 30px;
             border: 1px solid rgba(255, 255, 255, 0.5);
             display: flex;
-            gap: 15px;
+            gap: 8px;
             z-index: 1000;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
             color: #333;
@@ -51,7 +51,8 @@
             flex-wrap: wrap;
             justify-content: center;
             width: max-content;
-            max-width: 95vw;
+            max-width: 780px;
+            /* Adjusted for 2 rows */
         }
 
         .toggle-group {
@@ -352,6 +353,12 @@
             <input type="checkbox" id="toggle-servidumbre">
             <span class="toggle-label" style="color: #ff0000; font-weight: bold;">Servidumbre</span>
         </div>
+
+        <!-- Ferrocarril Extensión -->
+        <div class="toggle-group" title="Ferrocarril Extensión (Tramo Adicional)">
+            <input type="checkbox" id="toggle-ferrocarril-ext">
+            <span class="toggle-label" style="color: #9c27b0; font-weight: bold;">Ferrocarril Ext</span>
+        </div>
     </div>
 
     <!-- VIEW CONTROLS -->
@@ -386,6 +393,7 @@
     <script src="../coastal_route.js"></script>
     <script src="../railway_marcona_andahuaylas.js"></script>
     <script src="../layer_servidumbre.js"></script>
+    <script src="../layer_ferrocarril_ext.js"></script>
 
     <!-- INLINED DICAPI DATA (Robust Method) -->
     <script>
@@ -646,6 +654,26 @@
                 });
             }
 
+            // --- FERROCARRIL EXTENSION (TRAMO ADICIONAL) ---
+            if (typeof FERROCARRIL_EXT_GEOJSON !== 'undefined') {
+                map.addSource('ferrocarril-ext-source', {
+                    'type': 'geojson',
+                    'data': FERROCARRIL_EXT_GEOJSON
+                });
+                map.addLayer({
+                    'id': 'ferrocarril-ext-line',
+                    'type': 'line',
+                    'source': 'ferrocarril-ext-source',
+                    'layout': { 'visibility': 'none' },
+                    'paint': {
+                        'line-color': '#9c27b0', // Purple
+                        'line-width': 4,
+                        'line-opacity': 0.9,
+                        'line-dasharray': [3, 4] // Dotted/Dashed like main railway
+                    }
+                });
+            }
+
             // --- A. RIBEREÑA (DICAPI) ---
             if (typeof AREA_RIBERENA_GEOJSON !== 'undefined') {
                 map.addSource('riberena-poly', {
@@ -768,6 +796,14 @@
             const val = e.target.checked ? 'visible' : 'none';
             if (map.getLayer('servidumbre-line')) {
                 map.setLayoutProperty('servidumbre-line', 'visibility', val);
+            }
+        });
+
+        // 9. Ferrocarril Extension Toggle
+        document.getElementById('toggle-ferrocarril-ext').addEventListener('change', (e) => {
+            const val = e.target.checked ? 'visible' : 'none';
+            if (map.getLayer('ferrocarril-ext-line')) {
+                map.setLayoutProperty('ferrocarril-ext-line', 'visibility', val);
             }
         });
 
