@@ -176,6 +176,8 @@ function initApp() {
     renderRailway();
     renderFerrocarrilExt();
     renderFerrocarrilExtLabels();
+    renderServidumbreLabels();
+    renderServidumbreLabels();
 
     // 2. Initial render of ports and mines
     renderPorts(ports);
@@ -196,6 +198,8 @@ function initApp() {
     toggleRailway();
     toggleFerrocarrilExt();
     toggleFerrocarrilExtLabels();
+    toggleServidumbreLabels();
+    toggleServidumbreLabels();
     toggleShougang();
     toggleMarcobre();
     // toggleJZ(); // Removed by user request
@@ -2423,5 +2427,59 @@ function toggleFuelLogistics() {
     const panel = document.getElementById('fuel-logistics-panel');
     if (panel) {
         panel.style.display = show ? 'block' : 'none';
+    }
+}
+
+// ========================================
+// SERVIDUMBRE LABELS LAYER (EAST LINE)
+// ========================================
+
+let servidumbreLabelsLayer = null;
+
+function renderServidumbreLabels() {
+    if (typeof SERVIDUMBRE_LABELS_GEOJSON !== 'undefined') {
+        window.servidumbreLabelsLayer = L.geoJSON(SERVIDUMBRE_LABELS_GEOJSON, {
+            pointToLayer: function (feature, latlng) {
+                if (feature.properties && feature.properties.label) {
+                    const elevation = feature.properties.elevation ? Math.round(feature.properties.elevation) : 0;
+                    const kmLabel = feature.properties.label.replace(' km', ''); // "0.5"
+
+                    // Style matching Coastal Route / Ferrocarril Ext
+                    const marker = L.circleMarker(latlng, {
+                        radius: 5,
+                        color: '#ff0000', // Red for Servidumbre
+                        fillColor: '#fff',
+                        fillOpacity: 1,
+                        weight: 2
+                    });
+
+                    marker.bindTooltip(`KM ${kmLabel}<br>Alt: ${elevation}m`, {
+                        permanent: true,
+                        direction: 'top',
+                        className: 'elev-label-container', // reusing existing CSS class
+                        offset: [0, -10]
+                    });
+
+                    return marker;
+                }
+                return null;
+            }
+        });
+    }
+}
+
+function toggleServidumbreLabels() {
+    const el = document.getElementById('toggle-servidumbre-labels');
+    if (!el) return;
+    const show = el.checked;
+
+    if (!window.servidumbreLabelsLayer) {
+        renderServidumbreLabels();
+    }
+
+    if (show && window.servidumbreLabelsLayer) {
+        map.addLayer(window.servidumbreLabelsLayer);
+    } else if (window.servidumbreLabelsLayer) {
+        map.removeLayer(window.servidumbreLabelsLayer);
     }
 }
