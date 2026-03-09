@@ -174,7 +174,6 @@ async function toggleRecording() {
         if (wakeLock) { wakeLock.release(); wakeLock = null; }
     }
 }
-}
 
 function toggleGPS() {
     const btn = document.getElementById('btn-gps');
