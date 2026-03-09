@@ -112,6 +112,44 @@ let isRecording = false;
 let syncInterval = null;
 let lastLatLng = null;
 
+// --- OFFLINE QUEUE ---
+const OFFLINE_QUEUE_KEY = 'gps_offline_queue';
+
+function saveToOfflineQueue(payload) {
+    const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+    queue.push(payload);
+    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+    console.log(`📦 Sin señal — guardado offline (${queue.length} pendientes)`);
+}
+
+async function flushOfflineQueue() {
+    const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+    if (queue.length === 0) return;
+    console.log(`📤 Enviando ${queue.length} puntos guardados offline...`);
+    const sent = [];
+    for (const payload of queue) {
+        try {
+            const resp = await fetch(`${SUPABASE_URL}/rest/v1/field_tracking`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify(payload)
+            });
+            if (resp.ok) sent.push(payload);
+        } catch (e) { break; } // Sin señal aún, parar
+    }
+    const remaining = queue.filter(p => !sent.includes(p));
+    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(remaining));
+    if (sent.length > 0) console.log(`✅ ${sent.length} puntos enviados desde cola offline`);
+}
+
+// Escuchar cuando regresa la señal
+window.addEventListener('online', flushOfflineQueue);
+
 async function syncLocationToSupabase(latlng, accuracy) {
     if (!isRecording || !latlng) return;
 
@@ -122,6 +160,11 @@ async function syncLocationToSupabase(latlng, accuracy) {
         accuracy: accuracy,
         user_name: (document.getElementById('user-id') && document.getElementById('user-id').value) || "Marcona_Group"
     };
+
+    if (!navigator.onLine) {
+        saveToOfflineQueue(payload);
+        return;
+    }
 
     try {
         const resp = await fetch(`${SUPABASE_URL}/rest/v1/field_tracking`, {
@@ -136,13 +179,15 @@ async function syncLocationToSupabase(latlng, accuracy) {
         });
         if (resp.ok) {
             console.log("📍 Ubicación sincronizada con Supabase");
+            flushOfflineQueue(); // Aprovechar y enviar pendientes
         } else {
-            console.error("Supabase error:", resp.status, await resp.text());
+            saveToOfflineQueue(payload); // Fallo HTTP → guardar offline
         }
     } catch (err) {
-        console.error("Error al sincronizar:", err);
+        saveToOfflineQueue(payload); // Sin señal → guardar offline
     }
 }
+
 
 let wakeLock = null;
 
