@@ -159,9 +159,6 @@ function toggleRecording() {
     }
 }
 
-window.onload = function () {
-    console.log("🚀 Dashboard cargado - Seguimiento Grupal Activo");
-};
 
 function toggleGPS() {
     alert("Iniciando GPS...");
