@@ -124,7 +124,7 @@ async function syncLocationToSupabase(latlng, accuracy) {
     };
 
     try {
-        await fetch(`${SUPABASE_URL}/rest/v1/field_tracking`, {
+        const resp = await fetch(`${SUPABASE_URL}/rest/v1/field_tracking`, {
             method: 'POST',
             headers: {
                 'apikey': SUPABASE_KEY,
@@ -134,9 +134,10 @@ async function syncLocationToSupabase(latlng, accuracy) {
             },
             body: JSON.stringify(payload)
         });
-        console.log("📍 Ubicación sincronizada con Supabase");
+        const txt = await resp.text();
+        alert(`SYNC: HTTP ${resp.status}\n${txt || 'OK'}`);
     } catch (err) {
-        console.error("Error al sincronizar con Supabase:", err);
+        alert(`ERROR SYNC: ${err.message}`);
     }
 }
 
