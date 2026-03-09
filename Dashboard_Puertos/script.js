@@ -204,10 +204,10 @@ async function toggleRecording() {
                 wakeLock = await navigator.wakeLock.request('screen');
             }
         } catch (e) { console.warn('Wake Lock no disponible:', e); }
-        // Sync every 30 seconds
+        // Sync every 60 seconds
         syncInterval = setInterval(() => {
             if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
-        }, 30000);
+        }, 60000);
         // Initial sync
         if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
     } else {
