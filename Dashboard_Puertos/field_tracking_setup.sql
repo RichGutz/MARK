@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS public.field_tracking (
     latitude double precision not null,
     longitude double precision not null,
     accuracy double precision,    -- Precisión del GPS en metros
-    user_name text                -- Opcional: para saber quién grabó
+    user_name text not null       -- Identificador de quién está grabando (ej: 'Camion_01', 'Supervisor')
 );
 
 -- Habilitar RLS

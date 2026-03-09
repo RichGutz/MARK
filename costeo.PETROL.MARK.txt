@@ -1,0 +1,60 @@
+1. Infraestructura Marítima (Offshore)
+Dada la energía del oleaje en Marcona, este componente es crítico y costoso.
+
+Terminal Multiboyas (MBM): Sistema de 3 a 5 boyas, cadenas, anclas de alta capacidad y grilletes.
+
+Pipeline End Manifold (PLEM): Estructura submarina con válvulas de aislamiento y puntos de conexión.
+
+Líneas Submarinas (Sealines): Tuberías de acero (API 5L) con revestimiento de concreto (concrete weight coating) para estabilidad en el fondo marino.
+
+Tren de Mangueras: Mangueras flotantes y submarinas con certificación OCIMF.
+
+2. Planta de Almacenamiento (Tank Farm)
+Es el componente de mayor peso en materiales.
+
+Tanques API 650: Construcción de tanques de acero. Para 400k bbl, podrías considerar 4 tanques de 100k bbl o una combinación de 80k y 120k bbl según el mix de productos.
+
+Techos Flotantes Internos: Necesarios para reducir mermas por evaporación en gasolinas.
+
+Diques de Contención: Muros de concreto armado y sellado de suelos con geomembrana de HDPE.
+
+Cimentaciones: Anillos de concreto y mejoramiento de suelo (compactación dinámica o pilotes) debido al riesgo sísmico de la zona.
+
+3. Sistemas de Transferencia y Bombeo
+Bombas de Recepción: Bombas de gran caudal para minimizar el tiempo de estadía del buque tanque (demurrage).
+
+Bombas de Despacho: Bombas centrífugas para el envío a las islas de llenado.
+
+Manifold de Válvulas: Sistema de tuberías y válvulas motorizadas (MOV) para la segregación de productos (Diesel, Gasolinas, Turbo).
+
+4. Isla de Llenado de Camiones (Truck Loading Rack)
+Bahías de Carga: Estructuras metálicas con brazos de carga por el fondo (Bottom Loading).
+
+Skids de Medición: Medidores de flujo tipo Coriolis o Turbina con computadores de flujo aprobados por INDECOPI.
+
+Unidad de Recuperación de Vapores (VRU): Sistema para recuperar gases y cumplir con estándares ambientales.
+
+5. Sistemas Auxiliares y Seguridad (HSE)
+Vital para la "Licencia de Funcionamiento" y cumplimiento de NFPA.
+
+Red Contra Incendio (SCI): Tanque de agua dedicado (típicamente >20,000 bbl), bombas de incendio (diésel y eléctricas) y red de monitores.
+
+Sistemas de Espuma: Tanques de concentrado (AFFF), dosificadores y cámaras de espuma en tanques.
+
+Tratamiento de Efluentes: Separadores API y plantas de tratamiento de aguas aceitosas.
+
+6. Automatización y Electricidad
+Sistema SCADA y TAS (Terminal Automation System): Software para control de inventarios, facturación automática y seguridad operativa.
+
+Telemetría de Tanques: Sensores de nivel tipo Radar de alta precisión (+/- 1mm).
+
+Subestación y Fuerza: Transformadores, celdas de media tensión y grupos electrógenos de respaldo (Black start capability).
+
+7. Costos Indirectos (Soft Costs)
+Ingeniería (FEED & Detalle): Entre el 6% y 8% del costo directo.
+
+Gestión de Proyecto (PMO) y Supervisión: Administración del contrato EPC.
+
+Estudios y Permisos: EIA (Impacto Ambiental), permisos de DICAPI (concesión marítima) y Osinergmin.
+
+Puesta en Marcha (Commissioning): Pruebas hidrostáticas, limpieza de líneas (flushing) y llenado inicial.
