@@ -120,7 +120,7 @@ async function syncLocationToSupabase(latlng, accuracy) {
         latitude: latlng[0],
         longitude: latlng[1],
         accuracy: accuracy,
-        user_name: document.getElementById('user-id').value || "Anonimo"
+        user_name: "Marcona_Group"
     };
 
     try {
@@ -145,12 +145,6 @@ function toggleRecording() {
     const btn = document.getElementById('btn-record');
 
     if (isRecording) {
-        const userId = document.getElementById('user-id').value;
-        if (!userId) {
-            alert("Por favor ingresa un ID de Usuario (ej: Camion 1) antes de grabar.");
-            isRecording = false;
-            return;
-        }
         btn.classList.add('active');
         btn.innerHTML = "🔴 REC ON";
         // Sync every 30 seconds
