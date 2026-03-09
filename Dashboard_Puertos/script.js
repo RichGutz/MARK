@@ -120,7 +120,7 @@ async function syncLocationToSupabase(latlng, accuracy) {
         latitude: latlng[0],
         longitude: latlng[1],
         accuracy: accuracy,
-        user_name: "User_Field"
+        user_name: (document.getElementById('user-id') && document.getElementById('user-id').value) || "Marcona_Group"
     };
 
     try {
@@ -134,10 +134,13 @@ async function syncLocationToSupabase(latlng, accuracy) {
             },
             body: JSON.stringify(payload)
         });
-        const txt = await resp.text();
-        alert(`SYNC: HTTP ${resp.status}\n${txt || 'OK'}`);
+        if (resp.ok) {
+            console.log("📍 Ubicación sincronizada con Supabase");
+        } else {
+            console.error("Supabase error:", resp.status, await resp.text());
+        }
     } catch (err) {
-        alert(`ERROR SYNC: ${err.message}`);
+        console.error("Error al sincronizar:", err);
     }
 }
 
