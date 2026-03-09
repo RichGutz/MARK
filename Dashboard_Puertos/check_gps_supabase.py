@@ -22,7 +22,7 @@ def check_gps_records():
         else:
             print(f"✅ Se encontraron {len(records)} registros recientes:")
             for r in records:
-                print(f"   - [{r['created_at']}] Lat: {r['latitude']}, Lng: {r['longitude']} (Precisión: {r['accuracy']}m)")
+                print(f"   - [{r['created_at']}] Usuario: {r['user_name']} | Lat: {r['latitude']}, Lng: {r['longitude']} (Precisión: {r['accuracy']}m)")
                 
     except Exception as e:
         print(f"❌ Error al consultar Supabase: {e}")

@@ -111,6 +111,51 @@ const SUPABASE_KEY = "sb_publishable_CT41HFF7NMtQunrSSGsksg_uwxmfteK";
 let isRecording = false;
 let syncInterval = null;
 let lastLatLng = null;
+let googleUser = null;
+
+// --- GOOGLE IDENTITY (One Tap) ---
+function handleCredentialResponse(response) {
+    try {
+        // Decodificar el JWT (base64) sin librerías externas
+        const base64Url = response.credential.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        googleUser = JSON.parse(jsonPayload);
+        console.log("👤 Usuario identificado:", googleUser.email);
+
+        // Actualizar UI
+        document.getElementById('user-profile').style.display = 'flex';
+        document.getElementById('user-photo').src = googleUser.picture;
+        document.getElementById('user-display-name').textContent = googleUser.given_name || googleUser.name;
+
+        // Persistir en sesión
+        localStorage.setItem('google_user_cache', JSON.stringify(googleUser));
+    } catch (e) {
+        console.error("Error al procesar Google Identity:", e);
+    }
+}
+
+window.onload = function () {
+    // Intentar recuperar de caché primero
+    const cached = localStorage.getItem('google_user_cache');
+    if (cached) {
+        googleUser = JSON.parse(cached);
+        document.getElementById('user-profile').style.display = 'flex';
+        document.getElementById('user-photo').src = googleUser.picture;
+        document.getElementById('user-display-name').textContent = googleUser.given_name || googleUser.name;
+    }
+
+    google.accounts.id.initialize({
+        client_id: "688755088629-v8h6scvptov8u805eie7h7r2vept01v5.apps.googleusercontent.com", // ID de Cliente para petral.geeksoft.tech
+        callback: handleCredentialResponse,
+        auto_select: true // Intenta loguear automáticamente si hay sesión en Chrome
+    });
+
+    google.accounts.id.prompt(); // Mostrar el One Tap
+};
 
 // --- AUTOMATIC DEVICE ID ---
 function getOrCreateDeviceId() {
@@ -132,7 +177,7 @@ async function syncLocationToSupabase(latlng, accuracy) {
         latitude: latlng[0],
         longitude: latlng[1],
         accuracy: accuracy,
-        user_name: DEVICE_ID
+        user_name: googleUser ? googleUser.email : DEVICE_ID
     };
 
     try {
