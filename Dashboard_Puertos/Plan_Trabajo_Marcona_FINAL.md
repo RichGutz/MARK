@@ -33,8 +33,26 @@ Para la coordinación y reporte, se utilizarán los siguientes nombres (ya integ
 ![Mapa Ruta Norte](Imagenes.Rutas.Viaje/Ruta.NORTE.png)
 
 ---
-## 4. Notas Adicionales
-- Se recomienda usar el **Dashboard de Puertos** para visualizar la ubicación en tiempo real durante el recorrido.
-- Los archivos `.js` del Dashboard han sido verificados para asegurar concordancia con estos nombres.
 
-*Generado el 09 de marzo de 2026 basado en los objetivos de la visita.*
+## 4. Instrucciones de Uso del Dashboard (Modo Garmin)
+El Dashboard de Puertos ha sido optimizado para funcionar como un dispositivo de seguimiento GPS (similar a un Garmin) durante la expedición, incluso en zonas sin cobertura de internet.
+
+### Configuración Inicial (Con Señal)
+1.  **Acceder:** Abrir `petral.geeksoft.tech/dashboard.html` en Chrome móvil.
+2.  **Identificación:** Ingresar sus iniciales o ID en el campo **"Tu nombre (ej: RG)"**.
+3.  **Activar GPS:** Presionar el botón **GPS OFF** (cambiará a **GPS ON**). Esperar a que el punto azul aparezca en el mapa.
+4.  **Seguimiento:** Presionar **Follow Me** para que el mapa se centre automáticamente en su posición.
+
+### Durante el Recorrido (Grabación)
+1.  **Iniciar Grabación:** Presionar el botón **⏺ GRABAR**. El botón cambiará a **🔴 REC ON**.
+2.  **Frecuencia:** El dispositivo registrará su posición cada **1 minuto**.
+3.  **Mantener Pantalla:** El sistema activará el "Wake Lock" para evitar que la pantalla se bloquee mientras se graba. **No minimice el navegador.**
+
+### Operación Offline (Sin Señal en el Desierto)
+1.  **Almacenamiento Local:** Si pierde la señal de internet, el app guardará automáticamente los puntos en la memoria del teléfono (localStorage).
+2.  **Sincronización Automática:** Al recuperar señal, el sistema detectará la conexión y enviará **todos los puntos acumulados** masiva y automáticamente a la base de datos.
+
+
+*Actualizado el 09 de marzo de 2026 con instrucciones de seguimiento GPS.*
+
+*Actualizado el 09 de marzo de 2026 con instrucciones de seguimiento GPS.*
