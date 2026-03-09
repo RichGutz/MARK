@@ -139,23 +139,35 @@ function handleCredentialResponse(response) {
 }
 
 window.onload = function () {
-    // Intentar recuperar de caché primero
+    // 1. Intentar recuperar identidad de Google de caché
     const cached = localStorage.getItem('google_user_cache');
     if (cached) {
         googleUser = JSON.parse(cached);
-        document.getElementById('user-profile').style.display = 'flex';
-        document.getElementById('user-photo').src = googleUser.picture;
-        document.getElementById('user-display-name').textContent = googleUser.given_name || googleUser.name;
+        updateUserUI(googleUser);
     }
 
-    google.accounts.id.initialize({
-        client_id: "688755088629-v8h6scvptov8u805eie7h7r2vept01v5.apps.googleusercontent.com", // ID de Cliente para petral.geeksoft.tech
-        callback: handleCredentialResponse,
-        auto_select: true // Intenta loguear automáticamente si hay sesión en Chrome
-    });
-
-    google.accounts.id.prompt(); // Mostrar el One Tap
+    // 2. Inicializar Google Identity Services (GSI)
+    if (window.google && google.accounts) {
+        google.accounts.id.initialize({
+            client_id: "PONER_TU_CLIENT_ID_AQUI.apps.googleusercontent.com",
+            callback: handleCredentialResponse,
+            auto_select: true
+        });
+        google.accounts.id.prompt((notification) => {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                console.log("⚠️ Google One Tap no se mostró. Usando ID de dispositivo.");
+            }
+        });
+    } else {
+        console.log("⚠️ Librería de Google no cargada.");
+    }
 };
+
+function updateUserUI(user) {
+    document.getElementById('user-profile').style.display = 'flex';
+    document.getElementById('user-photo').src = user.picture;
+    document.getElementById('user-display-name').textContent = user.given_name || user.name;
+}
 
 // --- AUTOMATIC DEVICE ID ---
 function getOrCreateDeviceId() {
