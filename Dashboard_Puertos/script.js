@@ -111,63 +111,58 @@ const SUPABASE_KEY = "sb_publishable_CT41HFF7NMtQunrSSGsksg_uwxmfteK";
 let isRecording = false;
 let syncInterval = null;
 let lastLatLng = null;
-let googleUser = null;
+let lastLatLng = null;
 
-// --- GOOGLE IDENTITY (One Tap) ---
-function handleCredentialResponse(response) {
+async function syncLocationToSupabase(latlng, accuracy) {
+    if (!isRecording || !latlng) return;
+
+    const payload = {
+        trip_id: "Marcona_Field_Visit_" + new Date().toISOString().split('T')[0],
+        latitude: latlng[0],
+        longitude: latlng[1],
+        accuracy: accuracy,
+        user_name: "Marcona_Group"
+    };
+
     try {
-        // Decodificar el JWT (base64) sin librerías externas
-        const base64Url = response.credential.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
+        await fetch(`${SUPABASE_URL}/rest/v1/field_tracking`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(payload)
+        });
+        console.log("📍 Ubicación sincronizada (Grupo)");
+    } catch (err) {
+        console.error("Error al sincronizar:", err);
+    }
+}
 
-        googleUser = JSON.parse(jsonPayload);
-        console.log("👤 Usuario identificado:", googleUser.email);
+function toggleRecording() {
+    isRecording = !isRecording;
+    const btn = document.getElementById('btn-record');
 
-        // Actualizar UI
-        document.getElementById('user-profile').style.display = 'flex';
-        document.getElementById('user-photo').src = googleUser.picture;
-        document.getElementById('user-display-name').textContent = googleUser.given_name || googleUser.name;
-
-        // Persistir en sesión
-        localStorage.setItem('google_user_cache', JSON.stringify(googleUser));
-    } catch (e) {
-        console.error("Error al procesar Google Identity:", e);
+    if (isRecording) {
+        btn.classList.add('active');
+        btn.innerHTML = "🔴 REC ON";
+        syncInterval = setInterval(() => {
+            if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
+        }, 30000);
+        if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
+    } else {
+        btn.classList.remove('active');
+        btn.innerHTML = "REC OFF";
+        if (syncInterval) clearInterval(syncInterval);
+        syncInterval = null;
     }
 }
 
 window.onload = function () {
-    // 1. Intentar recuperar identidad de Google de caché
-    const cached = localStorage.getItem('google_user_cache');
-    if (cached) {
-        googleUser = JSON.parse(cached);
-        updateUserUI(googleUser);
-    }
-
-    // 2. Inicializar Google Identity Services (GSI)
-    if (window.google && google.accounts) {
-        google.accounts.id.initialize({
-            client_id: "PONER_TU_CLIENT_ID_AQUI.apps.googleusercontent.com",
-            callback: handleCredentialResponse,
-            auto_select: true
-        });
-        google.accounts.id.prompt((notification) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                console.log("⚠️ Google One Tap no se mostró. Usando ID de dispositivo.");
-            }
-        });
-    } else {
-        console.log("⚠️ Librería de Google no cargada.");
-    }
+    console.log("🚀 Dashboard cargado - Seguimiento Grupal");
 };
-
-function updateUserUI(user) {
-    document.getElementById('user-profile').style.display = 'flex';
-    document.getElementById('user-photo').src = user.picture;
-    document.getElementById('user-display-name').textContent = user.given_name || user.name;
-}
 
 // --- AUTOMATIC DEVICE ID ---
 function getOrCreateDeviceId() {
