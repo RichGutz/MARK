@@ -111,7 +111,6 @@ const SUPABASE_KEY = "sb_publishable_CT41HFF7NMtQunrSSGsksg_uwxmfteK";
 let isRecording = false;
 let syncInterval = null;
 let lastLatLng = null;
-let lastLatLng = null;
 
 async function syncLocationToSupabase(latlng, accuracy) {
     if (!isRecording || !latlng) return;
@@ -161,69 +160,8 @@ function toggleRecording() {
 }
 
 window.onload = function () {
-    console.log("🚀 Dashboard cargado - Seguimiento Grupal");
+    console.log("🚀 Dashboard cargado - Seguimiento Grupal Activo");
 };
-
-// --- AUTOMATIC DEVICE ID ---
-function getOrCreateDeviceId() {
-    let devId = localStorage.getItem('dashboard_device_id');
-    if (!devId) {
-        // Generar un ID aleatorio (ej: UID-4A82)
-        devId = 'Device-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-        localStorage.setItem('dashboard_device_id', devId);
-    }
-    return devId;
-}
-const DEVICE_ID = getOrCreateDeviceId();
-
-async function syncLocationToSupabase(latlng, accuracy) {
-    if (!isRecording || !latlng) return;
-
-    const payload = {
-        trip_id: "Marcona_Field_Visit_" + new Date().toISOString().split('T')[0],
-        latitude: latlng[0],
-        longitude: latlng[1],
-        accuracy: accuracy,
-        user_name: googleUser ? googleUser.email : DEVICE_ID
-    };
-
-    try {
-        await fetch(`${SUPABASE_URL}/rest/v1/field_tracking`, {
-            method: 'POST',
-            headers: {
-                'apikey': SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify(payload)
-        });
-        console.log("📍 Ubicación sincronizada con Supabase");
-    } catch (err) {
-        console.error("Error al sincronizar con Supabase:", err);
-    }
-}
-
-function toggleRecording() {
-    isRecording = !isRecording;
-    const btn = document.getElementById('btn-record');
-
-    if (isRecording) {
-        btn.classList.add('active');
-        btn.innerHTML = "🔴 REC ON";
-        // Sync every 30 seconds
-        syncInterval = setInterval(() => {
-            if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
-        }, 30000);
-        // Initial sync
-        if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
-    } else {
-        btn.classList.remove('active');
-        btn.innerHTML = "REC OFF";
-        if (syncInterval) clearInterval(syncInterval);
-        syncInterval = null;
-    }
-}
 
 function toggleGPS() {
     alert("Iniciando GPS...");
