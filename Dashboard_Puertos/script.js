@@ -120,7 +120,7 @@ async function syncLocationToSupabase(latlng, accuracy) {
         latitude: latlng[0],
         longitude: latlng[1],
         accuracy: accuracy,
-        user_name: "Marcona_Group"
+        user_name: "User_Field"
     };
 
     try {
@@ -147,14 +147,12 @@ function toggleRecording() {
     if (isRecording) {
         btn.classList.add('active');
         btn.innerHTML = "🔴 REC ON";
-        // Immediate sync if we already have a position
-        if (lastLatLng) {
-            syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
-        }
-        // Then every 30 seconds
+        // Sync every 30 seconds
         syncInterval = setInterval(() => {
             if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
         }, 30000);
+        // Initial sync
+        if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
     } else {
         btn.classList.remove('active');
         btn.innerHTML = "REC OFF";
@@ -164,10 +162,9 @@ function toggleRecording() {
 }
 
 function toggleGPS() {
-    alert("Iniciando GPS...");
     const btn = document.getElementById('btn-gps');
     if (!navigator.geolocation) {
-        alert("GPS no soportado (Probablemente necesitas HTTPS)");
+        alert("GPS no soportado en este navegador.");
         return;
     }
 
@@ -212,11 +209,6 @@ function toggleGPS() {
 
             if (followUser) {
                 map.setView(latlng, map.getZoom());
-            }
-
-            // Auto-sync on each GPS update if recording is active
-            if (isRecording) {
-                syncLocationToSupabase(latlng, accuracy);
             }
         },
         (error) => {
