@@ -378,6 +378,7 @@ function initApp() {
     renderInfraRoads();
     renderExtraRoads();
     renderSanFernando();
+    renderAmortiguamiento();
 
     // 3. Synchronize initial state with checkboxes (this will respect the 'checked' state from HTML)
     // Synchronize initial state with checkboxes
@@ -399,6 +400,7 @@ function initApp() {
     toggleInfraRoads();
     toggleExtraRoads();
     toggleSanFernando();
+    toggleAmortiguamiento();
     toggleAreaAcuatica();
     toggleAreaRiberena();
     toggleServidumbre();
@@ -590,6 +592,46 @@ function toggleSanFernando() {
         if (sanFernandoLayer) map.addLayer(sanFernandoLayer);
     } else {
         if (sanFernandoLayer) map.removeLayer(sanFernandoLayer);
+    }
+}
+
+let amortiguamientoLayer = null;
+
+function renderAmortiguamiento() {
+    if (typeof AMORTIGUAMIENTO_GEOJSON !== 'undefined' && !amortiguamientoLayer) {
+        amortiguamientoLayer = L.geoJSON(AMORTIGUAMIENTO_GEOJSON, {
+            style: {
+                color: '#2e7d32', // Dark Green
+                weight: 2,
+                opacity: 0.8,
+                fillColor: '#2e7d32',
+                fillOpacity: 0.1,
+                dashArray: '5, 10'
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.name) {
+                    layer.bindTooltip(feature.properties.name, {
+                        permanent: false,
+                        direction: "center",
+                        className: "road-label-container"
+                    });
+                }
+            }
+        });
+    }
+}
+
+function toggleAmortiguamiento() {
+    const el = document.getElementById('toggle-amortiguamiento');
+    if (!el) return;
+    const show = el.checked;
+
+    if (!amortiguamientoLayer) renderAmortiguamiento();
+
+    if (show) {
+        if (amortiguamientoLayer) map.addLayer(amortiguamientoLayer);
+    } else {
+        if (amortiguamientoLayer) map.removeLayer(amortiguamientoLayer);
     }
 }
 
