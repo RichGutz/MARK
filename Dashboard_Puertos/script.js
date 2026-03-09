@@ -147,12 +147,14 @@ function toggleRecording() {
     if (isRecording) {
         btn.classList.add('active');
         btn.innerHTML = "🔴 REC ON";
-        // Sync every 30 seconds
+        // Immediate sync if we already have a position
+        if (lastLatLng) {
+            syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
+        }
+        // Then every 30 seconds
         syncInterval = setInterval(() => {
             if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
         }, 30000);
-        // Initial sync
-        if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
     } else {
         btn.classList.remove('active');
         btn.innerHTML = "REC OFF";
@@ -210,6 +212,11 @@ function toggleGPS() {
 
             if (followUser) {
                 map.setView(latlng, map.getZoom());
+            }
+
+            // Auto-sync on each GPS update if recording is active
+            if (isRecording) {
+                syncLocationToSupabase(latlng, accuracy);
             }
         },
         (error) => {
