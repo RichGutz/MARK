@@ -99,6 +99,137 @@ let markers = [];
 let currentFilter = 'all';
 const ports = processShipData(); // Initial load
 
+// --- GPS TRACKING ---
+let userMarker = null;
+let userAccuracyCircle = null;
+let followUser = false;
+let watchId = null;
+
+// Supabase Config
+const SUPABASE_URL = "https://mancsrsbtzgctgorpogs.supabase.co";
+const SUPABASE_KEY = "sb_publishable_CT41HFF7NMtQunrSSGsksg_uwxmfteK";
+let isRecording = false;
+let syncInterval = null;
+let lastLatLng = null;
+
+async function syncLocationToSupabase(latlng, accuracy) {
+    if (!isRecording || !latlng) return;
+
+    const payload = {
+        trip_id: "Marcona_Field_Visit_" + new Date().toISOString().split('T')[0],
+        latitude: latlng[0],
+        longitude: latlng[1],
+        accuracy: accuracy,
+        user_name: "User_Field"
+    };
+
+    try {
+        await fetch(`${SUPABASE_URL}/rest/v1/field_tracking`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(payload)
+        });
+        console.log("📍 Ubicación sincronizada con Supabase");
+    } catch (err) {
+        console.error("Error al sincronizar con Supabase:", err);
+    }
+}
+
+function toggleRecording() {
+    isRecording = !isRecording;
+    const btn = document.getElementById('btn-record');
+
+    if (isRecording) {
+        btn.classList.add('active');
+        btn.innerHTML = "🔴 REC ON";
+        // Sync every 30 seconds
+        syncInterval = setInterval(() => {
+            if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
+        }, 30000);
+        // Initial sync
+        if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
+    } else {
+        btn.classList.remove('active');
+        btn.innerHTML = "REC OFF";
+        if (syncInterval) clearInterval(syncInterval);
+        syncInterval = null;
+    }
+}
+
+function toggleGPS() {
+    const btn = document.getElementById('btn-gps');
+    if (!navigator.geolocation) {
+        alert("GPS no soportado en este navegador.");
+        return;
+    }
+
+    if (watchId !== null) {
+        // Stop GPS
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        if (userMarker) map.removeLayer(userMarker);
+        if (userAccuracyCircle) map.removeLayer(userAccuracyCircle);
+        userMarker = null;
+        userAccuracyCircle = null;
+        lastLatLng = null;
+        btn.classList.remove('active');
+        btn.innerHTML = "GPS OFF";
+        if (isRecording) toggleRecording(); // Stop recording if GPS is off
+        return;
+    }
+
+    // Start GPS
+    btn.classList.add('active');
+    btn.innerHTML = "GPS ON";
+
+    watchId = navigator.geolocation.watchPosition(
+        (position) => {
+            const { latitude, longitude, accuracy } = position.coords;
+            const latlng = [latitude, longitude];
+            lastLatLng = { coords: latlng, accuracy: accuracy };
+
+            if (!userMarker) {
+                userMarker = L.marker(latlng, {
+                    icon: L.divIcon({
+                        className: 'gps-marker-container',
+                        html: '<div class="gps-marker"></div>',
+                        iconSize: [20, 20]
+                    })
+                }).addTo(map);
+                userAccuracyCircle = L.circle(latlng, { radius: accuracy, color: '#2196f3', fillOpacity: 0.15 }).addTo(map);
+            } else {
+                userMarker.setLatLng(latlng);
+                userAccuracyCircle.setLatLng(latlng).setRadius(accuracy);
+            }
+
+            if (followUser) {
+                map.setView(latlng, map.getZoom());
+            }
+        },
+        (error) => {
+            console.error("GPS Error:", error);
+            alert("Error al obtener ubicación.");
+        },
+        { enableHighAccuracy: true, maximumAge: 1000, timeout: 5000 }
+    );
+}
+
+function toggleFollowMe() {
+    followUser = !followUser;
+    const btn = document.getElementById('btn-follow-me');
+    if (followUser) {
+        btn.classList.add('active');
+        if (userMarker) map.setView(userMarker.getLatLng(), map.getZoom());
+    } else {
+        btn.classList.remove('active');
+    }
+}
+
 // --- PERIMETER SIDES ---
 function renderPerimeterSides() {
     if (typeof PERIMETER_SIDES_GEOJSON === 'undefined') return;
