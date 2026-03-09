@@ -144,13 +144,21 @@ async function syncLocationToSupabase(latlng, accuracy) {
     }
 }
 
-function toggleRecording() {
+let wakeLock = null;
+
+async function toggleRecording() {
     isRecording = !isRecording;
     const btn = document.getElementById('btn-record');
 
     if (isRecording) {
         btn.classList.add('active');
         btn.innerHTML = "🔴 REC ON";
+        // Mantener pantalla encendida
+        try {
+            if ('wakeLock' in navigator) {
+                wakeLock = await navigator.wakeLock.request('screen');
+            }
+        } catch (e) { console.warn('Wake Lock no disponible:', e); }
         // Sync every 30 seconds
         syncInterval = setInterval(() => {
             if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
@@ -159,10 +167,13 @@ function toggleRecording() {
         if (lastLatLng) syncLocationToSupabase(lastLatLng.coords, lastLatLng.accuracy);
     } else {
         btn.classList.remove('active');
-        btn.innerHTML = "REC OFF";
+        btn.innerHTML = "⏺ GRABAR";
         if (syncInterval) clearInterval(syncInterval);
         syncInterval = null;
+        // Liberar Wake Lock
+        if (wakeLock) { wakeLock.release(); wakeLock = null; }
     }
+}
 }
 
 function toggleGPS() {
