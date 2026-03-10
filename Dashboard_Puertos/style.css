@@ -820,25 +820,26 @@ li:hover {
 
     /* Bottom Ribbons (Controls) */
     .controls {
-        width: 90vw;
-        left: 50%;
-        transform: translateX(-50%);
+        width: 95vw !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         padding: 5px 10px !important;
-        border-radius: 8px !important;
-        bottom: 10px !important;
-        /* Base ribbon */
+        border-radius: 12px !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3) !important;
     }
 
     /* Stack them vertically if needed, or adjust bottom spacing */
     .secondary-ribbon {
-        bottom: 10px !important;
+        bottom: 20px !important;
+        /* Capas y Vías en la base */
     }
 
     .controls:not(.secondary-ribbon) {
-        bottom: 60px !important;
-        /* Ribbon above the base one (PERÍMETROS) */
+        bottom: 75px !important;
+        /* Perímetros arriba de Capas */
     }
 
     .toggle-text {
