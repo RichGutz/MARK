@@ -379,6 +379,9 @@ function initApp() {
     renderExtraRoads();
     renderSanFernando();
     renderAmortiguamiento();
+    renderSunarp1();
+    renderSunarp2();
+    renderSunarp3();
 
     // 3. Synchronize initial state with checkboxes (this will respect the 'checked' state from HTML)
     // Synchronize initial state with checkboxes
@@ -404,6 +407,9 @@ function initApp() {
     toggleAreaAcuatica();
     toggleAreaRiberena();
     toggleServidumbre();
+    toggleSunarp1();
+    toggleSunarp2();
+    toggleSunarp3();
     toggleCalculators();
 }
 
@@ -2715,3 +2721,57 @@ function toggleServidumbreLabels() {
         map.removeLayer(window.servidumbreLabelsLayer);
     }
 }
+
+// --- SUNARP Layers ---
+let sunarp1Layer = null;
+let sunarp2Layer = null;
+let sunarp3Layer = null;
+
+function renderSunarp1() {
+    if (typeof SUNARP_1_GEOJSON !== 'undefined' && !sunarp1Layer) {
+        sunarp1Layer = L.geoJSON(SUNARP_1_GEOJSON, {
+            style: function (f) { return { color: f.properties.color, weight: 3, opacity: 0.8, fillColor: f.properties.color, fillOpacity: 0.2 }; },
+            onEachFeature: function (f, l) { l.bindPopup(`<b>${f.properties.name}</b>`); }
+        });
+    }
+}
+
+function renderSunarp2() {
+    if (typeof SUNARP_2_GEOJSON !== 'undefined' && !sunarp2Layer) {
+        sunarp2Layer = L.geoJSON(SUNARP_2_GEOJSON, {
+            style: function (f) { return { color: f.properties.color, weight: 3, opacity: 0.8, fillColor: f.properties.color, fillOpacity: 0.2 }; },
+            onEachFeature: function (f, l) { l.bindPopup(`<b>${f.properties.name}</b>`); }
+        });
+    }
+}
+
+function renderSunarp3() {
+    if (typeof SUNARP_3_GEOJSON !== 'undefined' && !sunarp3Layer) {
+        sunarp3Layer = L.geoJSON(SUNARP_3_GEOJSON, {
+            style: function (f) { return { color: f.properties.color, weight: 3, opacity: 0.8, fillColor: f.properties.color, fillOpacity: 0.2 }; },
+            onEachFeature: function (f, l) { l.bindPopup(`<b>${f.properties.name}</b>`); }
+        });
+    }
+}
+
+function toggleSunarp1() {
+    const el = document.getElementById('toggle-sunarp-1');
+    if (!el) return;
+    if (el.checked) { if (!sunarp1Layer) renderSunarp1(); map.addLayer(sunarp1Layer); }
+    else { if (sunarp1Layer) map.removeLayer(sunarp1Layer); }
+}
+
+function toggleSunarp2() {
+    const el = document.getElementById('toggle-sunarp-2');
+    if (!el) return;
+    if (el.checked) { if (!sunarp2Layer) renderSunarp2(); map.addLayer(sunarp2Layer); }
+    else { if (sunarp2Layer) map.removeLayer(sunarp2Layer); }
+}
+
+function toggleSunarp3() {
+    const el = document.getElementById('toggle-sunarp-3');
+    if (!el) return;
+    if (el.checked) { if (!sunarp3Layer) renderSunarp3(); map.addLayer(sunarp3Layer); }
+    else { if (sunarp3Layer) map.removeLayer(sunarp3Layer); }
+}
+
