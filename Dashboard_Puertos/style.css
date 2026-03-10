@@ -823,8 +823,8 @@ li:hover {
         width: 95vw !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
-        bottom: 50px !important;
-        /* Más arriba para evitar barras de navegación móviles */
+        bottom: 70px !important;
+        /* Altura final solicitada por el usuario para visibilidad máxima */
         padding: 8px 12px !important;
         border-radius: 15px !important;
         background: rgba(255, 255, 255, 0.95) !important;
