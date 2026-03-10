@@ -1,0 +1,405 @@
+ 
+ 
+ 
+: 
+ 
+VERTICE  
+1 LADO  
+1-2 NORTE  (Y) 
+8314572  
+.1239  
+ 
+ 
+ 
+ 
+ 
+ 
+  
+ 
+ 
+ 
+ 
+. : §2 
+  
+ 
+ 
+ 
+ 
+ 
+ 
+E 
+cu 
+o 
+ 
+ 
+o» 
+ 
+ 
+ 
+ 
+ 
+’Eb 
+ 
+ c: o ro DISTANCIA  
+25.84  ANGWERN0  ESTE » 
+111°44’^  477413.4785  
+ 
+VERTICE  LADO  DISTANCIA'  ANG.  INTERNO  ESTE  pgs | NORTE  (Y) 
+2 2-3 688 32 68° 15 45” 477439 .3158  8314572.1239  
+ 
+VERTICE  LADO  DISTANCIA  ANClMTERNO  ESTE  (X^ NORTE  (Y) 
+4 4-1 886 46 2’11'57'’  477159 .2455  8313934.4771  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+N° 11025928  del de de Nazca  mediante  jea hnea  recta  1 tramo  
+NORTE  (Y) 
+831934.4771  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+O o 
+CM SL 
+w 
+o O’ 
+co e 
+° .2 
+"U 
+Z £ 
+ 
+ 
+  
+X 
+• ■ O) 
+CO O 
+■O 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+■ 
+ 
+ 
+ 
+ 
+ 
+  1529.99  
+(*)   
+ 
+ 
+ 
+ 
+ 
+ VERTICE  LADO  DISTANCIA  4 ANGULO  ESTE(X)  NORTE(Y)  
+12 
+13 12 13 
+13-14 W37 n 90°0’0”  
+160° 12’12"  476933.5979  
+476869.5269  8312528.4960  
+8312643.9815  532.44  (*). 
+14 14-15 74.93  % 160° 12’12“  476785.8612  8313159.1431  
+15 15-16 64.42  171° 13’56"  476799.6093  8313232.8043  
+16 16-17 485.75  171° 13’56”  476820.8614  8313293.3559  
+17 17-18 X 23.07  (’) 176°51’36"  477049.7121  8313721.8202  
+18 -8-19 66.56  176°51'36"  477061.6743  8313741.5353  
+19  41.84  (*) 186° 19’30"  477099.2668  8313796.4636  
+20  108.91  186° 19’30”  477118.9091  8313833.3085  
+ VERTICE  LADO  DISTANCIA  ANGULO  ESTE(X)  
+1 1-2 25.21  10?°48’3'’  477159.2455  
+ 
+VERTICE  LADO    DISTANCIA  ANGULO  ESTE&)>  NORTE(Y)  
+2 2-3   116.62  72°1T^  477184.3984  8313932.7466  
+3 3-4 47 14 (*) 173°40#  477141.2025  8313824.4200  
+4 4-5 66.56  173^40’30"  / 477119.0725  8313782.9087  
+5 
+6 5-6 
+6-7  
+t 4 20.44  f) 483*8’24"  
+183°824’  477081.4800  
+477070 .8817 8313727.9804  
+8313710.5131   
+7 78 r :}88°46'4’  476842.0309  8313282.0489  
+8 
+9 8-9 
+9-1G 74 93 
+^15.86  n 188°46’4’  
+199°47'48^  476823 .2019 
+476809.4538  8313228.4010  
+8313154.7398  
+10 10-1 . 132 07.- 199°<W  476890.5134  8313655.6247  
+ 
+VERTICE  LADO  DISTANCIA  r ^NGULO -i” ESTE  (X) NORTE  (Y) 
+11 <■ 11-12 / 24-00 M 90°0’Q;c  476954.5844  8312540.1392  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+PUBLICIDAD  : 125282  Recibo  N° 2017 -665-680 CERTI.  LITERAL  - PREDIOS  Partida  N° 11024636  
+ 
+ 
+ 
+ 
+sunarp  
+Supenr  tender  de National  
+rp lo^ P'jhlicoi  ZONA  REGISTRAL  N: XI - SEDE  ICA 
+OFICINA REGISTRAL NASCA  
+N" Partida: 11024636  
+ 
+ 
+INSCRIPCION DE SECCION ESPECLAL DE PREDIOS  RURALES  
+AREA  Ha. 13 808 262,44  M2 ZONA  PREDIO  DE NATURALEZA  ERIAZA  UBICADO  EN LA PLAYA 
+EL CONCHAL EN LA BAHIA DE SAN NICOLAS  
+MARCONA  
+REGISTRO  DE PROPIEDAD  INMUEBLE  W 
+RUBRO:  GRAVAMENES  Y CARGAS  A 
+D00002  £ 
+ 
+SERVIDUMBRE  Sobre  parte  del predio  inscrito  en la presente  padida,  se ha constituido  servidumbre  de paso 
+onerosa, a favor de NA VIERA PETRAL S.A. inserts en la partida N0. del Registro de Personas  
+Juridicas  de la Oficina  Registral  de Lima  por el plazo  de treinta  (30) anos  el cual sera computado  a partir  del 
+23/09/2011, sobie jn area de 70 817.41 m2., con los siguientes linderos y medidas perimetricas;  
+ 
+POR  EL NORTE,  colinda  con terreno  de propiedad  del estado  quo cone  inscrito  en la P E. N°11024636  del 
+regist'O de predios de Nazca y con reg stro SIMABIP N°1456 de las, nedianle una linea quebradade 01 
+Gamos  . ’ 
+ANG.  INTERNO  
+90°59’56'  . ESTEO  
+47695W59  NORTE  (Y) 
+8347376.0421  
+ 
+POR  EL ESTE,  colinda  con terreno  de propiedaddel  Estado  que core inscrito  en laP.E.  N°11024636  del 
+registro de precios de nazca y con registrc SINAB P N’1456 de lea, mediants unatinea qucbraca de 07 
+Karros  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+2956  77 
+ 
+POR EL OESTE; colinda cor te'renc depropiedac cel Estado que corre nscritoer laP.E. N°11024636 del 
+registro  de preoios  de nazca  y con registro  SINABIP  Nc1456  de lea. mediante  una linea quebrada  de 0/ 
+tramos:  Jf .,X / 
+VERTICE  LADO  A DISTANCIA  : ANG;4WRN0  ESTE  (X) NORTE  (Y) 
+J J-K/ 212.^1’  68° tW 477413.4785  8314572.1239  
+K ; K 1 3W" 190°527”  477492.3191  8314769.8655  
+i L-M  ..M90°52’7”  477562.6816  8315136.3303  
+M t M-N %M29  4 ^189'46’2"  477562.6816  8315538.3175  
+ 
+O N-P 
+P-0 - -,;M54.97  
+-J 326.53>^  189°46’2'’  
+184°42'26"  477448.1701  
+477229.1686  8316203.5456  
+8316820.8156  
+P P-A . 294.2M,.  184°42’26”  477095.1034  8317118.5497  
+2944,33  
+ 
+POR  EL SUR,  colinda  con:#reno  eriazo,  mediante  un alinea  recta  de 01 tramo:  
+VERTICE  LADO:  
+l^ " tJISTANCIA  ANG.  INTERNO  
+25.84  111°44’15'  ESTE  (X) 
+477439.3158  NORTE  (Y) 
+8314572.1239  
+ 
+^3 Perimetro:  5 950,94  ml. 
+ 
+NAVIERA PO^S -A. es propietaria del predio inscrito en la partida N° 11020607 del Registro de Predios 
+NascaJR^dio  Dominants),  se constituye  servidumbre  con la finalidad  que transiten  vehiculos  ligeros  y 
+ 
+Pagina Numcro   1 
+\Res(fluvivn del  Superintendente National  de. los Registros Publicos N" 124 -97-SUNARP  Zona  Registral  IX - Sede  Lima 
+Unidad  de Adminiiiiacioa  y Fixianzas  
+TESORERIA - Reba«Uati  o VERTICE  
+A LADO  
+A-B DISTANCIA  
+24.00  
+ 
+VERTICE  LADO  DISTANCIA  ANG.  INTERNO  ,£&T£(X)  NORTE  (Y) 
+B 
+C B-C ^94.68f  JO’OT  ,> .,^73.4746  
+/ 477116.1047  8317388.0249  
+8317130.1662  C-D A®84  
+D D-E 654.97  , . 4 1T5°17’34’  M77251.7872  8316828.8405  
+E E-F 686.47  >i70°13M  1 477470.7887  8316211.5704  
+F F-G 401.99  - 170°13’5M  ” 477586.6816  8315538.3175  
+G G-H $ | 384.51^  169°7’53«K  477586.6816  8315136.3303  
+H  203.31   477514.6125  8314760.9770  
+ 
+PUBLICIDAD  : 125282  Recibo  N° 2017 -665-680 CERTI.  LITERAL  - PREDIOS  Partida  N° 11024636  
+ 
+ 
+ 
+ 
+sunarp  
+Supexrtender  ci* National  
+co Ins R*gi$trn*  P Shikos  ZONA  REGISTRAR  N: XI-SEDE  ICA 
+OFICINA REGISTRAL NASCA  
+N" Partida: 11024636  
+ 
+ 
+INSCRIPCION DE SECCION ESPECIAL DE PREDIOS  RURALES  
+AREA  Ha. 13 808 262,44  M2 ZONA  PREDIO  DE NATURALEZA  ERIAZA  UBICADO  EN LA PLAYA 
+EL CONCHAL EN LA BAHIA DE SAN NICOLAS  
+  MARCONA   
+pesados, asi como el personal operative y administrative, hacia y desde ef^gdio de propiedad de la 
+beneficiaria indicado anteriormente, en el que se construira el nuevo terminal d^dddWfurico de San Nicolas, 
+para Io cual se constituye la presente servidumbr e de paso. Se pacta urfpq^W USS 7,309.09 Dolares  
+Americanos, los mismos que se abonara anualmente a El Estado durantg:^|#iQ|b de vigencia. - Asi consts - 
+del parte notarial de la Escritura Publica N° 358 de fecha 13/06/2016, -^rgadTpor ante Notario Publicode" : 
+Nasca Dr. Ricardo Albino Mejia Cordero, Resolution N°239 -2011/SBJWC^§DAPE de fecha 19/08/2044^ 
+copia  certificada  por la Unidad  de Tramite  documentario  de la SBN CP,C  Luis Arturo  Gartia  Cossio,  planos -y 
+memoria descriptiva en copia certificada por el cita do funcionano. Constantia N°370 -2011/SBM^^UTD  
+de fecha 21/09/2011 en copia certificada por la Unidad dejraii^  (e) de la SBN,  Ab^Mssica 
+Janett Peralta Poveda; y del el Informe Tecnico N° 15§4^bfWRN°XI/UR -NASCA de fecha2/2016,  
+expedido  por Especialista  de Catastro  de la Zona  Registral  W<l - Sede  Na.gqa,  Ing. Marianna  Cheque 
+Olivares.  
+ 
+El litulo fue presenlado el  08/08/2016  a las 01:20  16 PM boras  bajo el N° 2016 -01320499  del Tomo  Diario 
+0054. Derechos cobrados S/ 1,308.00 soles con Recibo(s) Numero(sJ §52 -386.<.^14128 -203.-NASCA, 
+15deDiciembrede2016.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Pagina Numcro 2 
+Resolution  de! Superintendent?  National de los  Re^isiros l^uhlicos  A" 124-V7-SUNARP  
