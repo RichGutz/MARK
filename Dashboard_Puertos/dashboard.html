@@ -226,184 +226,121 @@
             </div>
         </aside>
 
-        <!-- Legend / Controls -->
-        <!-- Top Ribbon: Concessions & PETRAL -->
-        <div class="controls glass-panel"
-            style="position: absolute; bottom: 56px; left: 50%; transform: translateX(-50%); display: flex; background: rgba(255, 255, 255, 0.85); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); z-index: 1000; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); align-items: center; gap: 4px; white-space: nowrap; max-width: 95vw; overflow-x: auto;">
+        <!-- Unified Dashboard Controls Ribbon (Mobile & Desktop Friendly) -->
+        <div class="controls glass-panel main-control-ribbon"
+            style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; background: rgba(255, 255, 255, 0.9); padding: 4px 12px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); z-index: 1000; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); align-items: center; gap: 8px; white-space: nowrap; max-width: 95vw; overflow-x: auto;">
+
+            <!-- Group 1: Perímetros (SUNARP, Concesiones, etc.) -->
             <div class="control-group">
                 <span class="control-label"
-                    style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">PERÍMETROS</span>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-shougang" onchange="toggleShougang()">
-                    <span class="toggle-text" style="font-size: 8px;">Shougang</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-marcobre" onchange="toggleMarcobre()">
-                    <span class="toggle-text" style="font-size: 8px;">Marcobre</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-generacion" onchange="toggleGeneracion()">
-                    <span class="toggle-text" style="font-size: 8px;">Gen. Elec.</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-san-fernando" onchange="toggleSanFernando()">
-                    <span class="toggle-text" style="font-size: 8px;">San Fernando</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-amortiguamiento" onchange="toggleAmortiguamiento()">
-                    <span class="toggle-text" style="font-size: 8px;">Zona Amort.</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-area-acuatica" onchange="toggleAreaAcuatica()">
-                    <span class="toggle-text" style="font-size: 8px;">Acuática (DICAPI)</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-area-riberena" onchange="toggleAreaRiberena()">
-                    <span class="toggle-text" style="font-size: 8px;">Ribereña (DICAPI)</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-sunarp-1" onchange="toggleSunarp1()">
-                    <span class="toggle-text" style="font-size: 8px; color: #FF5733; font-weight:bold;">SUNARP 1</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-sunarp-2" onchange="toggleSunarp2()">
-                    <span class="toggle-text" style="font-size: 8px; color: #33FF57; font-weight:bold;">SUNARP 2</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-sunarp-3" onchange="toggleSunarp3()">
-                    <span class="toggle-text" style="font-size: 8px; color: #3357FF; font-weight:bold;">SUNARP 3</span>
-                </label>
+                    style="color: #546e7a; font-size: 8px; text-transform: uppercase; font-weight: 700;">PERÍMETROS</span>
+                <label class="toggle-control"><input type="checkbox" id="toggle-shougang"
+                        onchange="toggleShougang()"><span class="toggle-text">Shougang</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-marcobre"
+                        onchange="toggleMarcobre()"><span class="toggle-text">Marcobre</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-generacion"
+                        onchange="toggleGeneracion()"><span class="toggle-text">Gen. Elec.</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-san-fernando"
+                        onchange="toggleSanFernando()"><span class="toggle-text">San Fernando</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-amortiguamiento"
+                        onchange="toggleAmortiguamiento()"><span class="toggle-text">Zona Amort.</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-area-acuatica"
+                        onchange="toggleAreaAcuatica()"><span class="toggle-text">DICAPI Acuát.</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-area-riberena"
+                        onchange="toggleAreaRiberena()"><span class="toggle-text">DICAPI Riber.</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-sunarp-1"
+                        onchange="toggleSunarp1()"><span class="toggle-text"
+                        style="color: #FF5733; font-weight:bold;">SUNARP 1</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-sunarp-2"
+                        onchange="toggleSunarp2()"><span class="toggle-text"
+                        style="color: #33FF57; font-weight:bold;">SUNARP 2</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-sunarp-3"
+                        onchange="toggleSunarp3()"><span class="toggle-text"
+                        style="color: #3357FF; font-weight:bold;">SUNARP 3</span></label>
             </div>
-            <div class="control-vr" style="background: rgba(0,0,0,0.1); margin: 0 5px;"></div>
+
+            <div class="control-vr" style="background: rgba(0,0,0,0.1); width: 1px; height: 20px; margin: 0 4px;"></div>
+
+            <!-- Group 2: PETRAL / Capas base -->
             <div class="control-group">
                 <span class="control-label"
-                    style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">PETRAL</span>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-perimeter" onchange="togglePerimeter()">
-                    <span class="toggle-text" style="font-size: 8px;">BORDE</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-perimeter-labels" onchange="togglePerimeterLabels()">
-                    <span class="toggle-text" style="font-size: 8px;">ETIQUETAS</span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Bottom Ribbon: Base Layers & Routes -->
-        <div class="controls glass-panel secondary-ribbon"
-            style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; background: rgba(255, 255, 255, 0.85); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); z-index: 1000; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); align-items: center; gap: 4px; white-space: nowrap; max-width: 95vw; overflow-x: auto;">
-            <div class="control-group" style="display: flex; align-items: center; gap: 4px;">
-                <span class="control-label"
-                    style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">Capas</span>
-
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-port-labels" onchange="togglePortLabels()">
-                    <span class="toggle-text" style="font-size: 8px; color: #2c3e50;">Etiq. Puertos</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-land-labels" onchange="toggleLandLabels()">
-                    <span class="toggle-text" style="font-size: 8px; color: #2c3e50;">Etiq. Tierra</span>
-                </label>
+                    style="color: #546e7a; font-size: 8px; text-transform: uppercase; font-weight: 700;">PETRAL</span>
+                <label class="toggle-control"><input type="checkbox" id="toggle-perimeter"
+                        onchange="togglePerimeter()"><span class="toggle-text">Borde</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-perimeter-labels"
+                        onchange="togglePerimeterLabels()"><span class="toggle-text">Etiq. Borde</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-port-labels"
+                        onchange="togglePortLabels()"><span class="toggle-text">Etiq. Puertos</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-land-labels"
+                        onchange="toggleLandLabels()"><span class="toggle-text">Etiq. Tierra</span></label>
             </div>
 
-            <div class="control-vr" style="background: rgba(0,0,0,0.1); margin: 0 5px;"></div>
-            <div class="control-group" style="display: flex; align-items: center; gap: 4px;">
-                <span class="control-label"
-                    style="color: #546e7a; font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 2px;">Vías</span>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-railway" onchange="toggleRailway()">
-                    <span class="toggle-text" style="font-size: 8px;">Ferrocarril</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-infra-roads" onchange="toggleInfraRoads()">
-                    <span class="toggle-text" style="font-size: 8px;">PE-1S</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-extra-roads" onchange="toggleExtraRoads()">
-                    <span class="toggle-text" style="font-size: 8px;">PE-30</span>
-                </label>
+            <div class="control-vr" style="background: rgba(0,0,0,0.1); width: 1px; height: 20px; margin: 0 4px;"></div>
 
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-red-route" onchange="toggleRedRoute()">
-                    <span class="toggle-text" style="font-size: 8px;">Ruta Roja</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-purple-route" onchange="togglePurpleRoute()">
-                    <span class="toggle-text" style="font-size: 8px;">Ruta Morada</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-green-route" onchange="toggleGreenRoute()">
-                    <span class="toggle-text" style="font-size: 8px;">Ruta Verde</span>
-                </label>
-                <div style="width:3px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-green-route-labels" onchange="toggleGreenRouteLabels()">
-                    <span class="toggle-text" style="font-size: 8px; color: #546e7a;">Etiq. Verde</span>
-                </label>
-                <div style="width:3px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-calculators" onchange="toggleCalculators()">
-                    <span class="toggle-text"
-                        style="font-size: 8px; color: black; font-weight:bold;">CALCULADORAS</span>
-                </label>
-
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-coastal-route" onchange="toggleCoastalRoute()">
-                    <span class="toggle-text" style="font-size: 8px;">Ruta Costera</span>
-                </label>
-                <div style="width:3px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-coastal-route-labels" onchange="toggleCoastalRouteLabels()">
-                    <span class="toggle-text" style="font-size: 8px; color: #546e7a;">Etiq. Costera</span>
-                </label>
-                <div style="width:3px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-servidumbre" onchange="toggleServidumbre()">
-                    <span class="toggle-text"
-                        style="font-size: 8px; color: #ff0000; font-weight:bold;">SERVIDUMBRE</span>
-                </label>
-                <div style="width:3px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-servidumbre-labels" onchange="toggleServidumbreLabels()">
-                    <span class="toggle-text" style="font-size: 8px; color: #ff0000; font-weight:bold;">ETIQ.</span>
-                </label>
-                <div style="width:5px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-ferrocarril-ext" onchange="toggleFerrocarrilExt()">
-                    <span class="toggle-text" style="font-size: 8px; color: #9c27b0; font-weight:bold;">FERROCARRIL
-                        EXT</span>
-                </label>
-                <div style="width:3px;"></div>
-                <label class="toggle-control">
-                    <input type="checkbox" id="toggle-ferrocarril-ext-labels" onchange="toggleFerrocarrilExtLabels()">
-                    <span class="toggle-text" style="font-size: 8px; color: #9c27b0; font-weight:bold;">ETIQUETAS</span>
-                </label>
-            </div>
-            <div class="control-vr" style="background: rgba(0,0,0,0.1); margin: 0 5px;"></div>
+            <!-- Group 3: Vías y Transportes -->
             <div class="control-group">
-                <button class="btn-control active" id="btn-map-standard" style="padding: 2px 6px; font-size: 8px;"
+                <span class="control-label"
+                    style="color: #546e7a; font-size: 8px; text-transform: uppercase; font-weight: 700;">VÍAS</span>
+                <label class="toggle-control"><input type="checkbox" id="toggle-railway"
+                        onchange="toggleRailway()"><span class="toggle-text">Ferrocarril</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-infra-roads"
+                        onchange="toggleInfraRoads()"><span class="toggle-text">PE-1S</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-extra-roads"
+                        onchange="toggleExtraRoads()"><span class="toggle-text">PE-30</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-ferrocarril-ext"
+                        onchange="toggleFerrocarrilExt()"><span class="toggle-text"
+                        style="color: #9c27b0; font-weight:bold;">Ferro EXT</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-ferrocarril-ext-labels"
+                        onchange="toggleFerrocarrilExtLabels()"><span class="toggle-text" style="color: #9c27b0;">Etiq.
+                        EXT</span></label>
+            </div>
+
+            <div class="control-vr" style="background: rgba(0,0,0,0.1); width: 1px; height: 20px; margin: 0 4px;"></div>
+
+            <!-- Group 4: Rutas Estratégicas -->
+            <div class="control-group">
+                <span class="control-label"
+                    style="color: #546e7a; font-size: 8px; text-transform: uppercase; font-weight: 700;">RUTAS</span>
+                <label class="toggle-control"><input type="checkbox" id="toggle-red-route"
+                        onchange="toggleRedRoute()"><span class="toggle-text"
+                        style="color: #f44336;">Roja</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-purple-route"
+                        onchange="togglePurpleRoute()"><span class="toggle-text"
+                        style="color: #9c27b0;">Morada</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-green-route"
+                        onchange="toggleGreenRoute()"><span class="toggle-text"
+                        style="color: #00ff00;">Verde</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-green-route-labels"
+                        onchange="toggleGreenRouteLabels()"><span class="toggle-text" style="color: #546e7a;">Etiq.
+                        Verde</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-coastal-route"
+                        onchange="toggleCoastalRoute()"><span class="toggle-text"
+                        style="color: #00bfff;">Costera</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-coastal-route-labels"
+                        onchange="toggleCoastalRouteLabels()"><span class="toggle-text" style="color: #546e7a;">Etiq.
+                        Costera</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-servidumbre"
+                        onchange="toggleServidumbre()"><span class="toggle-text"
+                        style="color: #ff0000; font-weight:bold;">SERVIDUMBRE</span></label>
+                <label class="toggle-control"><input type="checkbox" id="toggle-servidumbre-labels"
+                        onchange="toggleServidumbreLabels()"><span class="toggle-text"
+                        style="color: #ff0000; font-weight:bold;">ETIQ.</span></label>
+            </div>
+
+            <div class="control-vr" style="background: rgba(0,0,0,0.1); width: 1px; height: 20px; margin: 0 4px;"></div>
+
+            <!-- Group 5: Herramientas / Mapa -->
+            <div class="control-group">
+                <label class="toggle-control"><input type="checkbox" id="toggle-calculators"
+                        onchange="toggleCalculators()"><span class="toggle-text"
+                        style="color: #000; font-weight:700;">CALCULADORAS</span></label>
+                <button class="btn-control active" id="btn-map-standard" style="padding: 2px 8px; font-size: 9px;"
                     onclick="setMapType('standard')">Plano</button>
-                <button class="btn-control" id="btn-map-satellite" style="padding: 2px 6px; font-size: 8px;"
+                <button class="btn-control" id="btn-map-satellite" style="padding: 2px 8px; font-size: 9px;"
                     onclick="setMapType('satellite')">Satélite</button>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- Leaflet JS -->

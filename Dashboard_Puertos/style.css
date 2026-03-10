@@ -818,49 +818,44 @@ li:hover {
         top: 160px !important;
     }
 
-    /* Bottom Ribbons (Controls) */
-    .controls {
+    /* Bottom Unified Ribbon (Controls) */
+    .main-control-ribbon {
         width: 95vw !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
-        overflow-x: auto;
+        bottom: 25px !important;
+        /* Espacio seguro para iOS/Android */
+        padding: 8px 12px !important;
+        border-radius: 15px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3) !important;
+        overflow-x: auto !important;
+        display: flex !important;
+        gap: 10px !important;
         -webkit-overflow-scrolling: touch;
-        padding: 5px 10px !important;
-        border-radius: 12px !important;
-        background: rgba(255, 255, 255, 0.98) !important;
-        box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3) !important;
-    }
-
-    /* Stack them vertically if needed, or adjust bottom spacing */
-    .secondary-ribbon {
-        bottom: 20px !important;
-        /* Capas y Vías en la base */
-    }
-
-    .controls:not(.secondary-ribbon) {
-        bottom: 75px !important;
-        /* Perímetros arriba de Capas */
     }
 
     .toggle-text {
-        font-size: 7px !important;
+        font-size: 8px !important;
     }
 
     .btn-control {
-        padding: 4px 10px;
-        font-size: 8px;
+        padding: 4px 12px !important;
+        font-size: 9px !important;
     }
 
     .control-label {
-        font-size: 6px;
+        font-size: 8px !important;
+        margin-bottom: 2px;
     }
 
-    /* Custom scrollbar for better UX on mobile ribbons */
-    .controls::-webkit-scrollbar {
-        height: 2px;
+    /* Custom scrollbar for better UX on mobile */
+    .main-control-ribbon::-webkit-scrollbar {
+        height: 3px;
     }
 
-    .controls::-webkit-scrollbar-thumb {
+    .main-control-ribbon::-webkit-scrollbar-thumb {
         background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
     }
 }
