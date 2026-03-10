@@ -736,8 +736,130 @@ li:hover {
     background: transparent !important;
     border: none !important;
 }
+
 /* GPS Marker Styles */
-.gps-marker-container { display: flex; justify-content: center; align-items: center; }
-.gps-marker { width: 12px; height: 12px; background: #2196f3; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); position: relative; }
-.gps-marker::after { content: ''; position: absolute; width: 30px; height: 30px; border: 2px solid #2196f3; border-radius: 50%; top: -11px; left: -11px; animation: gps-pulse 2s infinite; opacity: 0; }
-@keyframes gps-pulse { 0% { transform: scale(0.5); opacity: 0.8; } 100% { transform: scale(1.5); opacity: 0; } }
+.gps-marker-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gps-marker {
+    width: 12px;
+    height: 12px;
+    background: #2196f3;
+    border: 2px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.gps-marker::after {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 2px solid #2196f3;
+    border-radius: 50%;
+    top: -11px;
+    left: -11px;
+    animation: gps-pulse 2s infinite;
+    opacity: 0;
+}
+
+@keyframes gps-pulse {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+
+    /* Top Bar adjustments */
+    .top-bar {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        padding: 8px 15px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    /* Port Filter Ribbon */
+    #port-filter-ribbon {
+        top: 10px !important;
+        left: 10px !important;
+        width: calc(100% - 40px) !important;
+        padding: 8px !important;
+        box-sizing: border-box;
+    }
+
+    /* Sidebar and Panels */
+    .sidebar {
+        top: 160px;
+        left: 10px;
+        width: calc(100% - 60px);
+        max-height: calc(100vh - 200px);
+    }
+
+    #logistics-panel,
+    #fuel-logistics-panel {
+        right: 10px !important;
+        left: 10px !important;
+        width: auto !important;
+        top: 160px !important;
+    }
+
+    /* Bottom Ribbons (Controls) */
+    .controls {
+        width: 90vw;
+        left: 50%;
+        transform: translateX(-50%);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 5px 10px !important;
+        border-radius: 8px !important;
+        bottom: 10px !important;
+        /* Base ribbon */
+    }
+
+    /* Stack them vertically if needed, or adjust bottom spacing */
+    .secondary-ribbon {
+        bottom: 10px !important;
+    }
+
+    .controls:not(.secondary-ribbon) {
+        bottom: 60px !important;
+        /* Ribbon above the base one (PERÍMETROS) */
+    }
+
+    .toggle-text {
+        font-size: 7px !important;
+    }
+
+    .btn-control {
+        padding: 4px 10px;
+        font-size: 8px;
+    }
+
+    .control-label {
+        font-size: 6px;
+    }
+
+    /* Custom scrollbar for better UX on mobile ribbons */
+    .controls::-webkit-scrollbar {
+        height: 2px;
+    }
+
+    .controls::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+    }
+}
