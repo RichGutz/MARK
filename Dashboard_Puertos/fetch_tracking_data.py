@@ -12,7 +12,17 @@ key = os.environ.get("SUPABASE_KEY") or "sb_publishable_CT41HFF7NMtQunrSSGsksg_u
 
 import requests
 import time
+import math
 from datetime import datetime, time as pytime
+
+def haversine(lat1, lon1, lat2, lon2):
+    """Calcula la distancia en metros entre dos puntos terrestres."""
+    R = 6371000  # Radio de la Tierra en metros
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
+    return 2 * R * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 # ... (otras importaciones y config)
 
@@ -95,20 +105,55 @@ def fetch_and_generate_js():
         else:
             print(f"✨ Todos los {len(records)} puntos ya cuentan con elevación persistente.")
         
-        # 4. Asignar ordinales
-        for i, r in enumerate(records):
+        # 4. Filtrar Saltos Espaciales (Teleporting por Multi-Dispositivo)
+        # Como varios dispositivos graban en el mismo vehículo, sus ligeras diferencias de reloj/precisión causan zig-zag.
+        # Descartaremos los puntos que salten más de X metros por segundo en relación al punto anterior aceptado.
+        MAX_SPEED_MPS = 35.0  # ~126 km/h (velocidad máxima lógica en ruta)
+        
+        filtered_records = []
+        if records:
+            filtered_records.append(records[0]) # Siempre aceptamos el primero
+            last_accepted = records[0]
+            
+            for i in range(1, len(records)):
+                current = records[i]
+                
+                # Calcular distancia en metros
+                dist = haversine(last_accepted['latitude'], last_accepted['longitude'], 
+                                 current['latitude'], current['longitude'])
+                                 
+                # Calcular diferencia de tiempo en segundos
+                t1 = datetime.fromisoformat(last_accepted['created_at'].replace('Z', '+00:00'))
+                t2 = datetime.fromisoformat(current['created_at'].replace('Z', '+00:00'))
+                dt = (t2 - t1).total_seconds()
+                
+                if dt <= 0:
+                    dt = 0.1 # Prevenir división por cero si tienen el mismo exacto milisegundo
+                    
+                speed_mps = dist / dt
+                
+                # Solo aceptamos el punto si la velocidad requerida para ese salto es lógicamente posible (< 126 km/h)
+                # O si ha pasado mucho tiempo (ej > 60s), en cuyo caso confiamos en el GPS.
+                if speed_mps <= MAX_SPEED_MPS or dt > 60:
+                    filtered_records.append(current)
+                    last_accepted = current
+                    
+            print(f"🛤️ Filtro Antisalping: De {len(records)} puntos totales, se mantuvieron {len(filtered_records)} ruta suavizada.")
+        
+        # 5. Asignar ordinales a la ruta filtrada
+        for i, r in enumerate(filtered_records):
             r['ordinal'] = i + 1
         
         # Generar JS
-        js_content = f"// Archivo filtrado: Hoy >= 9:00 AM + Elevación PERSISTENTE\n"
+        js_content = f"// Archivo filtrado: Hoy >= 9:00 AM + Elevación PERSISTENTE + Suavizado Anti-Teleport\n"
         js_content += f"// Generado: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}\n\n"
-        js_content += f"const TRACKING_POINTS = {json.dumps(records, indent=2)};\n"
+        js_content += f"const TRACKING_POINTS = {json.dumps(filtered_records, indent=2)};\n"
         
         output_path = os.path.join(os.path.dirname(__file__), "layer_tracking.js")
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(js_content)
             
-        print(f"✨ Archivo actualizado con {len(records)} puntos y elevaciones optimizadas.")
+        print(f"✨ Archivo actualizado con {len(filtered_records)} puntos y elevaciones optimizadas.")
                 
     except Exception as e:
         print(f"❌ Error: {e}")
