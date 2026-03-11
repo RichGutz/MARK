@@ -2820,7 +2820,7 @@ function renderTrackingLabels() {
                     opacity: 1,
                     fillOpacity: 0.8
                 }).addTo(trackingLabelsLayer)
-                    .bindPopup(`<b>Punto #${p.ordinal}</b><br>Alt: ${Math.round(p.elevation)} MSNM<br>Hora: ${p.created_at.split('T')[1].split('.')[0]}`);
+                    .bindPopup(`<b>Punto #${p.ordinal}</b><br>Alt: ${Math.round(p.elevation)} MSNM`);
             }
         });
     }
