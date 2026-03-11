@@ -393,7 +393,6 @@ function initApp() {
     toggleFerrocarrilExt();
     toggleFerrocarrilExtLabels();
     toggleServidumbreLabels();
-    toggleServidumbreLabels();
     toggleShougang();
     toggleMarcobre();
     // toggleJZ(); // Removed by user request
