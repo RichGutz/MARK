@@ -2830,27 +2830,13 @@ function renderTrackingLabels() {
 function toggleTracking() {
     const el = document.getElementById('toggle-tracking');
     if (!el) return;
-    const show = el.checked;
-
-    if (!trackingLayer) renderTracking();
-
-    if (show) {
-        if (trackingLayer) map.addLayer(trackingLayer);
-    } else {
-        if (trackingLayer) map.removeLayer(trackingLayer);
-    }
+    if (el.checked) { if (!trackingLayer) renderTracking(); if (trackingLayer) map.addLayer(trackingLayer); }
+    else { if (trackingLayer) map.removeLayer(trackingLayer); }
 }
 
 function toggleTrackingLabels() {
     const el = document.getElementById('toggle-tracking-labels');
     if (!el) return;
-    const show = el.checked;
-
-    if (!trackingLabelsLayer) renderTrackingLabels();
-
-    if (show) {
-        if (trackingLabelsLayer) map.addLayer(trackingLabelsLayer);
-    } else {
-        if (trackingLabelsLayer) map.removeLayer(trackingLabelsLayer);
-    }
+    if (el.checked) { if (!trackingLabelsLayer) renderTrackingLabels(); if (trackingLabelsLayer) map.addLayer(trackingLabelsLayer); }
+    else { if (trackingLabelsLayer) map.removeLayer(trackingLabelsLayer); }
 }
