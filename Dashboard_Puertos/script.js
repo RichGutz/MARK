@@ -410,6 +410,8 @@ function initApp() {
     toggleSunarp1();
     toggleSunarp2();
     toggleSunarp3();
+    toggleTracking();
+    toggleTrackingLabels();
     toggleCalculators();
 }
 
@@ -2775,3 +2777,80 @@ function toggleSunarp3() {
     else { if (sunarp3Layer) map.removeLayer(sunarp3Layer); }
 }
 
+
+// --- TRACKING Layer ---
+let trackingLayer = null;
+let trackingLabelsLayer = null;
+
+function renderTracking() {
+    if (typeof TRACKING_POINTS !== 'undefined' && !trackingLayer) {
+        trackingLayer = L.layerGroup();
+        const latlngs = TRACKING_POINTS.map(p => [p.latitude, p.longitude]);
+
+        // 1. Recorrido (Polilínea neón)
+        L.polyline(latlngs, {
+            color: '#00e676', // Green neón
+            weight: 3,
+            opacity: 0.8,
+            dashArray: '5, 10'
+        }).addTo(trackingLayer);
+
+        // 2. Markadores de Inicio y Fin (En la capa de ruta para contexto)
+        if (latlngs.length > 0) {
+            L.circleMarker(latlngs[0], { radius: 6, fillColor: '#2196f3', color: '#fff', weight: 2, fillOpacity: 1 })
+                .addTo(trackingLayer).bindPopup("<b>INICIO DEL TRACKING</b>");
+
+            L.circleMarker(latlngs[latlngs.length - 1], { radius: 6, fillColor: '#f44336', color: '#fff', weight: 2, fillOpacity: 1 })
+                .addTo(trackingLayer).bindPopup("<b>ÚLTIMA POSICIÓN</b>");
+        }
+    }
+}
+
+function renderTrackingLabels() {
+    if (typeof TRACKING_POINTS !== 'undefined' && !trackingLabelsLayer) {
+        trackingLabelsLayer = L.layerGroup();
+
+        TRACKING_POINTS.forEach((p, idx) => {
+            // Cada 2 puntos para balance
+            if (idx % 2 === 0) {
+                L.circleMarker([p.latitude, p.longitude], {
+                    radius: 3,
+                    fillColor: '#00e676',
+                    color: '#000',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(trackingLabelsLayer)
+                    .bindPopup(`<b>Punto #${p.ordinal}</b><br>Alt: ${Math.round(p.elevation)} MSNM<br>Hora: ${p.created_at.split('T')[1].split('.')[0]}`);
+            }
+        });
+    }
+}
+
+function toggleTracking() {
+    const el = document.getElementById('toggle-tracking');
+    if (!el) return;
+    const show = el.checked;
+
+    if (!trackingLayer) renderTracking();
+
+    if (show) {
+        if (trackingLayer) map.addLayer(trackingLayer);
+    } else {
+        if (trackingLayer) map.removeLayer(trackingLayer);
+    }
+}
+
+function toggleTrackingLabels() {
+    const el = document.getElementById('toggle-tracking-labels');
+    if (!el) return;
+    const show = el.checked;
+
+    if (!trackingLabelsLayer) renderTrackingLabels();
+
+    if (show) {
+        if (trackingLabelsLayer) map.addLayer(trackingLabelsLayer);
+    } else {
+        if (trackingLabelsLayer) map.removeLayer(trackingLabelsLayer);
+    }
+}
