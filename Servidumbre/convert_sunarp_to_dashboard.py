@@ -12,7 +12,7 @@ def convert_file(input_path, output_path, var_name, layer_name, color):
     for p in data:
         # pyproj usa (norte, este) para UTM o (lat, lon) para WGS84 dependiendo del orden del CRS
         # En EPSG:4326 usualmente es (lat, lon)
-        lat, lon = transformer.transform(p['este'], p['norte'])
+        lon, lat = transformer.transform(p['este'], p['norte'])
         coords.append([lon, lat]) # GeoJSON usa [lon, lat]
     
     # Cerrar polígono si no está cerrado

@@ -383,8 +383,7 @@ function initApp() {
     renderSunarp2();
     renderSunarp3();
 
-    // 3. Synchronize initial state with checkboxes (this will respect the 'checked' state from HTML)
-    // Synchronize initial state with checkboxes
+    // 3. Synchronize initial state with checkboxes
     togglePortLabels();
     toggleLandLabels();
     togglePerimeter();
@@ -395,7 +394,6 @@ function initApp() {
     toggleServidumbreLabels();
     toggleShougang();
     toggleMarcobre();
-    // toggleJZ(); // Removed by user request
     toggleGeneracion();
     toggleSouthCorridor();
     toggleAlternativeRoute();
@@ -2758,22 +2756,37 @@ function renderSunarp3() {
 function toggleSunarp1() {
     const el = document.getElementById('toggle-sunarp-1');
     if (!el) return;
-    if (el.checked) { if (!sunarp1Layer) renderSunarp1(); map.addLayer(sunarp1Layer); }
-    else { if (sunarp1Layer) map.removeLayer(sunarp1Layer); }
+    const show = el.checked;
+    if (show) {
+        if (!sunarp1Layer) renderSunarp1();
+        if (sunarp1Layer) map.addLayer(sunarp1Layer);
+    } else {
+        if (sunarp1Layer) map.removeLayer(sunarp1Layer);
+    }
 }
 
 function toggleSunarp2() {
     const el = document.getElementById('toggle-sunarp-2');
     if (!el) return;
-    if (el.checked) { if (!sunarp2Layer) renderSunarp2(); map.addLayer(sunarp2Layer); }
-    else { if (sunarp2Layer) map.removeLayer(sunarp2Layer); }
+    const show = el.checked;
+    if (show) {
+        if (!sunarp2Layer) renderSunarp2();
+        if (sunarp2Layer) map.addLayer(sunarp2Layer);
+    } else {
+        if (sunarp2Layer) map.removeLayer(sunarp2Layer);
+    }
 }
 
 function toggleSunarp3() {
     const el = document.getElementById('toggle-sunarp-3');
     if (!el) return;
-    if (el.checked) { if (!sunarp3Layer) renderSunarp3(); map.addLayer(sunarp3Layer); }
-    else { if (sunarp3Layer) map.removeLayer(sunarp3Layer); }
+    const show = el.checked;
+    if (show) {
+        if (!sunarp3Layer) renderSunarp3();
+        if (sunarp3Layer) map.addLayer(sunarp3Layer);
+    } else {
+        if (sunarp3Layer) map.removeLayer(sunarp3Layer);
+    }
 }
 
 
@@ -2829,13 +2842,23 @@ function renderTrackingLabels() {
 function toggleTracking() {
     const el = document.getElementById('toggle-tracking');
     if (!el) return;
-    if (el.checked) { if (!trackingLayer) renderTracking(); if (trackingLayer) map.addLayer(trackingLayer); }
-    else { if (trackingLayer) map.removeLayer(trackingLayer); }
+    const show = el.checked;
+    if (show) {
+        if (!trackingLayer) renderTracking();
+        if (trackingLayer) map.addLayer(trackingLayer);
+    } else {
+        if (trackingLayer) map.removeLayer(trackingLayer);
+    }
 }
 
 function toggleTrackingLabels() {
     const el = document.getElementById('toggle-tracking-labels');
     if (!el) return;
-    if (el.checked) { if (!trackingLabelsLayer) renderTrackingLabels(); if (trackingLabelsLayer) map.addLayer(trackingLabelsLayer); }
-    else { if (trackingLabelsLayer) map.removeLayer(trackingLabelsLayer); }
+    const show = el.checked;
+    if (show) {
+        if (!trackingLabelsLayer) renderTrackingLabels();
+        if (trackingLabelsLayer) map.addLayer(trackingLabelsLayer);
+    } else {
+        if (trackingLabelsLayer) map.removeLayer(trackingLabelsLayer);
+    }
 }
