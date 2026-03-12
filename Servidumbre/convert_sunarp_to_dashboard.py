@@ -1,8 +1,8 @@
 import json
 from pyproj import Transformer
 
-# Configurar transformador de UTM Zona 18S (EPSG:32718) a WGS84 (EPSG:4326)
-transformer = Transformer.from_crs("epsg:32718", "epsg:4326")
+# Configurar transformador de PSAD56 UTM Zona 18S (EPSG:24878) a WGS84 (EPSG:4326)
+transformer = Transformer.from_crs("epsg:24878", "epsg:4326", always_xy=True)
 
 def convert_file(input_path, output_path, var_name, layer_name, color):
     with open(input_path, 'r') as f:

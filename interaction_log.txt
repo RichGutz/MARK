@@ -2,3 +2,32 @@
 2026-03-09 09:20:00 - Transcripción completada. Creación de Borrador V1 del Plan de Trabajo.
 [2026-03-09 15:47] Git backup branch 'funcional.09.03.26' created. Switched back to main.
 [2026-03-09 16:03] San Fernando Buffer Zone implemented and pushed to main.
+[2026-03-12 09:16] Generación de archivo KMZ 'viaje_campo.kmz' a partir de datos de tracking GPS en Supabase.
+
+[2026-03-12 09:25] Regeneración de KMZ de tracking descartando punto de origen en Lima.
+
+[2026-03-12 09:29] Regeneración de KMZ de tracking tras eliminación manual de un punto espúreo en la base de datos Supabase.
+
+[2026-03-12 09:38] Regeneración de KMZ de tracking tras eliminación manual de un segundo punto espúreo en la base de datos Supabase.
+
+[2026-03-12 09:40] Modificación de export_to_kmz.py para incluir timestamp en el nombre del archivo. Nuevo archivo generado.
+
+[2026-03-12 09:45] Regeneración de KMZ de tracking tras eliminación manual de un tercer punto espúreo en la base de datos Supabase. Total exportados: 724 puntos.
+
+[2026-03-12 09:48] Modificación de export_to_kmz.py para incluir el ID original de Supabase en el KMZ y regeneración exitosa de 724 puntos limpios.
+
+[2026-03-12 09:50] Aclaración al usuario sobre la correspondencia entre los IDs en el archivo KMZ y la base de datos Supabase.
+
+[2026-03-12 10:00] Generación de Servidumbres_SUNARP_Consolidadas.kmz a partir de los JSON SUNARP 1, 2 y 3. Transformación UTM a LatLon y colorización exitosa.
+
+[2026-03-12 10:09] Generación exitosa de Master_Viaje_Campo.kmz, consolidando: 496 puntos de tracking (usuario RG filtrado), los 3 polígonos SUNARP transformados a LatLon, y el nuevo perímetro de 26 vértices (también procesado a LatLon).
+
+[2026-03-12 10:23] Corrección de la coordenada Este del vértice 2 de SUNARP 2 a 477184.3928. Regeneración de capas JS, KMZ de SUNARP y KMZ Maestro.
+
+[2026-03-12 10:51] Generación del PDF maestro de coordenadas SUNARP con ploteos visuales y aclaración técnica sobre el cierre del Vértice 10 en el Tramo 2.
+
+[2026-03-12 11:03] Generación de KMZ experimental SUNARP_ASUMIENDO_PSAD56.kmz para verificar el sistema de coordenadas original.
+
+[2026-03-12 11:08] Generación exitosa de Master_Viaje_Campo_DUAL.kmz. Contiene carpetas separadas para SUNARP bajo estándar WGS84 y desplazamiento PSAD56 para validación de campo.
+
+[2026-03-12 11:21] Estandarización global de SUNARP al Datum PSAD56. Se actualizaron los archivos JS del dashboard y todos los generadores de KMZ para usar la correcta transformación PSAD56->WGS84.
