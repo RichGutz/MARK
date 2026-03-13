@@ -31,3 +31,17 @@
 [2026-03-12 11:08] Generación exitosa de Master_Viaje_Campo_DUAL.kmz. Contiene carpetas separadas para SUNARP bajo estándar WGS84 y desplazamiento PSAD56 para validación de campo.
 
 [2026-03-12 11:21] Estandarización global de SUNARP al Datum PSAD56. Se actualizaron los archivos JS del dashboard y todos los generadores de KMZ para usar la correcta transformación PSAD56->WGS84.
+
+[2026-03-13 09:35] Creación de fetch_tracking_tramo1_oeste.py. Algoritmo de ordenación por avance físico (Longitud) para tramo hasta ID 472.
+
+[2026-03-13 09:39] Actualización de export_to_kmz.py y fetch_tracking_data.py con lógica de reordenación segmentada Tramo 1/Tramo 2.
+
+[2026-03-13 10:08] Fusión final del Tramo 1 completada. Se consolidaron 'Viaje_Fusionado_con_Pines.REDUCIDO.kml' y 'tramito.garita.kml' en un solo archivo maestro: 'Tramo1_Final_Consolidado.kml' (275 puntos con pines editables).
+
+[2026-03-13 10:25] Generación del reporte PDF 'Tramo1_Reporte_Coordenadas.pdf' con visualización de ruta (matplotlib), elevaciones y pendientes.
+[2026-03-13 10:32] Integración de la capa '1S.Garita' en el Dashboard. Generación de 'layer_1S_Garita.js' y actualización de 'dashboard.html' y 'script.js' con controles de toggle y etiquetas KM.
+
+[2026-03-13 10:48] Eliminación definitiva de la capa de Tracking y sus etiquetas del Dashboard.
+[2026-03-13 10:48] Rediseño del panel de controles a un formato vertical de 3 columnas, posicionado debajo del ribbon de funciones principal.
+
+[2026-03-13 10:51] Implementación de paneles minimizables (ribbons) con animaciones CSS. Se agregó botón de toggle (+/-) y auto-minimizacion tras 5 segundos de carga para mantener la pantalla limpia.

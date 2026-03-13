@@ -2790,75 +2790,111 @@ function toggleSunarp3() {
 }
 
 
-// --- TRACKING Layer ---
-let trackingLayer = null;
-let trackingLabelsLayer = null;
 
-function renderTracking() {
-    if (typeof TRACKING_POINTS !== 'undefined' && !trackingLayer) {
-        trackingLayer = L.layerGroup();
-        const latlngs = TRACKING_POINTS.map(p => [p.latitude, p.longitude]);
+// ========================================
+// 1S.GARITA LAYER (Tramo 1 Consolidado)
+// ========================================
 
-        // 1. Recorrido (Polilínea neón)
-        L.polyline(latlngs, {
-            color: '#00e676', // Green neón
-            weight: 3,
-            opacity: 0.8,
-            dashArray: '5, 10'
-        }).addTo(trackingLayer);
+let garita1SLayer = null;
+let garita1SPointsLayer = null;
 
-        // 2. Markadores de Inicio y Fin (En la capa de ruta para contexto)
-        if (latlngs.length > 0) {
-            L.circleMarker(latlngs[0], { radius: 6, fillColor: '#2196f3', color: '#fff', weight: 2, fillOpacity: 1 })
-                .addTo(trackingLayer).bindPopup("<b>INICIO DEL TRACKING</b>");
-
-            L.circleMarker(latlngs[latlngs.length - 1], { radius: 6, fillColor: '#f44336', color: '#fff', weight: 2, fillOpacity: 1 })
-                .addTo(trackingLayer).bindPopup("<b>ÚLTIMA POSICIÓN</b>");
-        }
-    }
-}
-
-function renderTrackingLabels() {
-    if (typeof TRACKING_POINTS !== 'undefined' && !trackingLabelsLayer) {
-        trackingLabelsLayer = L.layerGroup();
-
-        TRACKING_POINTS.forEach((p, idx) => {
-            // Cada 2 puntos para balance
-            if (idx % 2 === 0) {
-                L.circleMarker([p.latitude, p.longitude], {
-                    radius: 3,
-                    fillColor: '#00e676',
-                    color: '#000',
-                    weight: 1,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                }).addTo(trackingLabelsLayer)
-                    .bindPopup(`<b>Punto #${p.ordinal}</b><br>Alt: ${Math.round(p.elevation)} MSNM`);
+function renderGarita1S() {
+    if (typeof LAYER_1S_GARITA_GEOJSON !== 'undefined' && !garita1SLayer) {
+        garita1SLayer = L.geoJSON(LAYER_1S_GARITA_GEOJSON, {
+            style: {
+                color: '#ff9800', // ORANGE
+                weight: 5,
+                opacity: 0.9,
+                lineCap: 'round'
             }
+        });
+
+        garita1SLayer.bindPopup(`
+            <div style="font-family:'Rajdhani',sans-serif;">
+                <strong style="color:#ff9800; font-size:1.1em;">Ruta 1S - Garita</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">Tramo 1 Consolidado (App)</span>
+            </div>
+        `, { className: 'custom-popup-dark' });
+    }
+
+    if (typeof LAYER_1S_GARITA_POINTS !== 'undefined' && !garita1SPointsLayer) {
+        garita1SPointsLayer = L.layerGroup();
+        LAYER_1S_GARITA_POINTS.forEach(point => {
+            const marker = L.circleMarker(point.coords, {
+                radius: 5,
+                color: '#ff9800',
+                fillColor: '#fff',
+                fillOpacity: 1,
+                weight: 2
+            });
+
+            marker.bindTooltip(`${point.name}<br>Alt: ${point.alt}m<br>Pend: ${point.slope}%`, {
+                permanent: true,
+                direction: 'top',
+                className: 'elev-label-container',
+                offset: [0, -10]
+            });
+
+            garita1SPointsLayer.addLayer(marker);
         });
     }
 }
 
-function toggleTracking() {
-    const el = document.getElementById('toggle-tracking');
+function toggleGarita1S() {
+    const el = document.getElementById('toggle-garita-1s');
     if (!el) return;
     const show = el.checked;
-    if (show) {
-        if (!trackingLayer) renderTracking();
-        if (trackingLayer) map.addLayer(trackingLayer);
-    } else {
-        if (trackingLayer) map.removeLayer(trackingLayer);
+
+    if (!garita1SLayer) renderGarita1S();
+
+    if (show && garita1SLayer) {
+        map.addLayer(garita1SLayer);
+    } else if (garita1SLayer) {
+        map.removeLayer(garita1SLayer);
     }
 }
 
-function toggleTrackingLabels() {
-    const el = document.getElementById('toggle-tracking-labels');
+function toggleGarita1SLabels() {
+    const el = document.getElementById('toggle-garita-1s-labels');
     if (!el) return;
     const show = el.checked;
-    if (show) {
-        if (!trackingLabelsLayer) renderTrackingLabels();
-        if (trackingLabelsLayer) map.addLayer(trackingLabelsLayer);
-    } else {
-        if (trackingLabelsLayer) map.removeLayer(trackingLabelsLayer);
+
+    if (!garita1SPointsLayer) renderGarita1S();
+
+    if (show && garita1SPointsLayer) {
+        map.addLayer(garita1SPointsLayer);
+    } else if (garita1SPointsLayer) {
+        map.removeLayer(garita1SPointsLayer);
     }
 }
+
+// --- UI UTILS ---
+
+function togglePanel(panelId) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    
+    panel.classList.toggle('panel-minimized');
+    
+    // Update button text (+ or -)
+    const btn = panel.querySelector('.btn-minimize');
+    if (btn) {
+        btn.textContent = panel.classList.contains('panel-minimized') ? '+' : '−';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    // Minimize panels after a short delay for cool effect or immediately?
+    // User wants clean screen, so let's minimize them by default after a intro
+    setTimeout(() => {
+        toggleGarita1S();
+        toggleGarita1SLabels();
+        
+        // Auto-minimize after 3 seconds to show they exist then clean up
+        setTimeout(() => {
+            togglePanel('port-filter-ribbon');
+            togglePanel('layer-controls-panel');
+        }, 3000);
+    }, 2000);
+});
