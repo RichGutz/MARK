@@ -1,4 +1,6 @@
 // Auto-generated from generate_tramo1_report.py
+// Ruta.Franco: Tramo 1 + Recorrido Petral
+
 const LAYER_1S_GARITA_GEOJSON = {
     "type": "FeatureCollection",
     "features": [

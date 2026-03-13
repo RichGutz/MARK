@@ -265,7 +265,7 @@ def generate_report():
     # --- EXPORTAR JS PARA DASHBOARD ---
     print("🌐 Generando Layer JS para el Dashboard...")
     
-    # 1. GeoJSON LineString (High-res path)
+    # 1. GeoJSON LineString (High-res path) para la línea de la ruta
     line_coords = [[p[1], p[0]] for p in path_franco] # [lon, lat] for GeoJSON
     geojson = {
         "type": "FeatureCollection",
@@ -282,9 +282,10 @@ def generate_report():
         }]
     }
 
-    # 2. Points data for labels
+    # 2. Points data for labels (Hitos cada 500m)
     js_points = []
     for i, p in enumerate(labeled_points):
+        # El nombre del punto para el tooltip será KM X.X
         js_points.append({
             "name": f"KM {p['km']:.1f}",
             "coords": [p['lat'], p['lon']],
@@ -294,11 +295,13 @@ def generate_report():
         })
 
     js_content = f"// Auto-generated from generate_tramo1_report.py\n"
+    js_content += f"// Ruta.Franco: Tramo 1 + Recorrido Petral\n\n"
     js_content += f"const LAYER_1S_GARITA_GEOJSON = {json.dumps(geojson, indent=4)};\n\n"
     js_content += f"const LAYER_1S_GARITA_POINTS = {json.dumps(js_points, indent=4)};"
 
     with open(OUTPUT_JS, "w", encoding="utf-8") as f:
         f.write(js_content)
+    print(f"✅ JS Layer generado: {OUTPUT_JS}")
     print(f"✅ JS Layer generado: {OUTPUT_JS}")
 
 if __name__ == "__main__":

@@ -2821,14 +2821,21 @@ function renderGarita1S() {
         garita1SPointsLayer = L.layerGroup();
         LAYER_1S_GARITA_POINTS.forEach(point => {
             const marker = L.circleMarker(point.coords, {
-                radius: 5,
+                radius: 4,
                 color: '#ff9800',
                 fillColor: '#fff',
                 fillOpacity: 1,
                 weight: 2
             });
 
-            marker.bindTooltip(`${point.name}<br>Alt: ${point.alt}m<br>Pend: ${point.slope}%`, {
+            // Etiqueta permanente con Altitud y Pendiente (Estilo Ruta Verde)
+            marker.bindTooltip(`
+                <div style="text-align:center;">
+                    <span style="color:#ff9800; font-weight:bold;">${point.name}</span><br>
+                    <span style="color:#fff;">Alt: ${point.alt}m</span><br>
+                    <span style="color:#00bcd4;">Pend: ${point.slope}%</span>
+                </div>
+            `, {
                 permanent: true,
                 direction: 'top',
                 className: 'elev-label-container',
@@ -2859,7 +2866,7 @@ function toggleGarita1SLabels() {
     if (!el) return;
     const show = el.checked;
 
-    if (!garita1SPointsLayer) renderGarita1S();
+    if (!garita1SLayer) renderGarita1S();
 
     if (show && garita1SPointsLayer) {
         map.addLayer(garita1SPointsLayer);
