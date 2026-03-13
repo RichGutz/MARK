@@ -106,44 +106,30 @@ function openLightbox(filename) {
     modalContent.innerHTML = '';
 
     if (item.type === 'video') {
-        // Handle Video
-        if (item.original_url) {
-            console.log("Intentando reproducir video de Google Photos:", item.filename);
-            // Hint Google to stream the video instead of showing the placeholder image
-            const streamUrl = item.original_url.includes('googleusercontent.com') ? `${item.original_url}=m22` : item.original_url;
-            
-            modalContent.innerHTML = `
-                <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white;">
-                    <video id="lightbox-video" src="${streamUrl}" controls autoplay style="max-width:90%; max-height:75%; border-radius:8px; box-shadow:0 0 30px rgba(0,0,0,0.8);"></video>
-                    <div style="margin-top:20px; text-align:center;">
-                        <p style="font-size:14px; margin-bottom:10px; opacity:0.8;">Si el video no carga aquí, ábrelo en Google Photos:</p>
-                        <a href="${item.original_url}" target="_blank" style="background:#e91e63; color:white; padding:10px 20px; border-radius:5px; text-decoration:none; font-family:'Rajdhani',sans-serif; font-weight:bold; font-size:16px; box-shadow:0 4px 12px rgba(233,30,99,0.4); display:inline-block;">
-                            ▶ REPRODUCIR EN GOOGLE PHOTOS
-                        </a>
-                    </div>
-                </div>`;
-            
-            // Inline error handler to show fallback immediately
-            const v = document.getElementById('lightbox-video');
-            if (v) {
-                v.onerror = () => {
-                    console.warn("Fallo la reproducción directa del video. Mostrando link de respaldo.");
-                    modalContent.innerHTML = `
-                        <div style="text-align:center; color:white; font-family:'Rajdhani',sans-serif; background:rgba(0,0,0,0.8); padding:40px; border-radius:15px; border:1px solid #e91e63;">
-                            <p style="font-size:1.8rem; margin-bottom:15px;">🎥 Video Protegido</p>
-                            <p style="color:#ccc; margin-bottom:25px; line-height:1.4;">Google Photos no permite la reproducción directa en paneles externos para este video.</p>
-                            <a href="${item.original_url}" target="_blank" style="background:#e91e63; color:white; padding:15px 30px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:18px; box-shadow:0 5px 15px rgba(233,30,99,0.4);">
-                                ▶ VER EN GOOGLE PHOTOS
-                            </a>
-                        </div>`;
-                };
-            }
-        } else {
-            modalContent.innerHTML = `<div style="color:#ff4444; background:#000; padding:20px; border-radius:8px;">
-                                        <p>Link de video no encontrado.</p>
-                                        <p style="font-size:0.8em; color:#888;">Por favor usa el botón "ACTUALIZAR" para sincronizar con Google Photos.</p>
-                                      </div>`;
-        }
+        // Google Photos blocks direct video streaming from external sites.
+        // Best UX: show a clear card with a button to open the album, and the thumbnail
+        const albumUrl = "https://photos.app.goo.gl/2cmBXjyz2xcrunwu8";
+        
+        modalContent.innerHTML = `
+            <div style="text-align:center; color:white; font-family:'Rajdhani',sans-serif; padding:30px; max-width:480px;">
+                <div style="margin-bottom:20px; border-radius:12px; overflow:hidden; box-shadow:0 0 20px rgba(0,0,0,0.6);">
+                    <img src="media_thumbnails/${item.thumb}" 
+                         style="width:100%; max-width:400px; display:block; margin:0 auto;"
+                         onerror="this.src='https://placehold.co/400x225/222/fff?text=Video'">
+                </div>
+                <p style="font-size:1.2rem; font-weight:bold; margin-bottom:8px;">🎥 ${item.filename}</p>
+                <p style="color:#aaa; font-size:0.9rem; margin-bottom:25px;">Google Photos no permite reproducción directa en paneles externos.</p>
+                <a href="${albumUrl}" target="_blank" 
+                   style="background:#e91e63; color:white; padding:14px 30px; border-radius:8px; 
+                          text-decoration:none; font-weight:bold; font-size:18px; 
+                          box-shadow:0 5px 15px rgba(233,30,99,0.4); display:inline-block; 
+                          transition:transform 0.2s;"
+                   onmouseover="this.style.transform='scale(1.05)'"
+                   onmouseout="this.style.transform='scale(1)'">
+                    ▶ VER ÁLBUM EN GOOGLE PHOTOS
+                </a>
+                <p style="color:#666; font-size:0.75rem; margin-top:15px;">Busca "${item.filename}" en el álbum</p>
+            </div>`;
     } else {
         // Handle Image
         modalContent.innerHTML = `<img src="${finalUrl}" style="max-width:90%; max-height:80%; border-radius:8px; box-shadow:0 0 30px rgba(0,0,0,0.8);">`;
