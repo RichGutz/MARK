@@ -1900,7 +1900,6 @@ function calculateFuelLogistics() {
 
 // Ensure init is called
 document.addEventListener('DOMContentLoaded', initFuelCalculator);
-
 // --- Layer Toggle Logic ---
 function togglePortLabels() {
     const el = document.getElementById('toggle-port-labels');
@@ -2898,3 +2897,104 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }, 2000);
 });
+
+// --- 1S.TRANQUERA.2 (Ruta Original) ---
+let tranquera2Layer = null;
+let tranquera2PointsLayer = null;
+
+function renderTranquera2() {
+    if (typeof LAYER_1S_TRANQUERA_2_GEOJSON !== 'undefined' && !tranquera2Layer) {
+        tranquera2Layer = L.geoJSON(LAYER_1S_TRANQUERA_2_GEOJSON, {
+            style: { color: '#1a73e8', weight: 4, opacity: 0.7, lineCap: 'round', dashArray: '10, 5' }
+        });
+        tranquera2Layer.bindPopup('<strong>Ruta 1S.Tranquera.2</strong><br>Oeste Original');
+    }
+    if (typeof LAYER_1S_TRANQUERA_2_POINTS !== 'undefined' && !tranquera2PointsLayer) {
+        tranquera2PointsLayer = L.layerGroup();
+        LAYER_1S_TRANQUERA_2_POINTS.forEach(point => {
+            const marker = L.circleMarker(point.coords, { radius: 3, color: '#1a73e8', fillColor: '#fff', fillOpacity: 0.8, weight: 1 });
+            marker.bindTooltip(`${point.name}<br>Alt: ${point.alt}m`, { permanent: true, direction: 'top', className: 'elev-label-container', offset: [0, -10] });
+            tranquera2PointsLayer.addLayer(marker);
+        });
+    }
+}
+
+function toggleTranquera2() {
+    const el = document.getElementById('toggle-tranquera-2');
+    if (!el) return;
+    const show = el.checked;
+    if (!tranquera2Layer) renderTranquera2();
+    if (show && tranquera2Layer) map.addLayer(tranquera2Layer);
+    else if (tranquera2Layer) map.removeLayer(tranquera2Layer);
+}
+
+function toggleTranquera2Labels() {
+    const el = document.getElementById('toggle-tranquera-2-labels');
+    if (!el) return;
+    const show = el.checked;
+    if (!tranquera2Layer) renderTranquera2();
+    if (show && tranquera2PointsLayer) map.addLayer(tranquera2PointsLayer);
+    else if (tranquera2PointsLayer) map.removeLayer(tranquera2PointsLayer);
+}
+
+// --- MEDIA LAYER (Album Georeferenciado) ---
+let mediaLayer = null;
+
+function renderMediaLayer() {
+    if (typeof LAYER_MEDIA_DATA !== 'undefined' && !mediaLayer) {
+        mediaLayer = L.layerGroup();
+        LAYER_MEDIA_DATA.forEach(item => {
+            const icon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div style="background-color: #e91e63; border: 2px solid white; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px rgba(0,0,0,0.4);">
+                        <span style="font-size: 14px;">${item.type === 'video' ? '🎥' : '📷'}</span>
+                       </div>`,
+                iconSize: [26, 26],
+                iconAnchor: [13, 13]
+            });
+
+            const marker = L.marker([item.lat, item.lon], { icon: icon });
+            
+            const popupContent = `
+                <div style="text-align: center; font-family: 'Rajdhani', sans-serif; color: #fff;">
+                    <strong style="color: #e91e63; font-size: 1.1em;">${item.type === 'video' ? 'VIDEO' : 'FOTO'}</strong><br>
+                    <div style="margin: 8px 0; border: 1px solid #444; border-radius: 4px; overflow: hidden; background: #000;">
+                        <img src="media_thumbnails/${item.thumb}" style="width: 160px; display: block; cursor: pointer; transition: transform 0.2s;" 
+                             onclick="openLightbox('media_thumbnails/${item.thumb}', '${item.filename}')"
+                             onmouseover="this.style.transform='scale(1.05)'" 
+                             onmouseout="this.style.transform='scale(1)'">
+                    </div>
+                    <span style="font-size: 9px; color: #888; display: block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.filename}</span>
+                </div>
+            `;
+            
+            marker.bindPopup(popupContent, { maxWidth: 200, className: 'custom-popup-dark' });
+            mediaLayer.addLayer(marker);
+        });
+    }
+}
+
+function toggleMediaPines() {
+    const el = document.getElementById('toggle-media-pines');
+    if (!el) return;
+    const show = el.checked;
+    if (!mediaLayer) renderMediaLayer();
+    if (show && mediaLayer) map.addLayer(mediaLayer);
+    else if (mediaLayer) map.removeLayer(mediaLayer);
+}
+
+function openLightbox(src, title) {
+    const modal = document.getElementById('media-modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalTitle = document.getElementById('modal-title');
+    if (modal && modalImg) {
+        modal.style.display = "flex";
+        modalImg.src = src;
+        if (modalTitle) modalTitle.textContent = title;
+    }
+}
+
+function closeLightbox() {
+    const modal = document.getElementById('media-modal');
+    if (modal) modal.style.display = "none";
+}
