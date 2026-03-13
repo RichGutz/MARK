@@ -160,9 +160,9 @@ def generate_report():
 
     # Generar Markdown
     md = [
-        "# REPORTE TÉCNICO: COORDENADAS RUTA TRAMO 1 (PROYECTO MARK)",
+        "# REPORTE TÉCNICO: COORDENADAS RUTA.FRANCO (PROYECTO MARK)",
         "",
-        "Este reporte contiene los puntos de control cada 500 metros para el **Tramo 1 al Oeste**, desde el inicio hasta la Garita.",
+        "Este reporte contiene los puntos de control cada 500 metros para la **Ruta.Franco**, resultado de la unión del Tramo 1 y el Recorrido Petral.",
         "",
         "| Punto | KM | Latitud | Longitud | Altitud (m) | Pendiente (%) |",
         "| :--- | :--- | :--- | :--- | :--- | :--- |"
@@ -192,7 +192,7 @@ def generate_report():
     hitos_lons = [p['lon'] for p in labeled_points]
     plt.scatter(hitos_lons, hitos_lats, color='black', s=20, alpha=0.5, label='Hitos 500m')
     
-    plt.title("Visualización de la Ruta - Tramo 1 al Oeste")
+    plt.title("Visualización de la Ruta - Ruta.Franco")
     plt.xlabel("Longitud")
     plt.ylabel("Latitud")
     plt.grid(True, linestyle='--', alpha=0.7)
@@ -229,7 +229,7 @@ def generate_report():
         </style>
     </head>
     <body>
-        <h1>REPORTE TÉCNICO: TRAMO 1 AL OESTE</h1>
+        <h1>REPORTE TÉCNICO: RUTA.FRANCO</h1>
         <div class="map-container">
             {image_html}
         </div>
@@ -267,8 +267,8 @@ def generate_report():
         "features": [{
             "type": "Feature",
             "properties": {
-                "name": "Tramo 1 (Consolidado + Garita)",
-                "style": "tramo1_style"
+                "name": "Ruta.Franco",
+                "style": "franco_style"
             },
             "geometry": {
                 "type": "LineString",

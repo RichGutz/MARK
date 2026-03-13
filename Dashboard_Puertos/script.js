@@ -2811,8 +2811,8 @@ function renderGarita1S() {
 
         garita1SLayer.bindPopup(`
             <div style="font-family:'Rajdhani',sans-serif;">
-                <strong style="color:#ff9800; font-size:1.1em;">Ruta 1S - Garita</strong><br>
-                <span style="font-size:0.9em; color:#ccc;">Tramo 1 Consolidado (App)</span>
+                <strong style="color:#00bcd4; font-size:1.1em;">Ruta.Franco</strong><br>
+                <span style="font-size:0.9em; color:#ccc;">Tramo 1 + Recorrido Petral</span>
             </div>
         `, { className: 'custom-popup-dark' });
     }

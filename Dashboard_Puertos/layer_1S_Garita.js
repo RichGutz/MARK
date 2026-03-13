@@ -5,8 +5,8 @@ const LAYER_1S_GARITA_GEOJSON = {
         {
             "type": "Feature",
             "properties": {
-                "name": "Tramo 1 (Consolidado + Garita)",
-                "style": "tramo1_style"
+                "name": "Ruta.Franco",
+                "style": "franco_style"
             },
             "geometry": {
                 "type": "LineString",

@@ -1,6 +1,6 @@
-# REPORTE TÉCNICO: COORDENADAS RUTA TRAMO 1 (PROYECTO MARK)
+# REPORTE TÉCNICO: COORDENADAS RUTA.FRANCO (PROYECTO MARK)
 
-Este reporte contiene los puntos de control cada 500 metros para el **Tramo 1 al Oeste**, desde el inicio hasta la Garita.
+Este reporte contiene los puntos de control cada 500 metros para la **Ruta.Franco**, resultado de la unión del Tramo 1 y el Recorrido Petral.
 
 | Punto | KM | Latitud | Longitud | Altitud (m) | Pendiente (%) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
