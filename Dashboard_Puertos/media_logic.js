@@ -1,5 +1,5 @@
 // ========================================
-// MEDIA LAYER LOGIC (Modularized)
+// MEDIA LAYER LOGIC (Modularized V2)
 // ========================================
 
 let mediaLayer = null;
@@ -8,7 +8,6 @@ function renderMediaLayer() {
     const showThumbs = document.getElementById('toggle-media-thumbnails')?.checked;
 
     if (typeof LAYER_MEDIA_DATA !== 'undefined') {
-        // Clear existing layer if switching mode
         if (mediaLayer) {
             map.removeLayer(mediaLayer);
         }
@@ -17,11 +16,13 @@ function renderMediaLayer() {
         LAYER_MEDIA_DATA.forEach(item => {
             let icon;
             if (showThumbs) {
-                // Map Thumbnail
+                // Map Thumbnail with scale effect on hover
                 icon = L.divIcon({
                     className: 'thumb-marker-container',
-                    html: `<img src="media_thumbnails/${item.thumb}" class="thumb-marker-img">
-                           ${item.type === 'video' ? '<span style="position:absolute; bottom:0; right:0; background:rgba(0,0,0,0.6); font-size:10px; padding:2px;">🎥</span>' : ''}`,
+                    html: `<img src="media_thumbnails/${item.thumb}" 
+                                class="thumb-marker-img" 
+                                onerror="this.src='https://placehold.co/40x30/444/fff?text=?'">
+                           ${item.type === 'video' ? '<span class="video-badge">🎥</span>' : ''}`,
                     iconSize: [40, 30],
                     iconAnchor: [20, 15]
                 });
@@ -40,15 +41,21 @@ function renderMediaLayer() {
             const marker = L.marker([item.lat, item.lon], { icon: icon });
             
             const popupContent = `
-                <div style="text-align: center; font-family: 'Rajdhani', sans-serif; color: #fff;">
-                    <strong style="color: #e91e63; font-size: 1.1em;">${item.type === 'video' ? 'VIDEO' : 'FOTO'}</strong><br>
-                    <div style="margin: 8px 0; border: 1px solid #444; border-radius: 4px; overflow: hidden; background: #000;">
-                        <img src="media_thumbnails/${item.thumb}" style="width: 160px; display: block; cursor: pointer; transition: transform 0.2s;" 
-                             onclick="openLightbox('media_thumbnails/${item.thumb}', '${item.type === 'video' ? 'VIDEO' : 'FOTO'}', '${item.filename}')"
+                <div style="text-align: center; font-family: 'Rajdhani', sans-serif; color: #fff; min-width:160px;">
+                    <strong style="color: #e91e63; font-size: 1.1em;">${item.type === 'video' ? '🎥 VIDEO' : '📷 FOTO'}</strong><br>
+                    <div style="margin: 8px 0; border: 1px solid #444; border-radius: 4px; overflow: hidden; background: #000; position:relative;">
+                        <img src="media_thumbnails/${item.thumb}" 
+                             style="width: 160px; height: 120px; object-fit: cover; display: block; cursor: pointer; transition: transform 0.2s;" 
+                             onclick="openLightbox('${item.filename}')"
                              onmouseover="this.style.transform='scale(1.05)'" 
-                             onmouseout="this.style.transform='scale(1)'">
+                             onmouseout="this.style.transform='scale(1)'"
+                             onerror="this.src='https://placehold.co/160x120/444/fff?text=No+Thumbnail'">
+                        ${item.type === 'video' ? '<div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); border:2px solid white; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); pointer-events:none;">▶</div>' : ''}
                     </div>
                     <span style="font-size: 9px; color: #888; display: block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.filename}</span>
+                    <button onclick="openLightbox('${item.filename}')" style="margin-top:5px; background:#e91e63; border:none; color:white; padding:3px 8px; border-radius:3px; font-size:10px; cursor:pointer;">
+                        ${item.type === 'video' ? 'Reproducir' : 'Ver Grande'}
+                    </button>
                 </div>
             `;
             
@@ -56,7 +63,6 @@ function renderMediaLayer() {
             mediaLayer.addLayer(marker);
         });
 
-        // Add back if the main media toggle is active
         if (document.getElementById('toggle-media-pines')?.checked) {
             map.addLayer(mediaLayer);
         }
@@ -77,35 +83,51 @@ function toggleMediaPines() {
 }
 
 function toggleMediaThumbnails() {
-    // Re-render to switch between PINS/THUMBS
     renderMediaLayer();
 }
 
-function openLightbox(src, title, filename) {
+function openLightbox(filename) {
     const modal = document.getElementById('media-modal');
-    const modalImg = document.getElementById('modal-img');
+    const modalContent = document.getElementById('modal-content-area'); // Need to change HTML for this
     const modalTitle = document.getElementById('modal-title');
-    if (modal && modalImg) {
-        modal.style.display = "flex";
-        
-        // Cloud Link Support
-        if (typeof LAYER_MEDIA_DATA !== 'undefined' && filename) {
-            const item = LAYER_MEDIA_DATA.find(i => i.filename === filename);
-            if (item && item.original_url) {
-                modalImg.src = item.original_url;
-                console.log("Loading Cloud Image:", item.original_url);
-            } else {
-                modalImg.src = src;
-            }
-        } else {
-            modalImg.src = src;
-        }
+    
+    if (!modal || !LAYER_MEDIA_DATA) return;
 
-        if (modalTitle) modalTitle.textContent = title || filename;
+    const item = LAYER_MEDIA_DATA.find(i => i.filename === filename);
+    if (!item) return;
+
+    modal.style.display = "flex";
+    if (modalTitle) modalTitle.textContent = item.filename;
+
+    // Direct url from Cloud (Google Photos) or fallback to local thumbnail
+    let finalUrl = item.original_url || `media_thumbnails/${item.thumb}`;
+    
+    // Clear area
+    modalContent.innerHTML = '';
+
+    if (item.type === 'video') {
+        // Handle Video
+        if (item.original_url) {
+            // If it's a Google Photos URL, we might need to handle the video playback.
+            // For now, let's try a video tag.
+            modalContent.innerHTML = `<video src="${finalUrl}" controls autoplay style="max-width:90%; max-height:80%; border-radius:8px; box-shadow:0 0 30px rgba(0,0,0,0.8);"></video>`;
+        } else {
+            modalContent.innerHTML = `<div style="color:#ff4444; background:#000; padding:20px; border-radius:8px;">
+                                        <p>Link de video no encontrado.</p>
+                                        <p style="font-size:0.8em; color:#888;">Por favor usa el botón "ACTUALIZAR" para sincronizar con Google Photos.</p>
+                                      </div>`;
+        }
+    } else {
+        // Handle Image
+        modalContent.innerHTML = `<img src="${finalUrl}" style="max-width:90%; max-height:80%; border-radius:8px; box-shadow:0 0 30px rgba(0,0,0,0.8);">`;
     }
 }
 
 function closeLightbox() {
     const modal = document.getElementById('media-modal');
-    if (modal) modal.style.display = "none";
+    const modalContent = document.getElementById('modal-content-area');
+    if (modal) {
+        modal.style.display = "none";
+        if (modalContent) modalContent.innerHTML = ''; // Stop video playback
+    }
 }
