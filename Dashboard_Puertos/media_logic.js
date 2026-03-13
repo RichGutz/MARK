@@ -108,9 +108,33 @@ function openLightbox(filename) {
     if (item.type === 'video') {
         // Handle Video
         if (item.original_url) {
-            // If it's a Google Photos URL, we might need to handle the video playback.
-            // For now, let's try a video tag.
-            modalContent.innerHTML = `<video src="${finalUrl}" controls autoplay style="max-width:90%; max-height:80%; border-radius:8px; box-shadow:0 0 30px rgba(0,0,0,0.8);"></video>`;
+            // Google Photos video streaming trick: append =m22 or =m18 for quality
+            const streamUrl = item.original_url.includes('googleusercontent.com') ? `${item.original_url}=m22` : item.original_url;
+            
+            modalContent.innerHTML = `
+                <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                    <video id="lightbox-video" src="${streamUrl}" controls autoplay style="max-width:90%; max-height:75%; border-radius:8px; box-shadow:0 0 30px rgba(0,0,0,0.8);"></video>
+                    <div style="margin-top:15px;">
+                        <a href="${item.original_url}" target="_blank" style="background:#e91e63; color:white; padding:8px 15px; border-radius:5px; text-decoration:none; font-family:'Rajdhani',sans-serif; font-weight:bold; font-size:14px; box-shadow:0 4px 10px rgba(233,30,99,0.3);">
+                            🔗 ABRIR EN PESTAÑA NUEVA
+                        </a>
+                    </div>
+                </div>`;
+            
+            // Auto-fallback if video fails to load
+            const v = document.getElementById('lightbox-video');
+            if (v) {
+                v.onerror = () => {
+                    modalContent.innerHTML = `
+                        <div style="text-align:center; color:white; font-family:'Rajdhani',sans-serif; background:rgba(0,0,0,0.8); padding:30px; border-radius:12px;">
+                            <p style="font-size:1.5rem; margin-bottom:10px;">🎥 El video no se puede previsualizar aquí</p>
+                            <p style="color:#aaa; margin-bottom:20px;">Google Photos bloquea la reproducción directa a veces.</p>
+                            <a href="${item.original_url}" target="_blank" style="background:#e91e63; color:white; padding:12px 25px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:16px;">
+                                ▶ REPRODUCIR EN GOOGLE PHOTOS
+                            </a>
+                        </div>`;
+                };
+            }
         } else {
             modalContent.innerHTML = `<div style="color:#ff4444; background:#000; padding:20px; border-radius:8px;">
                                         <p>Link de video no encontrado.</p>
