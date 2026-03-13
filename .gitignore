@@ -37,6 +37,7 @@
 # Icons/Assets específicos para Dashboard_Puertos y Portal
 !Dashboard_Puertos/**/assets/*.png
 !Dashboard_Puertos/**/assets/*.jpg
+!Dashboard_Puertos/media_thumbnails/*.jpg
 !GeekSoft_Portal/**/assets/*.png
 !GeekSoft_Portal/**/assets/*.jpg
 
