@@ -178,28 +178,46 @@ def generate_report():
     print(f"📝 Markdown generado: {OUTPUT_MD}")
 
     # Generar Gráfico de la Ruta
-    print("📊 Generando gráfico de la ruta...")
-    all_lats = [p[0] for p in path]
-    all_lons = [p[1] for p in path]
+    print("📊 Generando gráfico de la ruta comparativa...")
     
-    plt.figure(figsize=(10, 6))
-    plt.plot(all_lons, all_lats, 'r-', linewidth=2, label='Ruta Tramo 1')
-    plt.scatter(all_lons[0], all_lats[0], color='green', s=100, label='Inicio (Este)')
-    plt.scatter(all_lons[-1], all_lats[-1], color='blue', s=100, label='Fin (Oeste/Garita)')
+    plt.figure(figsize=(12, 8))
     
-    # Marcar los hitos de 500m
+    # 1. Ruta Original completa (tenue)
+    all_lats1 = [p[0] for p in path1]
+    all_lons1 = [p[1] for p in path1]
+    plt.plot(all_lons1, all_lats1, color='lightgray', linestyle='--', linewidth=1.5, label='Ruta Original (Tramo 1)')
+    
+    # 2. Ruta Híbrida (Franco) - resaltada
+    hybrid_lats = [p[0] for p in path]
+    hybrid_lons = [p[1] for p in path]
+    plt.plot(hybrid_lons, hybrid_lats, color='#00bcd4', linewidth=3, label='Ruta.Franco (Nueva)')
+    
+    # 3. Marcar Inicio, Unión y Fin
+    plt.scatter(path1[0][1], path1[0][0], color='green', s=100, label='Inicio (Este)', zorder=5)
+    plt.scatter(path1[best_idx1][1], path1[best_idx1][0], color='red', s=120, marker='X', label='Punto de Unión', zorder=6)
+    plt.scatter(path[-1][1], path[-1][0], color='blue', s=100, label='Fin (Oeste)', zorder=5)
+    
+    # 4. Marcar los hitos de 500m de la nueva ruta
     hitos_lats = [p['lat'] for p in labeled_points]
     hitos_lons = [p['lon'] for p in labeled_points]
-    plt.scatter(hitos_lons, hitos_lats, color='black', s=20, alpha=0.5, label='Hitos 500m')
+    plt.scatter(hitos_lons, hitos_lats, color='black', s=15, alpha=0.4, label='Hitos 500m (Franco)', zorder=4)
     
-    plt.title("Visualización de la Ruta - Ruta.Franco")
+    plt.title("REPORTE VISUAL: RUTA.FRANCO (Comparativa vs Original)", fontsize=14, fontweight='bold')
     plt.xlabel("Longitud")
     plt.ylabel("Latitud")
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend()
-    plt.axis('equal') # Mantener proporciones para que no se deforme la ruta
+    plt.grid(True, linestyle=':', alpha=0.6)
+    plt.legend(loc='best', frameon=True, shadow=True)
+    plt.axis('equal') 
     
-    plt.savefig(OUTPUT_PLOT)
+    # Añadir anotación en el punto de unión
+    plt.annotate('Bifurcación hacia\nRecorrido Petral', 
+                 xy=(path1[best_idx1][1], path1[best_idx1][0]),
+                 xytext=(10, 20), textcoords='offset points',
+                 arrowprops=dict(arrowstyle='->', color='red'),
+                 fontsize=9, color='red', fontweight='bold',
+                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="red", alpha=0.8))
+
+    plt.savefig(OUTPUT_PLOT, dpi=150, bbox_inches='tight')
     plt.close()
     print(f"🖼️ Gráfico guardado: {OUTPUT_PLOT}")
 
