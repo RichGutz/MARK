@@ -69,31 +69,12 @@ def generate_report():
         print("❌ Error al cargar coordenadas de los KML.")
         return
 
-    # Buscar intersección (punto más cercano)
-    # Buscamos en la segunda mitad de Path 1 para ir del este hacia el oeste
-    min_dist = float('inf')
-    best_idx1 = -1
-    best_idx2 = -1
-    
-    print(f"🔄 Buscando punto de unión entre {len(path1)} y {len(path2)} nodos...")
-    search_start = len(path1) // 2
-    for i in range(search_start, len(path1)):
-        p1 = path1[i]
-        for j in range(len(path2)):
-            p2 = path2[j]
-            d = haversine(p1[0], p1[1], p2[0], p2[1])
-            if d < min_dist:
-                min_dist = d
-                best_idx1 = i
-                best_idx2 = j
-    
-    print(f"📍 Punto de unión encontrado a {min_dist:.2f}m.")
-    # Stitching: Path 1 hasta la intersección + Path 2 desde la intersección
-    path = path1[:best_idx1] + path2[best_idx2:]
-    
-    print(f"✅ Ruta híbrida generada con {len(path)} puntos.")
+    # Usar Path 2 (Ruta.Franco) como la ruta principal para el reporte de coordenadas
+    path = path2
+    print(f"✅ Ruta.Franco cargada con {len(path)} puntos.")
+    print(f"📝 Ruta Original de referencia cargada con {len(path1)} puntos.")
 
-    # Interpolación cada 500m
+    # Interpolación cada 500m (sobre Ruta.Franco)
     interpolated = [path[0]]
     total_dist = 0
     next_mark = INTERVAL_M
@@ -112,7 +93,6 @@ def generate_report():
         d = haversine(last_pt[0], last_pt[1], curr_pt[0], curr_pt[1])
         
         if total_dist + d >= next_mark:
-            # Interpolar punto exacto
             needed = next_mark - total_dist
             frac = needed / d
             interp_lat = last_pt[0] + (curr_pt[0] - last_pt[0]) * frac
@@ -124,7 +104,6 @@ def generate_report():
                 "lon": interp_lon
             })
             next_mark += INTERVAL_M
-            # No avanzamos el index aún, por si hay más de un intervalo en el mismo segmento
             last_pt = [interp_lat, interp_lon]
             total_dist += needed
         else:
@@ -147,7 +126,6 @@ def generate_report():
     
     for i, p in enumerate(labeled_points):
         p['alt'] = elevs[i]
-        # Calcular pendiente con el anterior
         if i > 0:
             prev = labeled_points[i-1]
             dist_m = (p['km'] - prev['km']) * 1000
@@ -162,7 +140,7 @@ def generate_report():
     md = [
         "# REPORTE TÉCNICO: COORDENADAS RUTA.FRANCO (PROYECTO MARK)",
         "",
-        "Este reporte contiene los puntos de control cada 500 metros para la **Ruta.Franco**, resultado de la unión del Tramo 1 y el Recorrido Petral.",
+        "Este reporte contiene los puntos de control cada 500 metros para la **Ruta.Franco** (Recorrido Petral), comparada con la ruta original del Tramo 1.",
         "",
         "| Punto | KM | Latitud | Longitud | Altitud (m) | Pendiente (%) |",
         "| :--- | :--- | :--- | :--- | :--- | :--- |"
@@ -178,46 +156,35 @@ def generate_report():
     print(f"📝 Markdown generado: {OUTPUT_MD}")
 
     # Generar Gráfico de la Ruta
-    print("📊 Generando gráfico de la ruta comparativa...")
+    print("📊 Generando gráfico de rutas independientes...")
     
     plt.figure(figsize=(12, 8))
     
-    # 1. Ruta Original completa (tenue)
+    # 1. Ruta Original (Azul Sólido)
     all_lats1 = [p[0] for p in path1]
     all_lons1 = [p[1] for p in path1]
-    plt.plot(all_lons1, all_lats1, color='lightgray', linestyle='--', linewidth=1.5, label='Ruta Original (Tramo 1)')
+    plt.plot(all_lons1, all_lats1, color='blue', linewidth=2, label='Ruta Original (Tramo 1)', alpha=0.7)
     
-    # 2. Ruta Híbrida (Franco) - resaltada
-    hybrid_lats = [p[0] for p in path]
-    hybrid_lons = [p[1] for p in path]
-    plt.plot(hybrid_lons, hybrid_lats, color='#00bcd4', linewidth=3, label='Ruta.Franco (Nueva)')
+    # 2. Ruta.Franco (Rojo Sólido)
+    all_lats2 = [p[0] for p in path2]
+    all_lons2 = [p[1] for p in path2]
+    plt.plot(all_lons2, all_lats2, color='red', linewidth=3, label='Ruta.Franco (Recorrido Petral)')
     
-    # 3. Marcar Inicio, Unión y Fin
-    plt.scatter(path1[0][1], path1[0][0], color='green', s=100, label='Inicio (Este)', zorder=5)
-    plt.scatter(path1[best_idx1][1], path1[best_idx1][0], color='red', s=120, marker='X', label='Punto de Unión', zorder=6)
-    plt.scatter(path[-1][1], path[-1][0], color='blue', s=100, label='Fin (Oeste)', zorder=5)
-    
-    # 4. Marcar los hitos de 500m de la nueva ruta
+    # 3. Marcar los hitos de 500m de Ruta.Franco
     hitos_lats = [p['lat'] for p in labeled_points]
     hitos_lons = [p['lon'] for p in labeled_points]
-    plt.scatter(hitos_lons, hitos_lats, color='black', s=15, alpha=0.4, label='Hitos 500m (Franco)', zorder=4)
+    plt.scatter(hitos_lons, hitos_lats, color='darkred', s=20, alpha=0.6, label='Hitos 500m (Franco)', zorder=5)
     
-    plt.title("REPORTE VISUAL: RUTA.FRANCO (Comparativa vs Original)", fontsize=14, fontweight='bold')
+    plt.title("COMPARATIVA DE RUTAS: TRAMO 1 vs RUTA.FRANCO", fontsize=14, fontweight='bold')
     plt.xlabel("Longitud")
     plt.ylabel("Latitud")
     plt.grid(True, linestyle=':', alpha=0.6)
     plt.legend(loc='best', frameon=True, shadow=True)
     plt.axis('equal') 
-    
-    # Añadir anotación en el punto de unión
-    plt.annotate('Bifurcación hacia\nRecorrido Petral', 
-                 xy=(path1[best_idx1][1], path1[best_idx1][0]),
-                 xytext=(10, 20), textcoords='offset points',
-                 arrowprops=dict(arrowstyle='->', color='red'),
-                 fontsize=9, color='red', fontweight='bold',
-                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="red", alpha=0.8))
 
     plt.savefig(OUTPUT_PLOT, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"🖼️ Gráfico guardado: {OUTPUT_PLOT}")
     plt.close()
     print(f"🖼️ Gráfico guardado: {OUTPUT_PLOT}")
 
