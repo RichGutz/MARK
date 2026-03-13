@@ -76,16 +76,16 @@ def generate_report():
         print("❌ Error al cargar coordenadas de los KML (Verificar LineStrings).")
         return
 
-    # Aplanar para búsqueda
+    # Aplanar para búsqueda y procesamiento
     path1_full = [pt for seg in segments1 for pt in seg]
     path2_full = [pt for seg in segments2 for pt in seg]
 
-    # Stitching: Buscar el punto en Path 1 más cercano al INICIO de Path 2
+    # Stitching para Ruta.Franco: Buscar el punto en Path 1 más cercano al INICIO de Path 2
     min_dist = float('inf')
     best_idx1 = -1
     
-    print(f"🔄 Buscando punto de unión preciso...")
-    search_start = len(path1_full) // 2 # Buscamos en la mitad final (oeste)
+    print(f"🔄 Buscando punto de unión preciso para Ruta.Franco...")
+    search_start = len(path1_full) // 2 
     p2_start = path2_full[0]
     
     for i in range(search_start, len(path1_full)):
@@ -97,66 +97,85 @@ def generate_report():
 
     print(f"📍 Unión encontrada a {min_dist:.2f}m en el índice {best_idx1} de Path 1.")
     
-    # Ruta.Franco = Path 1 (hasta union) + Path 2 (completo)
+    # 1. Ruta.Franco = Path 1 (hasta union) + Path 2 (completo)
     path_franco = path1_full[:best_idx1] + path2_full
-    print(f"✅ Ruta.Franco generada con {len(path_franco)} puntos.")
-
-    # Interpolación cada 500m
-    total_dist = 0
-    next_mark = INTERVAL_M
-    current_path_idx = 1
-    last_pt = path_franco[0]
     
-    labeled_points = [{
-        "km": 0.0,
-        "lat": path_franco[0][0],
-        "lon": path_franco[0][1]
-    }]
+    # 2. Ruta 1S.Tranquera.2 = Path 1 completo
+    path_tranquera = path1_full
 
-    while current_path_idx < len(path_franco):
-        curr_pt = path_franco[current_path_idx]
-        d = haversine(last_pt[0], last_pt[1], curr_pt[0], curr_pt[1])
+    def interpolate_hitos(path):
+        total_dist = 0
+        next_mark = 500.0 # INTERVAL_M
+        current_path_idx = 1
+        last_pt = path[0]
         
-        if total_dist + d >= next_mark:
-            needed = next_mark - total_dist
-            frac = needed / d
-            interp_lat = last_pt[0] + (curr_pt[0] - last_pt[0]) * frac
-            interp_lon = last_pt[1] + (curr_pt[1] - last_pt[1]) * frac
-            
-            labeled_points.append({
-                "km": next_mark / 1000.0,
-                "lat": interp_lat,
-                "lon": interp_lon
-            })
-            next_mark += INTERVAL_M
-            last_pt = [interp_lat, interp_lon]
-            total_dist += needed
-        else:
-            total_dist += d
-            last_pt = curr_pt
-            current_path_idx += 1
+        hitos = [{
+            "km": 0.0,
+            "lat": path[0][0],
+            "lon": path[0][1]
+        }]
 
-    # Asegurar el último punto
-    labeled_points.append({
-        "km": total_dist / 1000.0,
-        "lat": path_franco[-1][0],
-        "lon": path_franco[-1][1]
-    })
+        while current_path_idx < len(path):
+            curr_pt = path[current_path_idx]
+            d = haversine(last_pt[0], last_pt[1], curr_pt[0], curr_pt[1])
+            
+            if total_dist + d >= next_mark:
+                needed = next_mark - total_dist
+                frac = needed / d
+                interp_lat = last_pt[0] + (curr_pt[0] - last_pt[0]) * frac
+                interp_lon = last_pt[1] + (curr_pt[1] - last_pt[1]) * frac
+                
+                hitos.append({
+                    "km": next_mark / 1000.0,
+                    "lat": interp_lat,
+                    "lon": interp_lon
+                })
+                next_mark += 500.0
+                last_pt = [interp_lat, interp_lon]
+                total_dist += needed
+            else:
+                total_dist += d
+                last_pt = curr_pt
+                current_path_idx += 1
+
+        # Asegurar el último punto
+        hitos.append({
+            "km": total_dist / 1000.0,
+            "lat": path[-1][0],
+            "lon": path[-1][1]
+        })
+        return hitos
+
+    print(f"📏 Interpolando hitos para Ruta.Franco...")
+    labeled_franco = interpolate_hitos(path_franco)
+    
+    print(f"📏 Interpolando hitos para Ruta 1S.Tranquera.2...")
+    labeled_tranquera = interpolate_hitos(path_tranquera)
 
     print(f"⛰️ Obteniendo elevaciones...")
-    lats_lons = [[p['lat'], p['lon']] for p in labeled_points]
-    elevs = get_elevations(lats_lons)
-    
-    for i, p in enumerate(labeled_points):
-        p['alt'] = elevs[i]
+    # Franco
+    elevs_f = get_elevations([[p['lat'], p['lon']] for p in labeled_franco])
+    for i, p in enumerate(labeled_franco):
+        p['alt'] = elevs_f[i]
         if i > 0:
-            prev = labeled_points[i-1]
+            prev = labeled_franco[i-1]
             dist_m = (p['km'] - prev['km']) * 1000
             p['slope'] = ((p['alt'] - prev['alt']) / dist_m * 100) if dist_m > 0 else 0
         else:
             p['slope'] = 0
 
-    # Generar Markdown
+    # Tranquera
+    elevs_t = get_elevations([[p['lat'], p['lon']] for p in labeled_tranquera])
+    for i, p in enumerate(labeled_tranquera):
+        p['alt'] = elevs_t[i]
+        if i > 0:
+            prev = labeled_tranquera[i-1]
+            dist_m = (p['km'] - prev['km']) * 1000
+            p['slope'] = ((p['alt'] - prev['alt']) / dist_m * 100) if dist_m > 0 else 0
+        else:
+            p['slope'] = 0
+
+    # Generar Markdown (Reporte sigue siendo sobre Franco mayormente)
     md = [
         "# REPORTE TÉCNICO: COORDENADAS RUTA.FRANCO (PROYECTO MARK)",
         "",
@@ -166,35 +185,36 @@ def generate_report():
         "| :--- | :--- | :--- | :--- | :--- | :--- |"
     ]
     
-    for i, p in enumerate(labeled_points):
-        name = "INICIO" if i == 0 else (f"FINAL" if i == len(labeled_points)-1 else f"P{i}")
+    for i, p in enumerate(labeled_franco):
+        name = "INICIO" if i == 0 else (f"FINAL" if i == len(labeled_franco)-1 else f"P{i}")
         md.append(f"| {name} | {p['km']:.2f} | {p['lat']:.6f} | {p['lon']:.6f} | {p['alt']:.1f} | {p['slope']:.2f}% |")
 
     with open(OUTPUT_MD, "w", encoding="utf-8") as f:
         f.write("\n".join(md))
 
     # Generar Gráfico de la Ruta
-    print("📊 Generando gráfico con numeración...")
+    print("📊 Generando gráfico comparativo...")
     
     plt.figure(figsize=(12, 10))
     
-    # 1. Graficar Ruta.Franco por segmentos originales (para evitar saltos)
-    # Reconstruimos la visual de Path 1 (cortado) y Path 2 (completo)
-    path1_vis = path1_full[:best_idx1 + 1]
-    plt.plot([p[1] for p in path1_vis], [p[0] for p in path1_vis], color='#1a73e8', linewidth=2, label='Tramo 1 (Inicio)', alpha=0.6)
+    # 1. Graficar Ruta 1S.Tranquera.2 (Azul completa)
+    plt.plot([p[1] for p in path_tranquera], [p[0] for p in path_tranquera], color='#1a73e8', linewidth=2, label='Ruta 1S.Tranquera.2', alpha=0.4)
     
-    # Ruta Roja (Ruta 2) por segmentos
+    # 2. Graficar Ruta.Franco (Roja)
+    # Reconstruimos la visual por segmentos de la roja para evitar el salto
+    # Franco = Path1 (hasta union) + Path2 (completo)
+    p1_part = path1_full[:best_idx1 + 1]
+    plt.plot([p[1] for p in p1_part], [p[0] for p in p1_part], color='#ea4335', linewidth=3, label='Ruta.Franco (Unión)')
     for i, seg in enumerate(segments2):
-        label = 'Ruta Roja (Franco)' if i == 0 else ""
-        plt.plot([p[1] for p in seg], [p[0] for p in seg], color='#ea4335', linewidth=3, label=label)
+        plt.plot([p[1] for p in seg], [p[0] for p in seg], color='#ea4335', linewidth=3)
     
-    # 2. Numerar los hitos (Puntos de control cada 500m)
-    for i, p in enumerate(labeled_points):
+    # 3. Numerar los hitos de Franco (para el reporte)
+    for i, p in enumerate(labeled_franco):
         label_text = f"{i}"
         plt.scatter(p['lon'], p['lat'], color='black', s=25, zorder=5)
-        plt.annotate(label_text, (p['lon'], p['lat']), textcoords="offset points", xytext=(0,5), ha='center', fontsize=8, fontweight='bold', color='darkblue')
+        plt.annotate(label_text, (p['lon'], p['lat']), textcoords="offset points", xytext=(0,5), ha='center', fontsize=8, fontweight='bold', color='darkred')
 
-    plt.title("REPORTE VISUAL: RUTA.FRANCO (CON NUMERACIÓN ACTUALIZADA)", fontsize=14, fontweight='bold')
+    plt.title("REPORTE VISUAL: COMPARATIVA RUTA 1S.TRANQUERA Y RUTA.FRANCO", fontsize=14, fontweight='bold')
     plt.xlabel("Longitud")
     plt.ylabel("Latitud")
     plt.grid(True, linestyle=':', alpha=0.6)
@@ -207,8 +227,6 @@ def generate_report():
 
     # Convertir a HTML y luego PDF
     html_body = markdown.markdown("\n".join(md), extensions=['extra', 'tables'])
-
-    # Convertir a HTML y luego PDF
     html_body = markdown.markdown("\n".join(md), extensions=['extra', 'tables'])
     
     # Insertar la imagen en el HTML (usando base64 para que el PDF la incluya sin problemas externos)
@@ -265,44 +283,45 @@ def generate_report():
     # --- EXPORTAR JS PARA DASHBOARD ---
     print("🌐 Generando Layer JS para el Dashboard...")
     
-    # 1. GeoJSON LineString (High-res path) para la línea de la ruta
-    line_coords = [[p[1], p[0]] for p in path_franco] # [lon, lat] for GeoJSON
-    geojson = {
-        "type": "FeatureCollection",
-        "features": [{
-            "type": "Feature",
-            "properties": {
-                "name": "Ruta.Franco",
-                "style": "franco_style"
-            },
-            "geometry": {
-                "type": "LineString",
-                "coordinates": line_coords
-            }
-        }]
-    }
+    def to_js_obj(path, labeled, name_key):
+        # LineString
+        line_coords = [[p[1], p[0]] for p in path]
+        geojson = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "properties": {"name": name_key},
+                "geometry": {"type": "LineString", "coordinates": line_coords}
+            }]
+        }
+        # Points
+        points = []
+        for p in labeled:
+            points.append({
+                "name": f"KM {p['km']:.1f}",
+                "coords": [p['lat'], p['lon']],
+                "alt": round(p['alt'], 1),
+                "slope": round(p['slope'], 2),
+                "km": round(p['km'], 2)
+            })
+        return geojson, points
 
-    # 2. Points data for labels (Hitos cada 500m)
-    js_points = []
-    for i, p in enumerate(labeled_points):
-        # El nombre del punto para el tooltip será KM X.X
-        js_points.append({
-            "name": f"KM {p['km']:.1f}",
-            "coords": [p['lat'], p['lon']],
-            "alt": round(p['alt'], 1),
-            "slope": round(p['slope'], 2),
-            "km": round(p['km'], 2)
-        })
+    g_franco, p_franco = to_js_obj(path_franco, labeled_franco, "Ruta.Franco")
+    g_trank, p_trank = to_js_obj(path_tranquera, labeled_tranquera, "Ruta 1S.Tranquera.2")
 
-    js_content = f"// Auto-generated from generate_tramo1_report.py\n"
-    js_content += f"// Ruta.Franco: Tramo 1 + Recorrido Petral\n\n"
-    js_content += f"const LAYER_1S_GARITA_GEOJSON = {json.dumps(geojson, indent=4)};\n\n"
-    js_content += f"const LAYER_1S_GARITA_POINTS = {json.dumps(js_points, indent=4)};"
+    js_content = f"// Auto-generated Dashboard Layers\n"
+    js_content += f"// Ruta.Franco: Tramo 1 + Recorrido Petral\n"
+    js_content += f"// Ruta 1S.Tranquera.2: Tramo 1 Original\n\n"
+    
+    js_content += f"const LAYER_1S_GARITA_GEOJSON = {json.dumps(g_franco, indent=4)};\n"
+    js_content += f"const LAYER_1S_GARITA_POINTS = {json.dumps(p_franco, indent=4)};\n\n"
+    
+    js_content += f"const LAYER_1S_TRANQUERA_2_GEOJSON = {json.dumps(g_trank, indent=4)};\n"
+    js_content += f"const LAYER_1S_TRANQUERA_2_POINTS = {json.dumps(p_trank, indent=4)};\n"
 
     with open(OUTPUT_JS, "w", encoding="utf-8") as f:
         f.write(js_content)
-    print(f"✅ JS Layer generado: {OUTPUT_JS}")
-    print(f"✅ JS Layer generado: {OUTPUT_JS}")
+    print(f"✅ JS Layer generado con ambas rutas: {OUTPUT_JS}")
 
 if __name__ == "__main__":
     generate_report()

@@ -2795,54 +2795,57 @@ function toggleSunarp3() {
 // 1S.GARITA LAYER (Tramo 1 Consolidado)
 // ========================================
 
+// 1S.GARITA (Ruta.Franco)
 let garita1SLayer = null;
 let garita1SPointsLayer = null;
 
 function renderGarita1S() {
     if (typeof LAYER_1S_GARITA_GEOJSON !== 'undefined' && !garita1SLayer) {
         garita1SLayer = L.geoJSON(LAYER_1S_GARITA_GEOJSON, {
-            style: {
-                color: '#ff9800', // ORANGE
-                weight: 5,
-                opacity: 0.9,
-                lineCap: 'round'
-            }
+            style: { color: '#00bcd4', weight: 5, opacity: 0.9, lineCap: 'round' } // Cyan for Franco
         });
-
-        garita1SLayer.bindPopup(`
-            <div style="font-family:'Rajdhani',sans-serif;">
-                <strong style="color:#00bcd4; font-size:1.1em;">Ruta.Franco</strong><br>
-                <span style="font-size:0.9em; color:#ccc;">Tramo 1 + Recorrido Petral</span>
-            </div>
-        `, { className: 'custom-popup-dark' });
+        garita1SLayer.bindPopup('<strong style="color:#00bcd4;">Ruta.Franco</strong><br>Tramo 1 + Recorrido Petral');
     }
 
     if (typeof LAYER_1S_GARITA_POINTS !== 'undefined' && !garita1SPointsLayer) {
         garita1SPointsLayer = L.layerGroup();
         LAYER_1S_GARITA_POINTS.forEach(point => {
-            const marker = L.circleMarker(point.coords, {
-                radius: 4,
-                color: '#ff9800',
-                fillColor: '#fff',
-                fillOpacity: 1,
-                weight: 2
-            });
-
-            // Etiqueta permanente con Altitud y Pendiente (Estilo Ruta Verde)
+            const marker = L.circleMarker(point.coords, { radius: 4, color: '#00bcd4', fillColor: '#fff', fillOpacity: 1, weight: 2 });
             marker.bindTooltip(`
                 <div style="text-align:center;">
-                    <span style="color:#ff9800; font-weight:bold;">${point.name}</span><br>
+                    <span style="color:#00bcd4; font-weight:bold;">${point.name}</span><br>
                     <span style="color:#fff;">Alt: ${point.alt}m</span><br>
-                    <span style="color:#00bcd4;">Pend: ${point.slope}%</span>
+                    <span style="color:#ffeb3b;">Pend: ${point.slope}%</span>
                 </div>
-            `, {
-                permanent: true,
-                direction: 'top',
-                className: 'elev-label-container',
-                offset: [0, -10]
-            });
-
+            `, { permanent: true, direction: 'top', className: 'elev-label-container', offset: [0, -10] });
             garita1SPointsLayer.addLayer(marker);
+        });
+    }
+}
+
+// 1S.TRANQUERA.2 (Ruta Original)
+let tranquera2Layer = null;
+let tranquera2PointsLayer = null;
+
+function renderTranquera2() {
+    if (typeof LAYER_1S_TRANQUERA_2_GEOJSON !== 'undefined' && !tranquera2Layer) {
+        tranquera2Layer = L.geoJSON(LAYER_1S_TRANQUERA_2_GEOJSON, {
+            style: { color: '#1a73e8', weight: 4, opacity: 0.7, lineCap: 'round', dashArray: '10, 5' } // Blue Dashed
+        });
+        tranquera2Layer.bindPopup('<strong style="color:#1a73e8;">Ruta 1S.Tranquera.2</strong><br>Oeste Original');
+    }
+
+    if (typeof LAYER_1S_TRANQUERA_2_POINTS !== 'undefined' && !tranquera2PointsLayer) {
+        tranquera2PointsLayer = L.layerGroup();
+        LAYER_1S_TRANQUERA_2_POINTS.forEach(point => {
+            const marker = L.circleMarker(point.coords, { radius: 3, color: '#1a73e8', fillColor: '#fff', fillOpacity: 0.8, weight: 1 });
+            marker.bindTooltip(`
+                <div style="text-align:center;">
+                    <span style="color:#1a73e8; font-weight:bold;">${point.name}</span><br>
+                    <span style="color:#fff;">Alt: ${point.alt}m</span>
+                </div>
+            `, { permanent: true, direction: 'top', className: 'elev-label-container', offset: [0, -10] });
+            tranquera2PointsLayer.addLayer(marker);
         });
     }
 }
@@ -2865,14 +2868,27 @@ function toggleGarita1SLabels() {
     const el = document.getElementById('toggle-garita-1s-labels');
     if (!el) return;
     const show = el.checked;
-
     if (!garita1SLayer) renderGarita1S();
+    if (show && garita1SPointsLayer) map.addLayer(garita1SPointsLayer);
+    else if (garita1SPointsLayer) map.removeLayer(garita1SPointsLayer);
+}
 
-    if (show && garita1SPointsLayer) {
-        map.addLayer(garita1SPointsLayer);
-    } else if (garita1SPointsLayer) {
-        map.removeLayer(garita1SPointsLayer);
-    }
+function toggleTranquera2() {
+    const el = document.getElementById('toggle-tranquera-2');
+    if (!el) return;
+    const show = el.checked;
+    if (!tranquera2Layer) renderTranquera2();
+    if (show && tranquera2Layer) map.addLayer(tranquera2Layer);
+    else if (tranquera2Layer) map.removeLayer(tranquera2Layer);
+}
+
+function toggleTranquera2Labels() {
+    const el = document.getElementById('toggle-tranquera-2-labels');
+    if (!el) return;
+    const show = el.checked;
+    if (!tranquera2Layer) renderTranquera2();
+    if (show && tranquera2PointsLayer) map.addLayer(tranquera2PointsLayer);
+    else if (tranquera2PointsLayer) map.removeLayer(tranquera2PointsLayer);
 }
 
 // --- UI UTILS ---
