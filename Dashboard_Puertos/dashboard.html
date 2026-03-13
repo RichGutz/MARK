@@ -19,6 +19,88 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css?v=2.1">
+    <style>
+        /* Lightbox/Modal Style */
+        .media-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content-wrapper {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .media-modal img {
+            max-width: 100%;
+            max-height: 80vh;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: #fff;
+            font-size: 30px;
+            cursor: pointer;
+            font-family: 'Orbitron';
+        }
+        .modal-title {
+            color: #ccc;
+            margin-top: 15px;
+            font-family: 'Rajdhani';
+            font-size: 14px;
+        }
+
+        /* Thumbnail Marker Style */
+        .thumb-marker-container {
+            border: 2px solid #e91e63;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            background: #000;
+            transition: transform 0.2s, z-index 0.2s;
+        }
+        .thumb-marker-container:hover {
+            transform: scale(2.5);
+            z-index: 1000 !important;
+            border-color: #fff;
+        }
+        .thumb-marker-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        #modal-title {
+            color: #e91e63;
+            font-family: 'Rajdhani';
+            margin-top: 15px;
+            font-size: 1.2em;
+            letter-spacing: 1px;
+        }
+        /* Custom Pin Animation */
+        .custom-div-icon div {
+            transition: transform 0.2s ease-in-out;
+        }
+        .custom-div-icon div:hover {
+            transform: scale(1.2);
+            z-index: 1000;
+        }
+    </style>
 </head>
 
 <body>
@@ -97,6 +179,11 @@
                     style="flex:1; font-size:9px; padding:4px 0; color:#ffc107; border-color:#ffc107;"
                     onclick="toggleRecording()">
                     ⏺ GRABAR
+                </button>
+                <button id="btn-update-photos" class="btn-control"
+                    style="flex:1; font-size:9px; padding:4px 0; color:#03a9f4; border-color:#03a9f4;"
+                    onclick="triggerPhotoUpdate()">
+                    🔄 ACTUALIZAR LINKS
                 </button>
             </div>
         </div>
@@ -280,6 +367,8 @@
                     <label class="toggle-control"><input type="checkbox" id="toggle-purple-route" onchange="togglePurpleRoute()"><span class="toggle-text" style="color: #9c27b0;">Morada</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-green-route" onchange="toggleGreenRoute()"><span class="toggle-text" style="color: #00ff00;">Verde</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-green-route-labels" onchange="toggleGreenRouteLabels()"><span class="toggle-text" style="font-size: 9px;">Etiq. Verde</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-media-pines" onchange="toggleMediaPines()"><span class="toggle-text" style="color: #e91e63; font-weight: bold;">📍 Album Fotos</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-media-thumbnails" onchange="toggleMediaThumbnails()"><span class="toggle-text" style="color: #e91e63; font-size: 9px;">🖼️ Ver Miniaturas</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-tranquera-2" onchange="toggleTranquera2()"><span class="toggle-text" style="color: #1a73e8;">1S.Tranquera.2</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-tranquera-2-labels" onchange="toggleTranquera2Labels()"><span class="toggle-text" style="font-size: 8px;">Etiquetas Tranquera</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-garita-1s" onchange="toggleGarita1S()"><span class="toggle-text" style="color: #00bcd4;">Ruta.Franco</span></label>
@@ -347,9 +436,19 @@
     <script src="layer_sunarp_3.js"></script>
     <script src="layer_1S_Garita.js"></script>
     <script src="port_layout_simulation.js"></script>
+    <script src="layer_media_data.js"></script>
+
+    <!-- Media Modal -->
+    <div id="media-modal" class="media-modal" onclick="closeLightbox()">
+        <div class="modal-content-wrapper" onclick="event.stopPropagation()">
+            <span class="modal-close" onclick="closeLightbox()">&times;</span>
+            <img id="modal-img" src="" alt="Media Full View">
+            <div id="modal-title"></div>
+        </div>
+    </div>
 
     <!-- App Logic -->
-    <script src="script.js?v=11.22"></script>
+    <script src="script.js?v=11.23"></script>
 </body>
 
 </html>
