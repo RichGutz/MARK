@@ -8,7 +8,8 @@ import subprocess
 import matplotlib.pyplot as plt
 
 # --- Paths ---
-KML_FILE = r"c:\Users\rguti\Petral.MARK\Dashboard_Puertos\Tramo1_Final_Consolidado_V2.kml"
+KML_FILE_1 = r"c:\Users\rguti\Petral.MARK\Dashboard_Puertos\Tramo1_Final_Consolidado_V2.kml"
+KML_FILE_2 = r"c:\Users\rguti\Petral.MARK\Dashboard_Puertos\Imagenes.Rutas.Viaje\RECORRIDO PETRAL.kml"
 OUTPUT_MD = r"c:\Users\rguti\Petral.MARK\Dashboard_Puertos\Tramo1_Reporte_Coordenadas.md"
 OUTPUT_HTML = r"c:\Users\rguti\Petral.MARK\Dashboard_Puertos\Tramo1_Reporte_Coordenadas.html"
 OUTPUT_PDF = r"c:\Users\rguti\Petral.MARK\Dashboard_Puertos\Tramo1_Reporte_Coordenadas.pdf"
@@ -28,6 +29,20 @@ def haversine(lat1, lon1, lat2, lon2):
     a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
 
+def parse_kml_coords(filename):
+    with open(filename, "r", encoding="utf-8") as f:
+        content = f.read()
+    coords_matches = re.findall(r'<coordinates>(.*?)</coordinates>', content, re.DOTALL)
+    full_path = []
+    for match in coords_matches:
+        raw_coords = match.strip().split()
+        for c in raw_coords:
+            parts = c.split(',')
+            if len(parts) >= 2:
+                # [lon, lat, alt] -> [lat, lon]
+                full_path.append([float(parts[1]), float(parts[0])])
+    return full_path
+
 def get_elevations(coords, batch_size=100):
     elevations = []
     for i in range(0, len(coords), batch_size):
@@ -46,24 +61,37 @@ def get_elevations(coords, batch_size=100):
     return elevations
 
 def generate_report():
-    print(f"📖 Leyendo KML: {KML_FILE}")
-    with open(KML_FILE, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    # Extraer coordenadas del LineString
-    match = re.search(r'<LineString>.*?<coordinates>(.*?)</coordinates>', content, re.DOTALL)
-    if not match:
-        print("❌ Error: No se encontró LineString en el KML.")
+    print(f"📖 Cargando rutas...")
+    path1 = parse_kml_coords(KML_FILE_1)
+    path2 = parse_kml_coords(KML_FILE_2)
+    
+    if not path1 or not path2:
+        print("❌ Error al cargar coordenadas de los KML.")
         return
 
-    raw_coords = match.group(1).strip().split()
-    path = []
-    for c in raw_coords:
-        parts = c.split(',')
-        # [lon, lat, alt] -> [lat, lon]
-        path.append([float(parts[1]), float(parts[0])])
-
-    print(f"✅ Se obtuvieron {len(path)} puntos de la ruta.")
+    # Buscar intersección (punto más cercano)
+    # Buscamos en la segunda mitad de Path 1 para ir del este hacia el oeste
+    min_dist = float('inf')
+    best_idx1 = -1
+    best_idx2 = -1
+    
+    print(f"🔄 Buscando punto de unión entre {len(path1)} y {len(path2)} nodos...")
+    search_start = len(path1) // 2
+    for i in range(search_start, len(path1)):
+        p1 = path1[i]
+        for j in range(len(path2)):
+            p2 = path2[j]
+            d = haversine(p1[0], p1[1], p2[0], p2[1])
+            if d < min_dist:
+                min_dist = d
+                best_idx1 = i
+                best_idx2 = j
+    
+    print(f"📍 Punto de unión encontrado a {min_dist:.2f}m.")
+    # Stitching: Path 1 hasta la intersección + Path 2 desde la intersección
+    path = path1[:best_idx1] + path2[best_idx2:]
+    
+    print(f"✅ Ruta híbrida generada con {len(path)} puntos.")
 
     # Interpolación cada 500m
     interpolated = [path[0]]
