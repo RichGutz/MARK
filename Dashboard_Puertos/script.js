@@ -2960,7 +2960,7 @@ function renderMediaLayer() {
                     <strong style="color: #e91e63; font-size: 1.1em;">${item.type === 'video' ? 'VIDEO' : 'FOTO'}</strong><br>
                     <div style="margin: 8px 0; border: 1px solid #444; border-radius: 4px; overflow: hidden; background: #000;">
                         <img src="media_thumbnails/${item.thumb}" style="width: 160px; display: block; cursor: pointer; transition: transform 0.2s;" 
-                             onclick="openLightbox('media_thumbnails/${item.thumb}', '${item.filename}')"
+                             onclick="openLightbox('media_thumbnails/${item.thumb}', '${item.type === 'video' ? 'VIDEO' : 'FOTO'}', '${item.filename}')"
                              onmouseover="this.style.transform='scale(1.05)'" 
                              onmouseout="this.style.transform='scale(1)'">
                     </div>
@@ -2983,18 +2983,82 @@ function toggleMediaPines() {
     else if (mediaLayer) map.removeLayer(mediaLayer);
 }
 
-function openLightbox(src, title) {
+function openLightbox(src, title, filename) {
     const modal = document.getElementById('media-modal');
     const modalImg = document.getElementById('modal-img');
     const modalTitle = document.getElementById('modal-title');
     if (modal && modalImg) {
         modal.style.display = "flex";
-        modalImg.src = src;
-        if (modalTitle) modalTitle.textContent = title;
+        
+        // --- NEW: Cloud Link Support ---
+        // Find if this specific filename has an original_url in the layer data
+        if (typeof LAYER_MEDIA_DATA !== 'undefined' && filename) {
+            const item = LAYER_MEDIA_DATA.find(i => i.filename === filename);
+            if (item && item.original_url) {
+                modalImg.src = item.original_url;
+                console.log("Loading Cloud Image:", item.original_url);
+            } else {
+                modalImg.src = src;
+            }
+        } else {
+            modalImg.src = src;
+        }
+
+        if (modalTitle) modalTitle.textContent = title || filename;
     }
 }
 
 function closeLightbox() {
     const modal = document.getElementById('media-modal');
     if (modal) modal.style.display = "none";
+}
+
+async function triggerPhotoUpdate() {
+    const btn = document.getElementById('btn-update-photos');
+    const originalText = btn.innerHTML;
+    
+    // Safety check for user ID (optional but good practice)
+    const userId = document.getElementById('user-id')?.value || "RG";
+    
+    if (!confirm(`¿Deseas actualizar los links de Google Photos ahora? (${userId})`)) return;
+
+    btn.innerHTML = '⏳ ACTUALIZANDO...';
+    btn.disabled = true;
+    btn.style.backgroundColor = '#444';
+
+    try {
+        // We call the local VPS trigger server (port 5005)
+        // In productio, we use the server IP or a relative path if proxied
+        const VPS_IP = "91.108.125.253";
+        const TOKEN = "MARK_UPDATE_2026";
+        const url = `http://${VPS_IP}:5005/update-photos?token=${TOKEN}&user=${userId}`;
+        
+        console.log("Triggering update at:", url);
+        
+        const response = await fetch(url, { method: 'GET', mode: 'cors' });
+        const result = await response.text();
+
+        if (response.ok) {
+            alert("✅ ¡Éxito! Los links de Google Photos han sido actualizados.\n\nRecarga el Dashboard para aplicar los cambios.");
+            btn.innerHTML = '✅ LISTO';
+            btn.style.borderColor = '#00e676';
+            btn.style.color = '#00e676';
+        } else {
+            throw new Error(result);
+        }
+    } catch (err) {
+        console.error("Error triggering update:", err);
+        alert("❌ Error al conectar con el servidor de actualización.\n\nDetalles: " + err.message);
+        btn.innerHTML = '❌ ERROR';
+        btn.style.borderColor = '#ff4444';
+        btn.style.color = '#ff4444';
+    } finally {
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            btn.style.backgroundColor = '';
+            btn.style.borderColor = '#03a9f4';
+            btn.style.color = '#03a9f4';
+        }, 3000);
+    }
 }
