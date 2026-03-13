@@ -2941,17 +2941,37 @@ function toggleTranquera2Labels() {
 let mediaLayer = null;
 
 function renderMediaLayer() {
-    if (typeof LAYER_MEDIA_DATA !== 'undefined' && !mediaLayer) {
+    const showThumbs = document.getElementById('toggle-media-thumbnails')?.checked;
+
+    if (typeof LAYER_MEDIA_DATA !== 'undefined') {
+        // We always clear and rebuild to switch between PINs and THUMBNAILS
+        if (mediaLayer) {
+            map.removeLayer(mediaLayer);
+        }
         mediaLayer = L.layerGroup();
+        
         LAYER_MEDIA_DATA.forEach(item => {
-            const icon = L.divIcon({
-                className: 'custom-div-icon',
-                html: `<div style="background-color: #e91e63; border: 2px solid white; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px rgba(0,0,0,0.4);">
-                        <span style="font-size: 14px;">${item.type === 'video' ? '🎥' : '📷'}</span>
-                       </div>`,
-                iconSize: [26, 26],
-                iconAnchor: [13, 13]
-            });
+            let icon;
+            if (showThumbs) {
+                // Miniatura en el mapa
+                icon = L.divIcon({
+                    className: 'thumb-marker-container',
+                    html: `<img src="media_thumbnails/${item.thumb}" class="thumb-marker-img">
+                           ${item.type === 'video' ? '<span style="position:absolute; bottom:0; right:0; background:rgba(0,0,0,0.6); font-size:10px; padding:2px;">🎥</span>' : ''}`,
+                    iconSize: [40, 30],
+                    iconAnchor: [20, 15]
+                });
+            } else {
+                // Pin rosa estándar
+                icon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div style="background-color: #e91e63; border: 2px solid white; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px rgba(0,0,0,0.4);">
+                            <span style="font-size: 14px;">${item.type === 'video' ? '🎥' : '📷'}</span>
+                           </div>`,
+                    iconSize: [26, 26],
+                    iconAnchor: [13, 13]
+                });
+            }
 
             const marker = L.marker([item.lat, item.lon], { icon: icon });
             
@@ -2971,6 +2991,11 @@ function renderMediaLayer() {
             marker.bindPopup(popupContent, { maxWidth: 200, className: 'custom-popup-dark' });
             mediaLayer.addLayer(marker);
         });
+
+        // Add back if the main media toggle is active
+        if (document.getElementById('toggle-media-pines')?.checked) {
+            map.addLayer(mediaLayer);
+        }
     }
 }
 
@@ -2978,9 +3003,19 @@ function toggleMediaPines() {
     const el = document.getElementById('toggle-media-pines');
     if (!el) return;
     const show = el.checked;
-    if (!mediaLayer) renderMediaLayer();
-    if (show && mediaLayer) map.addLayer(mediaLayer);
-    else if (mediaLayer) map.removeLayer(mediaLayer);
+    
+    // Si no existe la capa, la renderizamos por primera vez
+    if (!mediaLayer) {
+        renderMediaLayer();
+    } else {
+        if (show) map.addLayer(mediaLayer);
+        else map.removeLayer(mediaLayer);
+    }
+}
+
+function toggleMediaThumbnails() {
+    // Re-render data to switch between PINS/THUMBS
+    renderMediaLayer();
 }
 
 function openLightbox(src, title, filename) {

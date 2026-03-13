@@ -4,7 +4,7 @@ import json
 import os
 
 # --- CONFIGURATION ---
-ALBUM_URL = "https://photos.google.com/album/AF1QipO8RalAlzeiarcMaQj87RAJ5Cn0yZE95hyhno_B"
+ALBUM_URL = "https://photos.app.goo.gl/2cmBXjyz2xcrunwu8"
 JS_DATA_FILE = r"C:\Users\rguti\Petral.MARK\Dashboard_Puertos\layer_media_data.js"
 
 def get_google_photos_links(album_url):

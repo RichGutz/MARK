@@ -58,6 +58,33 @@
             cursor: pointer;
             font-family: 'Orbitron';
         }
+        .modal-title {
+            color: #ccc;
+            margin-top: 15px;
+            font-family: 'Rajdhani';
+            font-size: 14px;
+        }
+
+        /* Thumbnail Marker Style */
+        .thumb-marker-container {
+            border: 2px solid #e91e63;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            background: #000;
+            transition: transform 0.2s, z-index 0.2s;
+        }
+        .thumb-marker-container:hover {
+            transform: scale(2.5);
+            z-index: 1000 !important;
+            border-color: #fff;
+        }
+        .thumb-marker-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
         #modal-title {
             color: #e91e63;
             font-family: 'Rajdhani';
@@ -341,6 +368,7 @@
                     <label class="toggle-control"><input type="checkbox" id="toggle-green-route" onchange="toggleGreenRoute()"><span class="toggle-text" style="color: #00ff00;">Verde</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-green-route-labels" onchange="toggleGreenRouteLabels()"><span class="toggle-text" style="font-size: 9px;">Etiq. Verde</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-media-pines" onchange="toggleMediaPines()"><span class="toggle-text" style="color: #e91e63; font-weight: bold;">📍 Album Fotos</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-media-thumbnails" onchange="toggleMediaThumbnails()"><span class="toggle-text" style="color: #e91e63; font-size: 9px;">🖼️ Ver Miniaturas</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-garita-1s" onchange="toggleGarita1S()"><span class="toggle-text" style="color: #ff9800;">1S.GARITA</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-garita-1s-labels" onchange="toggleGarita1SLabels()"><span class="toggle-text" style="color: #ff9800; font-size:9px;">Et. KM 1S</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-coastal-route" onchange="toggleCoastalRoute()"><span class="toggle-text" style="color: #00bfff;">Costera</span></label>
