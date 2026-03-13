@@ -21,7 +21,7 @@ class TriggerHandler(http.server.BaseHTTPRequestHandler):
                     # Execute the scraper script
                     script_path = os.path.join(os.path.dirname(__file__), "update_google_photos_links.py")
                     print(f"Executing: {script_path}")
-                    result = subprocess.run(["python", script_path], capture_output=True, text=True)
+                    result = subprocess.run(["python3", script_path], capture_output=True, text=True)
                     
                     response = f"✅ Script executed successfully.\n\nOutput:\n{result.stdout}"
                     if result.stderr:
