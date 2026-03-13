@@ -5,7 +5,14 @@ import os
 
 # --- CONFIGURATION ---
 ALBUM_URL = "https://photos.app.goo.gl/2cmBXjyz2xcrunwu8"
-JS_DATA_FILE = r"C:\Users\rguti\Petral.MARK\Dashboard_Puertos\layer_media_data.js"
+
+# Detect if we are on Linux (VPS) or Windows
+if os.name == 'posix':
+    # VPS Path
+    JS_DATA_FILE = "/var/www/html/petral/layer_media_data.js"
+else:
+    # Local PC Path
+    JS_DATA_FILE = os.path.join(os.path.dirname(__file__), "layer_media_data.js")
 
 def get_google_photos_links(album_url):
     """Scrapes a public Google Photos album for image base URLs and filenames."""
@@ -13,7 +20,6 @@ def get_google_photos_links(album_url):
         return {}
     
     try:
-        # Use a session for better consistency
         session = requests.Session()
         session.headers.update({
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -24,19 +30,18 @@ def get_google_photos_links(album_url):
             print(f"Error fetching album: {response.status_code}")
             return {}
         
-        # Google Photos embeds media data in a large JS structure (AF_initDataCallback)
         html = response.text
         
-        # Regex to find patterns like ["https://lh3.googleusercontent.com/pw/...","filename.jpg"]
-        # This is a heuristic based on Google's internal JSON structure in public albums
-        combined_pattern = re.compile(r'\"(https://lh3\.googleusercontent\.com/pw/[^\"]+)\".*?\"([^\"]+\.(?:jpg|jpeg|png|mov|mp4|heic))\"', re.IGNORECASE)
-        matches = combined_pattern.findall(html)
+        # Improved Regex: Look for URLs and filenames in a more flexible way
+        # Google Photos structure is complex, we look for LH3 URLs followed by filenames in the same block
+        pattern = re.compile(r'\"(https://lh3\.googleusercontent\.com/pw/[^\"]+)\".*?\"([^\"]+\.(?:jpg|jpeg|png|mov|mp4|heic))\"', re.IGNORECASE | re.DOTALL)
+        matches = pattern.findall(html)
         
         mapping = {}
         for url, name in matches:
-            # We want the 'Base' URL (no size suffix)
-            # Google often appends =w... or -no. We keep it as is or clean it.
-            clean_url = url.split('=')[0] # Remove size constraints if any
+            # Clean URL to get the base high-quality version
+            # Removing =w... and keeping only up to the base
+            clean_url = url.split('=')[0]
             mapping[name] = clean_url
             
         return mapping
