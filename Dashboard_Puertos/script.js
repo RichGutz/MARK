@@ -3018,8 +3018,44 @@ function toggleIC822Labels() {
 function renderTrackingViaje() {
     if (typeof LAYER_TRACKING !== 'undefined' && !trackingViajeLayer) {
         trackingViajeLayer = L.layerGroup();
-        const latlngs = LAYER_TRACKING.map(p => [p.latitude, p.longitude]);
-        const polyline = L.polyline(latlngs, {
+        
+        const validLatLngs = [];
+        let lastValidPoint = null;
+
+        // Haversine distance helper function
+        function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the earth in km
+            const dLat = (lat2 - lat1) * (Math.PI / 180);
+            const dLon = (lon2 - lon1) * (Math.PI / 180);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c; 
+        }
+
+        LAYER_TRACKING.forEach(p => {
+            const currentPoint = [p.latitude, p.longitude];
+            if (!lastValidPoint) {
+                validLatLngs.push(currentPoint);
+                lastValidPoint = currentPoint;
+            } else {
+                const distanceKm = getDistanceFromLatLonInKm(
+                    lastValidPoint[0], lastValidPoint[1],
+                    currentPoint[0], currentPoint[1]
+                );
+                
+                // If the jump is less than 5km, it's valid. Otherwise, discard it as GPS noise.
+                if (distanceKm < 5.0) {
+                    validLatLngs.push(currentPoint);
+                    lastValidPoint = currentPoint;
+                } else {
+                    console.warn(`[Tracking Filter] Ignored anomalous GPS point at lat/lng: ${currentPoint[0]}, ${currentPoint[1]}. Jump distance: ${distanceKm.toFixed(2)} km`);
+                }
+            }
+        });
+
+        const polyline = L.polyline(validLatLngs, {
             color: '#ffc107',
             weight: 3,
             opacity: 0.8,
@@ -3027,9 +3063,9 @@ function renderTrackingViaje() {
         });
         polyline.addTo(trackingViajeLayer);
         
-        if (latlngs.length > 0) {
-            L.circleMarker(latlngs[0], { radius: 5, color: '#00ff00', fillColor: '#00ff00', fillOpacity: 1 }).addTo(trackingViajeLayer).bindPopup("Inicio Tracking Histórico");
-            L.circleMarker(latlngs[latlngs.length - 1], { radius: 5, color: '#f44336', fillColor: '#f44336', fillOpacity: 1 }).addTo(trackingViajeLayer).bindPopup("Fin Tracking Histórico");
+        if (validLatLngs.length > 0) {
+            L.circleMarker(validLatLngs[0], { radius: 5, color: '#00ff00', fillColor: '#00ff00', fillOpacity: 1 }).addTo(trackingViajeLayer).bindPopup("Inicio Tracking Histórico");
+            L.circleMarker(validLatLngs[validLatLngs.length - 1], { radius: 5, color: '#f44336', fillColor: '#f44336', fillOpacity: 1 }).addTo(trackingViajeLayer).bindPopup("Fin Tracking Histórico");
         }
     }
 }
