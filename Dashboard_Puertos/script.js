@@ -2924,33 +2924,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ========================================
-// RESTORED LAYERS: IC-821 & TRACKING VIAJE
+// FULL ROUTE LAYERS: IC-821 & IC-822
 // ========================================
 
 let ic821Layer = null;
+let ic821PointsLayer = null;
+let ic822Layer = null;
+let ic822PointsLayer = null;
 let trackingViajeLayer = null;
 
-function renderIC821() {
-    if (typeof INFRA_ROADS !== 'undefined' && !ic821Layer) {
-        const ic821Feature = INFRA_ROADS.features.find(f => f.properties && f.properties.id === 'IC-821');
-        if (ic821Feature) {
-            ic821Layer = L.geoJSON(ic821Feature, {
-                style: {
-                    color: '#9c27b0',
-                    weight: 6,
-                    opacity: 0.9,
-                    lineCap: 'round'
-                }
-            });
-            ic821Layer.bindPopup(`
-                <div style="font-family:'Rajdhani',sans-serif;">
-                    <strong style="color:#9c27b0; font-size:1.1em;">Ruta IC-821</strong><br>
-                    <span style="font-size:0.9em; color:#ccc;">Marcona &rarr; San Nicolás</span>
-                    <hr style="margin:4px 0; border-color:#555;">
-                    <span style="font-size:0.8em; color:#aaa;">Ruta de Desvío / Alternativa</span>
+function renderIC821Full() {
+    if (typeof LAYER_IC821_FULL_GEOJSON !== 'undefined' && !ic821Layer) {
+        ic821Layer = L.geoJSON(LAYER_IC821_FULL_GEOJSON, {
+            style: { color: '#9c27b0', weight: 6, opacity: 0.9, lineCap: 'round' }
+        });
+        ic821Layer.bindPopup('<strong style="color:#9c27b0;">Ruta IC-821 (Detalle Completo)</strong><br>Fuente: Shapefile Local');
+    }
+    if (typeof LAYER_IC821_FULL_POINTS !== 'undefined' && !ic821PointsLayer) {
+        ic821PointsLayer = L.layerGroup();
+        LAYER_IC821_FULL_POINTS.forEach(point => {
+            const marker = L.circleMarker(point.coords, { radius: 3, color: '#9c27b0', fillColor: '#fff', fillOpacity: 1, weight: 2 });
+            marker.bindTooltip(`
+                <div style="text-align:center;">
+                    <span style="color:#9c27b0; font-weight:bold;">${point.name}</span><br>
+                    <span style="color:#fff;">Alt: ${point.alt}m</span><br>
+                    <span style="color:#ffeb3b;">Pend: ${point.slope}%</span>
                 </div>
-            `, { className: 'custom-popup-dark' });
-        }
+            `, { permanent: true, direction: 'top', className: 'elev-label-container', offset: [0, -5] });
+            ic821PointsLayer.addLayer(marker);
+        });
+    }
+}
+
+function renderIC822Full() {
+    if (typeof LAYER_IC822_FULL_GEOJSON !== 'undefined' && !ic822Layer) {
+        ic822Layer = L.geoJSON(LAYER_IC822_FULL_GEOJSON, {
+            style: { color: '#1a73e8', weight: 6, opacity: 0.9, lineCap: 'round' }
+        });
+        ic822Layer.bindPopup('<strong style="color:#1a73e8;">Ruta IC-822</strong><br>Fuente: Shapefile Local');
+    }
+    if (typeof LAYER_IC822_FULL_POINTS !== 'undefined' && !ic822PointsLayer) {
+        ic822PointsLayer = L.layerGroup();
+        LAYER_IC822_FULL_POINTS.forEach(point => {
+            const marker = L.circleMarker(point.coords, { radius: 3, color: '#1a73e8', fillColor: '#fff', fillOpacity: 1, weight: 2 });
+            marker.bindTooltip(`
+                <div style="text-align:center;">
+                    <span style="color:#1a73e8; font-weight:bold;">${point.name}</span><br>
+                    <span style="color:#fff;">Alt: ${point.alt}m</span><br>
+                    <span style="color:#ffeb3b;">Pend: ${point.slope}%</span>
+                </div>
+            `, { permanent: true, direction: 'top', className: 'elev-label-container', offset: [0, -5] });
+            ic822PointsLayer.addLayer(marker);
+        });
     }
 }
 
@@ -2958,11 +2983,27 @@ function toggleIC821() {
     const el = document.getElementById('toggle-ic821');
     if (!el) return;
     const show = el.checked;
-    if (!ic821Layer) renderIC821();
-    if (show && ic821Layer) {
-        map.addLayer(ic821Layer);
-    } else if (ic821Layer) {
-        map.removeLayer(ic821Layer);
+    if (!ic821Layer) renderIC821Full();
+    if (show) {
+        if (ic821Layer) map.addLayer(ic821Layer);
+        if (ic821PointsLayer) map.addLayer(ic821PointsLayer);
+    } else {
+        if (ic821Layer) map.removeLayer(ic821Layer);
+        if (ic821PointsLayer) map.removeLayer(ic821PointsLayer);
+    }
+}
+
+function toggleIC822() {
+    const el = document.getElementById('toggle-ic822');
+    if (!el) return;
+    const show = el.checked;
+    if (!ic822Layer) renderIC822Full();
+    if (show) {
+        if (ic822Layer) map.addLayer(ic822Layer);
+        if (ic822PointsLayer) map.addLayer(ic822PointsLayer);
+    } else {
+        if (ic822Layer) map.removeLayer(ic822Layer);
+        if (ic822PointsLayer) map.removeLayer(ic822PointsLayer);
     }
 }
 
@@ -2997,12 +3038,14 @@ function toggleTrackingViaje() {
     }
 }
 
-// Init Restoration
+// Init Final Layers
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
-        renderIC821();
+        renderIC821Full();
+        renderIC822Full();
         renderTrackingViaje();
         toggleIC821();
+        toggleIC822();
         toggleTrackingViaje();
     }, 2000);
 });
