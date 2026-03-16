@@ -2921,3 +2921,89 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }, 2000);
 });
+
+
+// ========================================
+// RESTORED LAYERS: IC-821 & TRACKING VIAJE
+// ========================================
+
+let ic821Layer = null;
+let trackingViajeLayer = null;
+
+function renderIC821() {
+    if (typeof INFRA_ROADS !== 'undefined' && !ic821Layer) {
+        const ic821Feature = INFRA_ROADS.features.find(f => f.properties && f.properties.id === 'IC-821');
+        if (ic821Feature) {
+            ic821Layer = L.geoJSON(ic821Feature, {
+                style: {
+                    color: '#9c27b0',
+                    weight: 6,
+                    opacity: 0.9,
+                    lineCap: 'round'
+                }
+            });
+            ic821Layer.bindPopup(`
+                <div style="font-family:'Rajdhani',sans-serif;">
+                    <strong style="color:#9c27b0; font-size:1.1em;">Ruta IC-821</strong><br>
+                    <span style="font-size:0.9em; color:#ccc;">Marcona &rarr; San Nicolás</span>
+                    <hr style="margin:4px 0; border-color:#555;">
+                    <span style="font-size:0.8em; color:#aaa;">Ruta de Desvío / Alternativa</span>
+                </div>
+            `, { className: 'custom-popup-dark' });
+        }
+    }
+}
+
+function toggleIC821() {
+    const el = document.getElementById('toggle-ic821');
+    if (!el) return;
+    const show = el.checked;
+    if (!ic821Layer) renderIC821();
+    if (show && ic821Layer) {
+        map.addLayer(ic821Layer);
+    } else if (ic821Layer) {
+        map.removeLayer(ic821Layer);
+    }
+}
+
+function renderTrackingViaje() {
+    if (typeof LAYER_TRACKING !== 'undefined' && !trackingViajeLayer) {
+        trackingViajeLayer = L.layerGroup();
+        const latlngs = LAYER_TRACKING.map(p => [p.latitude, p.longitude]);
+        const polyline = L.polyline(latlngs, {
+            color: '#ffc107',
+            weight: 3,
+            opacity: 0.8,
+            dashArray: '5, 10'
+        });
+        polyline.addTo(trackingViajeLayer);
+        
+        if (latlngs.length > 0) {
+            L.circleMarker(latlngs[0], { radius: 5, color: '#00ff00', fillColor: '#00ff00', fillOpacity: 1 }).addTo(trackingViajeLayer).bindPopup("Inicio Tracking Histórico");
+            L.circleMarker(latlngs[latlngs.length - 1], { radius: 5, color: '#f44336', fillColor: '#f44336', fillOpacity: 1 }).addTo(trackingViajeLayer).bindPopup("Fin Tracking Histórico");
+        }
+    }
+}
+
+function toggleTrackingViaje() {
+    const el = document.getElementById('toggle-tracking-viaje');
+    if (!el) return;
+    const show = el.checked;
+    if (!trackingViajeLayer) renderTrackingViaje();
+    if (show && trackingViajeLayer) {
+        map.addLayer(trackingViajeLayer);
+    } else if (trackingViajeLayer) {
+        map.removeLayer(trackingViajeLayer);
+    }
+}
+
+// Init Restoration
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        renderIC821();
+        renderTrackingViaje();
+        toggleIC821();
+        toggleTrackingViaje();
+    }, 2000);
+});
+
