@@ -62,3 +62,12 @@ task.md
 prompt.md
 gemini_work_log.txt
 scraper_log.txt
+
+# Shapefiles and GIS data (Too large for GitHub)
+red.vial.vecinal/
+*.shp
+*.dbf
+*.shx
+*.prj
+*.qmd
+*.cpg

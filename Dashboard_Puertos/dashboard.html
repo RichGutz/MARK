@@ -237,7 +237,7 @@
 
         <!-- Unified Dashboard Controls Panel (Vertical 3-Column Layout) -->
         <div id="layer-controls-panel" class="glass-panel"
-            style="position: absolute; top: 220px; left: 20px; width: 340px; z-index: 1100; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+            style="position: absolute; top: 220px; left: 20px; width: 500px; z-index: 1100; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
             
             <div class="panel-header-toggle" onclick="togglePanel('layer-controls-panel')">
                 <span class="control-label"
@@ -247,8 +247,8 @@
                 <button class="btn-minimize">−</button>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-items: start;">
-                <!-- Column 1: Perímetros -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; align-items: start;">
+                <!-- Column 1: Perímetros & Landmarks -->
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <span style="font-size: 8px; color: #546e7a; font-weight: 700; margin-bottom: 2px;">PERÍMETROS</span>
                     <label class="toggle-control"><input type="checkbox" id="toggle-shougang" onchange="toggleShougang()"><span class="toggle-text">Shougang</span></label>
@@ -258,48 +258,48 @@
                     <label class="toggle-control"><input type="checkbox" id="toggle-amortiguamiento" onchange="toggleAmortiguamiento()"><span class="toggle-text">Zona Amort.</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-area-acuatica" onchange="toggleAreaAcuatica()"><span class="toggle-text">DICAPI Acuát.</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-area-riberena" onchange="toggleAreaRiberena()"><span class="toggle-text">DICAPI Riber.</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-sunarp-1" onchange="toggleSunarp1()"><span class="toggle-text" style="color: #FF5733;">SUNARP 1</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-sunarp-2" onchange="toggleSunarp2()"><span class="toggle-text" style="color: #33FF57;">SUNARP 2</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-sunarp-3" onchange="toggleSunarp3()"><span class="toggle-text" style="color: #3357FF;">SUNARP 3</span></label>
-                </div>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-perimeter" onchange="togglePerimeter()"><span class="toggle-text">Borde P.</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-perimeter-labels" onchange="togglePerimeterLabels()"><span class="toggle-text" style="color: #00bcd4;">Triángulo PETRAL</span></label>
+                    <hr style="border:0; border-top:1px solid rgba(0,0,0,0.05); margin: 2px 0;">
+                    <span style="font-size: 8px; color: #546e7a; font-weight: 700; margin: 2px 0;">ETIQUETAS</span>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-port-labels" onchange="togglePortLabels()"><span class="toggle-text">Et. Puertos</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-land-labels" onchange="toggleLandLabels()"><span class="toggle-text">Et. Tierra</span></label>
+</div>
 
-                <!-- Column 2: VÍAS & PETRAL -->
+                <!-- Column 2: INFRAESTRUCTURA & VÍAS -->
                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <span style="font-size: 8px; color: #546e7a; font-weight: 700; margin-bottom: 2px;">VÍAS & PETRAL</span>
+                    <span style="font-size: 8px; color: #546e7a; font-weight: 700; margin-bottom: 2px;">INFRAESTRUCTURA</span>
                     <label class="toggle-control"><input type="checkbox" id="toggle-railway" onchange="toggleRailway()"><span class="toggle-text">Ferrocarril</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-infra-roads" onchange="toggleInfraRoads()"><span class="toggle-text">PE-1S</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-extra-roads" onchange="toggleExtraRoads()"><span class="toggle-text">PE-30</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-ferrocarril-ext" onchange="toggleFerrocarrilExt()"><span class="toggle-text" style="color: #9c27b0;">Ferro EXT</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-ferrocarril-ext-labels" onchange="toggleFerrocarrilExtLabels()"><span class="toggle-text" style="color: #9c27b0; font-size:9px;">Etiq. EXT</span></label>
                     <hr style="border:0; border-top:1px solid rgba(0,0,0,0.05); margin: 2px 0;">
-                    <label class="toggle-control"><input type="checkbox" id="toggle-perimeter" onchange="togglePerimeter()"><span class="toggle-text">Borde P.</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-perimeter-labels" onchange="togglePerimeterLabels()"><span class="toggle-text">Et. Borde</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-port-labels" onchange="togglePortLabels()"><span class="toggle-text">Et. Puertos</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-land-labels" onchange="toggleLandLabels()"><span class="toggle-text">Et. Tierra</span></label>
-                </div>
-
-                <!-- Column 3: RUTAS -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <span style="font-size: 8px; color: #546e7a; font-weight: 700; margin-bottom: 2px;">RUTAS</span>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-red-route" onchange="toggleRedRoute()"><span class="toggle-text" style="color: #f44336;">Roja</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-purple-route" onchange="togglePurpleRoute()"><span class="toggle-text" style="color: #9c27b0;">Morada</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-green-route" onchange="toggleGreenRoute()"><span class="toggle-text" style="color: #00ff00;">Verde</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-green-route-labels" onchange="toggleGreenRouteLabels()"><span class="toggle-text" style="font-size: 9px;">Etiq. Verde</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-tranquera-2" onchange="toggleTranquera2()"><span class="toggle-text" style="color: #1a73e8;">1S.Tranquera.2</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-tranquera-2-labels" onchange="toggleTranquera2Labels()"><span class="toggle-text" style="font-size: 8px;">Etiquetas Tranquera</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-garita-1s" onchange="toggleGarita1S()"><span class="toggle-text" style="color: #00bcd4;">Ruta.Franco</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-garita-1s-labels" onchange="toggleGarita1SLabels()"><span class="toggle-text" style="font-size: 8px;">Etiquetas Franco</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-coastal-route" onchange="toggleCoastalRoute()"><span class="toggle-text" style="color: #00bfff;">Costera</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-coastal-route-labels" onchange="toggleCoastalRouteLabels()"><span class="toggle-text" style="font-size: 9px;">Et. Costera</span></label>
+                    <span style="font-size: 8px; color: #546e7a; font-weight: 700; margin: 2px 0;">SUNARP & SERV.</span>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-sunarp-1" onchange="toggleSunarp1()"><span class="toggle-text" style="color: #FF5733;">SUNARP 1</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-sunarp-2" onchange="toggleSunarp2()"><span class="toggle-text" style="color: #33FF57;">SUNARP 2</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-sunarp-3" onchange="toggleSunarp3()"><span class="toggle-text" style="color: #3357FF;">SUNARP 3</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-servidumbre" onchange="toggleServidumbre()"><span class="toggle-text" style="color: #ff0000;">SERVID.</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-servidumbre-labels" onchange="toggleServidumbreLabels()"><span class="toggle-text" style="color: #ff0000; font-size: 9px;">Et. SERV.</span></label>
-                    <hr style="border:0; border-top:1px solid rgba(0,0,0,0.05); margin: 2px 0;">
-                    <label class="toggle-control"><input type="checkbox" id="toggle-media-pines" onchange="toggleMediaPines()"><span class="toggle-text" style="color: #e91e63;">Album Fotos</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-media-thumbnails" onchange="toggleMediaThumbnails()"><span class="toggle-text" style="color: #e91e63; font-size: 9px;">Ver Miniaturas</span></label>
-                    <hr style="border:0; border-top:1px solid rgba(0,0,0,0.05); margin: 2px 0;">
+                </div>
+
+                <!-- Column 3: RUTAS & MEDIA -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="font-size: 8px; color: #546e7a; font-weight: 700; margin-bottom: 2px;">RUTAS & MEDIA</span>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-garita-1s" onchange="toggleGarita1S()"><span class="toggle-text" style="color: #00bcd4;">R. Franco</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-garita-1s-labels" onchange="toggleGarita1SLabels()"><span class="toggle-text" style="font-size: 8px;">Et. Franco</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-coastal-route" onchange="toggleCoastalRoute()"><span class="toggle-text" style="color: #00bfff;">Costera</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-coastal-route-labels" onchange="toggleCoastalRouteLabels()"><span class="toggle-text" style="font-size: 8px;">Et. Costera</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-tranquera-2" onchange="toggleTranquera2()"><span class="toggle-text" style="color: #1a73e8;">Tranquera 2</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-tranquera-2-labels" onchange="toggleTranquera2Labels()"><span class="toggle-text" style="font-size: 8px;">Et. Tranquera</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-ic821" onchange="toggleIC821()"><span class="toggle-text" style="color: #9c27b0;">IC 821</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-ic821-labels" onchange="toggleIC821Labels()"><span class="toggle-text" style="color: #9c27b0; font-size: 8px;">Et. IC 821</span></label>
                     <label class="toggle-control"><input type="checkbox" id="toggle-ic822" onchange="toggleIC822()"><span class="toggle-text" style="color: #1a73e8;">IC 822</span></label>
-                    <label class="toggle-control"><input type="checkbox" id="toggle-tracking-viaje" onchange="toggleTrackingViaje()"><span class="toggle-text" style="color: #ffc107;">Tracking Viaje</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-ic822-labels" onchange="toggleIC822Labels()"><span class="toggle-text" style="color: #1a73e8; font-size: 8px;">Et. IC 822</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-alternative-route" onchange="toggleAlternativeRoute()"><span class="toggle-text" style="color: #00bcd4;">Ruta Alterna</span></label>
+                    <hr style="border:0; border-top:1px solid rgba(0,0,0,0.05); margin: 2px 0;">
+                    <label class="toggle-control"><input type="checkbox" id="toggle-tracking-viaje" onchange="toggleTrackingViaje()"><span class="toggle-text" style="color: #ffc107;">Tracking</span></label>
+                    <label class="toggle-control"><input type="checkbox" id="toggle-media-pines" onchange="toggleMediaPines()"><span class="toggle-text" style="color: #e91e63;">Fotos</span></label>
                 </div>
             </div>
 
@@ -354,9 +354,11 @@
     <script src="layer_red_route.js"></script>
     <script src="layer_purple_route.js"></script>
     <script src="landmark_intersection.js"></script>
+    <script src="alternative_route.js"></script>
     <script src="new_green_route.js?v=2"></script>
     <script src="coastal_route.js?v=2"></script>
     <script src="perimeter_sides.js"></script>
+    <script src="layer_1S_Garita.js"></script>
     <script src="layer_ferrocarril_ext.js"></script>
     <script src="layer_ferrocarril_ext_labels.js"></script>
     <script src="layer_sunarp_1.js"></script>

@@ -2984,13 +2984,17 @@ function toggleIC821() {
     if (!el) return;
     const show = el.checked;
     if (!ic821Layer) renderIC821Full();
-    if (show) {
-        if (ic821Layer) map.addLayer(ic821Layer);
-        if (ic821PointsLayer) map.addLayer(ic821PointsLayer);
-    } else {
-        if (ic821Layer) map.removeLayer(ic821Layer);
-        if (ic821PointsLayer) map.removeLayer(ic821PointsLayer);
-    }
+    if (show && ic821Layer) map.addLayer(ic821Layer);
+    else if (ic821Layer) map.removeLayer(ic821Layer);
+}
+
+function toggleIC821Labels() {
+    const el = document.getElementById('toggle-ic821-labels');
+    if (!el) return;
+    const show = el.checked;
+    if (!ic821PointsLayer) renderIC821Full();
+    if (show && ic821PointsLayer) map.addLayer(ic821PointsLayer);
+    else if (ic821PointsLayer) map.removeLayer(ic821PointsLayer);
 }
 
 function toggleIC822() {
@@ -2998,13 +3002,17 @@ function toggleIC822() {
     if (!el) return;
     const show = el.checked;
     if (!ic822Layer) renderIC822Full();
-    if (show) {
-        if (ic822Layer) map.addLayer(ic822Layer);
-        if (ic822PointsLayer) map.addLayer(ic822PointsLayer);
-    } else {
-        if (ic822Layer) map.removeLayer(ic822Layer);
-        if (ic822PointsLayer) map.removeLayer(ic822PointsLayer);
-    }
+    if (show && ic822Layer) map.addLayer(ic822Layer);
+    else if (ic822Layer) map.removeLayer(ic822Layer);
+}
+
+function toggleIC822Labels() {
+    const el = document.getElementById('toggle-ic822-labels');
+    if (!el) return;
+    const show = el.checked;
+    if (!ic822PointsLayer) renderIC822Full();
+    if (show && ic822PointsLayer) map.addLayer(ic822PointsLayer);
+    else if (ic822PointsLayer) map.removeLayer(ic822PointsLayer);
 }
 
 function renderTrackingViaje() {
@@ -3045,7 +3053,9 @@ document.addEventListener('DOMContentLoaded', () => {
         renderIC822Full();
         renderTrackingViaje();
         toggleIC821();
+        toggleIC821Labels();
         toggleIC822();
+        toggleIC822Labels();
         toggleTrackingViaje();
     }, 2000);
 });
