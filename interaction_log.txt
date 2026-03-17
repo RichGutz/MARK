@@ -47,3 +47,4 @@
 
 [2026-03-13 10:51] Implementación de paneles minimizables (ribbons) con animaciones CSS. Se agregó botón de toggle (+/-) y auto-minimizacion tras 5 segundos de carga para mantener la pantalla limpia.
 [2026-03-17 10:15] Implementación de etiquetas automáticas de nombres de vías en rutas OSRM. Se habilitó 'steps=true' en la API y se agregaron marcadores visuales con el nombre de la carretera para tramos mayores a 2km.
+[2026-03-17 10:30] Optimización de lógica de ruteo: Clasificación de rutas por distancia real (OSRM) en orden ascendente y carga paralela de peticiones para mejorar la velocidad de respuesta.

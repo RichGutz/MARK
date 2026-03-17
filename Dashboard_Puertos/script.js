@@ -1580,94 +1580,97 @@ async function calculateAndDrawRoutes(startCoords, destinations) {
     const resultsContainer = document.getElementById('route-results');
     resultsContainer.innerHTML = '';
 
-    // OSRM Public Demo Server (Note: Rate limits apply, use with caution in prod)
+    // 1. Fetch all routes in parallel
     const OSRM_URL = 'https://router.project-osrm.org/route/v1/driving/';
-
-    for (const dest of destinations) {
-        // OSRM expects Lon,Lat
+    const routePromises = destinations.map(async (dest) => {
         const start = `${startCoords[1]},${startCoords[0]}`;
         const end = `${dest.coords[1]},${dest.coords[0]}`;
         const url = `${OSRM_URL}${start};${end}?overview=full&geometries=geojson&steps=true`;
-
+        
         try {
             const response = await fetch(url);
             const data = await response.json();
-
             if (data.code === 'Ok' && data.routes.length > 0) {
-                const route = data.routes[0];
-                const distanceKm = (route.distance / 1000).toFixed(1);
-                const durationH = (route.duration / 3600).toFixed(1); // Hours
-
-                // Draw Polyline
-                const routeLayer = L.geoJSON(route.geometry, {
-                    style: {
-                        color: dest.color,
-                        weight: 4,
-                        opacity: 0.7,
-                        dashArray: '5, 10' // Dashed to look like a proposed route
-                    }
-                }).addTo(map);
-
-                activeRoutes.push(routeLayer);
-
-                // --- Add Road Name Tags ---
-                if (route.legs && route.legs[0].steps) {
-                    const steps = route.legs[0].steps;
-                    const seenRoads = new Set();
-                    
-                    steps.forEach(step => {
-                        const roadName = step.name;
-                        // Avoid duplicates and empty/generic names
-                        if (roadName && roadName !== "" && !seenRoads.has(roadName) && step.distance > 2000) {
-                            seenRoads.add(roadName);
-                            
-                            // Use step location (OSRM returns [Lon, Lat])
-                            const pos = [step.maneuver.location[1], step.maneuver.location[0]];
-                            
-                            const tagMarker = L.marker(pos, {
-                                icon: L.divIcon({
-                                    className: 'road-name-tag',
-                                    html: `<div style="background:rgba(0,0,0,0.7); color:${dest.color}; border:1px solid ${dest.color}; padding:2px 6px; font-size:10px; border-radius:4px; white-space:nowrap; font-family:'Rajdhani',sans-serif; font-weight:bold;">${roadName}</div>`,
-                                    iconSize: [0, 0],
-                                    iconAnchor: [0, 0]
-                                })
-                            }).addTo(map);
-                            
-                            activeRoutes.push(tagMarker);
-                        }
-                    });
-                }
-
-                // Add to List
-                const item = document.createElement('div');
-                item.className = 'route-item';
-                item.style.borderLeft = `3px solid ${dest.color}`;
-                item.style.paddingLeft = '10px';
-                item.style.marginBottom = '10px';
-                item.innerHTML = `
-                    <strong style="color:${dest.color}">${dest.name}</strong><br>
-                    <span style="font-size:1.1em">🛣️ ${distanceKm} km</span> <span style="font-size:0.9em; opacity:0.8">(${durationH} hrs)</span>
-                `;
-                resultsContainer.appendChild(item);
-
-                // If San Nicolas, highlight it
-                if (dest.id === 'sannicolas') {
-                    item.style.backgroundColor = 'rgba(0, 242, 234, 0.1)';
-                    item.style.borderRadius = '0 5px 5px 0';
-                    item.style.padding = '5px 5px 5px 10px';
-                }
-
-            } else {
-                throw new Error('No route');
+                return { dest, route: data.routes[0] };
             }
         } catch (e) {
             console.error('Routing error:', e);
+        }
+        return { dest, error: true };
+    });
+
+    const routeResults = await Promise.all(routePromises);
+
+    // 2. Sort by real distance (Ascending - Closest First)
+    routeResults.sort((a, b) => {
+        if (a.error) return 1;
+        if (b.error) return -1;
+        return a.route.distance - b.route.distance;
+    });
+
+    // 3. Render all results
+    routeResults.forEach(res => {
+        const { dest, route, error } = res;
+
+        if (error) {
             resultsContainer.innerHTML += `<div style="color:${dest.color}; opacity:0.5; margin-bottom:5px;">⚠️ ${dest.name}: Ruta no disponible</div>`;
+            return;
         }
 
-        // Small delay to be nice to the demo API
-        await new Promise(r => setTimeout(r, 200));
-    }
+        const distanceKm = (route.distance / 1000).toFixed(1);
+        const durationH = (route.duration / 3600).toFixed(1);
+
+        // Draw Polyline
+        const routeLayer = L.geoJSON(route.geometry, {
+            style: {
+                color: dest.color,
+                weight: 4,
+                opacity: 0.7,
+                dashArray: '5, 10'
+            }
+        }).addTo(map);
+        activeRoutes.push(routeLayer);
+
+        // --- Add Road Name Tags ---
+        if (route.legs && route.legs[0].steps) {
+            const steps = route.legs[0].steps;
+            const seenRoads = new Set();
+            steps.forEach(step => {
+                const roadName = step.name;
+                if (roadName && roadName !== "" && !seenRoads.has(roadName) && step.distance > 2000) {
+                    seenRoads.add(roadName);
+                    const pos = [step.maneuver.location[1], step.maneuver.location[0]];
+                    const tagMarker = L.marker(pos, {
+                        icon: L.divIcon({
+                            className: 'road-name-tag',
+                            html: `<div style="background:rgba(0,0,0,0.7); color:${dest.color}; border:1px solid ${dest.color}; padding:2px 6px; font-size:10px; border-radius:4px; white-space:nowrap; font-family:'Rajdhani',sans-serif; font-weight:bold;">${roadName}</div>`,
+                            iconSize: [0, 0],
+                            iconAnchor: [0, 0]
+                        })
+                    }).addTo(map);
+                    activeRoutes.push(tagMarker);
+                }
+            });
+        }
+
+        // Add to List
+        const item = document.createElement('div');
+        item.className = 'route-item';
+        item.style.borderLeft = `3px solid ${dest.color}`;
+        item.style.paddingLeft = '10px';
+        item.style.marginBottom = '10px';
+        item.innerHTML = `
+            <strong style="color:${dest.color}">${dest.name}</strong><br>
+            <span style="font-size:1.1em">🛣️ ${distanceKm} km</span> <span style="font-size:0.9em; opacity:0.8">(${durationH} hrs)</span>
+        `;
+        resultsContainer.appendChild(item);
+
+        if (dest.id === 'sannicolas') {
+            item.style.backgroundColor = 'rgba(0, 242, 234, 0.1)';
+            item.style.borderRadius = '0 5px 5px 0';
+            item.style.padding = '5px 5px 5px 10px';
+        }
+    });
 }
 
 // Reset sidebar view when closing
