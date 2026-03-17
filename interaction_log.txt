@@ -38,6 +38,7 @@
 
 [2026-03-13 10:08] Fusión final del Tramo 1 completada. Se consolidaron 'Viaje_Fusionado_con_Pines.REDUCIDO.kml' y 'tramito.garita.kml' en un solo archivo maestro: 'Tramo1_Final_Consolidado.kml' (275 puntos con pines editables).
 
+
 [2026-03-13 10:25] Generación del reporte PDF 'Tramo1_Reporte_Coordenadas.pdf' con visualización de ruta (matplotlib), elevaciones y pendientes.
 [2026-03-13 10:32] Integración de la capa '1S.Garita' en el Dashboard. Generación de 'layer_1S_Garita.js' y actualización de 'dashboard.html' y 'script.js' con controles de toggle y etiquetas KM.
 
@@ -45,3 +46,4 @@
 [2026-03-13 10:48] Rediseño del panel de controles a un formato vertical de 3 columnas, posicionado debajo del ribbon de funciones principal.
 
 [2026-03-13 10:51] Implementación de paneles minimizables (ribbons) con animaciones CSS. Se agregó botón de toggle (+/-) y auto-minimizacion tras 5 segundos de carga para mantener la pantalla limpia.
+[2026-03-17 10:15] Implementación de etiquetas automáticas de nombres de vías en rutas OSRM. Se habilitó 'steps=true' en la API y se agregaron marcadores visuales con el nombre de la carretera para tramos mayores a 2km.

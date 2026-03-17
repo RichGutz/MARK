@@ -1587,7 +1587,7 @@ async function calculateAndDrawRoutes(startCoords, destinations) {
         // OSRM expects Lon,Lat
         const start = `${startCoords[1]},${startCoords[0]}`;
         const end = `${dest.coords[1]},${dest.coords[0]}`;
-        const url = `${OSRM_URL}${start};${end}?overview=full&geometries=geojson`;
+        const url = `${OSRM_URL}${start};${end}?overview=full&geometries=geojson&steps=true`;
 
         try {
             const response = await fetch(url);
@@ -1609,6 +1609,34 @@ async function calculateAndDrawRoutes(startCoords, destinations) {
                 }).addTo(map);
 
                 activeRoutes.push(routeLayer);
+
+                // --- Add Road Name Tags ---
+                if (route.legs && route.legs[0].steps) {
+                    const steps = route.legs[0].steps;
+                    const seenRoads = new Set();
+                    
+                    steps.forEach(step => {
+                        const roadName = step.name;
+                        // Avoid duplicates and empty/generic names
+                        if (roadName && roadName !== "" && !seenRoads.has(roadName) && step.distance > 2000) {
+                            seenRoads.add(roadName);
+                            
+                            // Use step location (OSRM returns [Lon, Lat])
+                            const pos = [step.maneuver.location[1], step.maneuver.location[0]];
+                            
+                            const tagMarker = L.marker(pos, {
+                                icon: L.divIcon({
+                                    className: 'road-name-tag',
+                                    html: `<div style="background:rgba(0,0,0,0.7); color:${dest.color}; border:1px solid ${dest.color}; padding:2px 6px; font-size:10px; border-radius:4px; white-space:nowrap; font-family:'Rajdhani',sans-serif; font-weight:bold;">${roadName}</div>`,
+                                    iconSize: [0, 0],
+                                    iconAnchor: [0, 0]
+                                })
+                            }).addTo(map);
+                            
+                            activeRoutes.push(tagMarker);
+                        }
+                    });
+                }
 
                 // Add to List
                 const item = document.createElement('div');
