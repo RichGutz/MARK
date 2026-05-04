@@ -8,6 +8,17 @@ import os
 # Conecta al VPS Hostinger vía SSH y sincroniza archivos estáticos
 # ============================================================
 
+# Cargar Token desde .env
+def get_token():
+    env_path = os.path.join(os.path.dirname(__file__), '.env')
+    if os.path.exists(env_path):
+        with open(env_path, 'r') as f:
+            for line in f:
+                if line.startswith('GITHUB_TOKEN='):
+                    return line.split('=')[1].strip()
+    return None
+
+GH_TOKEN = get_token()
 VPS_HOST   = "91.108.125.253"
 VPS_PORT   = 22
 VPS_USER   = "root"
@@ -15,7 +26,7 @@ VPS_PASS   = "doHtFib1poV+f0F7"
 DOMAIN     = "tank.geeksoft.tech"
 SERVICE_NAME = "tank_simulation"
 APP_DIR    = "/var/www/html/tank_simulation"
-REPO_URL   = "https://github.com/RichGutz/MARK.git"
+REPO_URL   = f"https://{GH_TOKEN}@github.com/RichGutz/MARK.git"
 
 def ssh_run(client, cmd, label=""):
     if label:
@@ -46,6 +57,10 @@ def deploy():
             f"else mkdir -p {APP_DIR} && git clone {REPO_URL} {APP_DIR}; fi"
         )
         ssh_run(client, git_cmd, "1. Sincronizando Repositorio Git")
+
+        # 1b. Corregir Permisos (Para evitar 403 Forbidden)
+        perm_cmd = f"chown -R www-data:www-data {APP_DIR} && chmod -R 755 {APP_DIR}"
+        ssh_run(client, perm_cmd, "1b. Ajustando Permisos de Carpeta")
 
         # 2. Configurar Nginx para Servir Static Files
         # Apuntamos a Dashboard_Puertos/simulation.html
