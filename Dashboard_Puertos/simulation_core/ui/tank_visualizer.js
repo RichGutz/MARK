@@ -12,8 +12,12 @@ class TankVisualizer {
         this.shipIcon = null;
         this.trainLabel = null;
         this.shipLabel = null;
+        this.shipLogCells = [];
+        this.nextLogIndex = 0;
+        this.cumulativeExported = 0;
         
         this.init();
+        this.initShipLog();
     }
 
     init() {
@@ -110,15 +114,17 @@ class TankVisualizer {
                 
                 <!-- Vagón Tanque 1 -->
                 <rect x="55" y="15" width="60" height="15" stroke="#546e7a" stroke-width="2"/>
+                <rect id="train-acid-1" x="56" y="16" width="58" height="13" fill="#4caf50" style="transition: height 0.5s; opacity: 0;"/>
                 <path d="M55 15C50 15 50 30 55 30" stroke="#546e7a" stroke-width="2"/>
                 <path d="M115 15C120 15 120 30 115 30" stroke="#546e7a" stroke-width="2"/>
-                <line x1="45" y1="28" x2="55" y2="28" stroke="#546e7a" stroke-width="2"/> <!-- Enganche 1 -->
+                <line x1="45" y1="28" x2="55" y2="28" stroke="#546e7a" stroke-width="2"/>
                 
-                <!-- Vagón Tanque 2 (NUEVO) -->
+                <!-- Vagón Tanque 2 -->
                 <rect x="130" y="15" width="60" height="15" stroke="#546e7a" stroke-width="2"/>
+                <rect id="train-acid-2" x="131" y="16" width="58" height="13" fill="#4caf50" style="transition: height 0.5s; opacity: 0;"/>
                 <path d="M130 15C125 15 125 30 130 30" stroke="#546e7a" stroke-width="2"/>
                 <path d="M190 15C195 15 195 30 190 30" stroke="#546e7a" stroke-width="2"/>
-                <line x1="120" y1="28" x2="130" y2="28" stroke="#546e7a" stroke-width="2"/> <!-- Enganche 2 -->
+                <line x1="120" y1="28" x2="130" y2="28" stroke="#546e7a" stroke-width="2"/>
 
                 <!-- Ruedas (Bogies) -->
                 <circle cx="12" cy="34" r="3" fill="#546e7a"/>
@@ -141,8 +147,8 @@ class TankVisualizer {
         const iconDiv = document.createElement('div');
         iconDiv.style.width = '210px';
         iconDiv.innerHTML = svg;
-        // Seleccionamos todos los elementos para iluminarlos
-        this.trainIcons = iconDiv.querySelectorAll('path, rect, circle, line');
+        this.trainIcons = iconDiv.querySelectorAll('path, rect:not([id^="train-acid"]), circle, line');
+        this.trainAcid = iconDiv.querySelectorAll('[id^="train-acid"]');
         wrapper.appendChild(iconDiv);
 
         const text = document.createElement('span');
@@ -196,6 +202,39 @@ class TankVisualizer {
         this.container.appendChild(wrapper);
     }
 
+    initShipLog() {
+        const grid = document.getElementById('ship-log-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        this.shipLogCells = [];
+        this.nextLogIndex = 0;
+        this.cumulativeExported = 0;
+
+        for (let i = 0; i < 48; i++) {
+            const cell = document.createElement('div');
+            cell.style.display = 'flex';
+            cell.style.alignItems = 'center';
+            cell.style.justifyContent = 'center';
+            cell.style.fontSize = '8px'; // Más pequeño para que quepan volúmenes grandes
+            cell.style.color = '#94a3b8';
+            cell.style.fontFamily = 'Orbitron';
+            cell.style.background = 'rgba(255,255,255,0.02)';
+            cell.innerText = '';
+            grid.appendChild(cell);
+            this.shipLogCells.push(cell);
+        }
+    }
+
+    resetLog() {
+        this.shipLogCells.forEach(cell => {
+            cell.innerText = '';
+            cell.style.background = 'rgba(255,255,255,0.02)';
+            cell.style.color = '#94a3b8';
+        });
+        this.nextLogIndex = 0;
+        this.cumulativeExported = 0;
+    }
+
     /**
      * Updates visual state for a specific day
      * @param {Object} dayData - Data including inventory, supply and dispatch
@@ -220,25 +259,60 @@ class TankVisualizer {
             this.trainIcons.forEach(el => {
                 el.style.stroke = '#4caf50';
                 if (el.tagName === 'circle') el.style.fill = '#4caf50';
-                el.style.filter = 'drop-shadow(0 0 5px #4caf50)';
             });
-            this.trainLabel.innerText = `+${dayData.supply} MT`;
+            // Visual rápido de vagon lleno y vacío
+            this.trainAcid.forEach(rect => {
+                rect.style.opacity = '1';
+                rect.style.height = '13px';
+                setTimeout(() => { rect.style.height = '0px'; }, 200);
+            });
+            this.trainLabel.innerText = `+${dayData.supply}`;
         } else {
             this.trainIcons.forEach(el => {
                 el.style.stroke = '#546e7a';
                 if (el.tagName === 'circle') el.style.fill = '#546e7a';
-                el.style.filter = 'none';
             });
+            this.trainAcid.forEach(rect => { rect.style.opacity = '0'; });
             this.trainLabel.innerText = '';
         }
 
-        // 3. Update Ship Icons (Despacho)
+        // 3. Update Ship Icons and Log (Despacho)
         if (dayData.dispatch > 0) {
+            this.cumulativeExported += dayData.dispatch;
+            
             this.shipIcons.forEach(el => {
                 el.style.stroke = '#00bcd4';
                 el.style.filter = 'drop-shadow(0 0 8px #00bcd4)';
             });
-            this.shipLabel.innerText = `-${dayData.dispatch} MT`;
+            this.shipLabel.innerText = `-${dayData.dispatch}`;
+
+            // Registrar en bitácora (Par Día / Volumen)
+            if (this.nextLogIndex < 24) {
+                let dayCellIdx, volCellIdx;
+                
+                if (this.nextLogIndex < 12) {
+                    // Primer bloque (Filas 1 y 2)
+                    dayCellIdx = this.nextLogIndex;
+                    volCellIdx = this.nextLogIndex + 12;
+                } else {
+                    // Segundo bloque (Filas 3 y 4)
+                    dayCellIdx = this.nextLogIndex + 12; // Salta la fila 2 de volumen
+                    volCellIdx = dayCellIdx + 12;
+                }
+
+                const dayCell = this.shipLogCells[dayCellIdx];
+                const volCell = this.shipLogCells[volCellIdx];
+
+                dayCell.innerText = `D${dayData.day}`;
+                dayCell.style.color = '#00bcd4';
+                dayCell.style.background = 'rgba(0, 188, 212, 0.1)';
+
+                volCell.innerText = Math.round(this.cumulativeExported).toLocaleString();
+                volCell.style.color = '#4caf50';
+                volCell.style.fontSize = '7px'; // Ajuste fino para números grandes
+
+                this.nextLogIndex++;
+            }
         } else {
             this.shipIcons.forEach(el => {
                 el.style.stroke = '#90caf9';

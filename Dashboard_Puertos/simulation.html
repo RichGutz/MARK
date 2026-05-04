@@ -255,6 +255,13 @@
                     <div id="sim-current-day" style="font-size:14px;">Día: 1</div>
                     <div id="sim-current-stock" style="font-size:14px; color:#4caf50;">0 MT</div>
                 </div>
+                <!-- Bitácora de Arribos Detallada -->
+                <div style="margin-top: 15px; width: 100%;">
+                    <div style="font-size: 9px; color: #00bcd4; font-family: 'Orbitron'; margin-bottom: 5px; text-align: center;">ARRIBOS Y VOLUMEN ACUMULADO (MT)</div>
+                    <div id="ship-log-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(4, 18px); gap: 2px; background: rgba(255,255,255,0.03); padding: 5px; border-radius: 5px;">
+                        <!-- Se llenará dinámicamente: Fila1:Días, Fila2:Vol, Fila3:Días, Fila4:Vol -->
+                    </div>
+                </div>
             </div>
 
             <!-- Col 3: Output KPIs (Far Right) -->
@@ -277,6 +284,11 @@
                         <span class="label" style="font-size: 12px;">Rotación BUFFER</span>
                         <span id="kpi-rot-buffer" class="value" style="font-size: 28px;">---</span>
                     </div>
+                </div>
+                <!-- Box de Volumen Total Acumulado -->
+                <div class="kpi-card" style="margin-top: 15px; border-bottom-color: #4caf50; padding: 25px; background: rgba(76, 175, 80, 0.05);">
+                    <span class="label" style="font-size: 14px; color: #4caf50; letter-spacing: 2px;">THROUGHPUT ANUAL TOTAL (MT)</span>
+                    <span id="kpi-total-volume" class="value" style="font-size: 42px; display: block; margin-top: 10px;">0</span>
                 </div>
             </div>
         </div>

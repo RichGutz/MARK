@@ -91,6 +91,9 @@ class SimulationController {
         if (stopEl) stopEl.innerText = '---';
         if (rotBaseEl) rotBaseEl.innerText = '---';
         if (rotBufferEl) rotBufferEl.innerText = '---';
+        
+        const totalVolEl = document.getElementById('kpi-total-volume');
+        if (totalVolEl) totalVolEl.innerText = '0';
     }
 
     updateKPIs(res) {
@@ -125,6 +128,8 @@ class SimulationController {
 
     startPlayback() {
         if (!this.simulationResult) return;
+        this.clearKPIs(); 
+        this.visualizer.resetLog(); // Clear the ship arrival log
         this.isPlaybackRunning = true;
         this.playbackDay = 0;
         document.getElementById('btn-play-sim').innerText = '⏸ PAUSAR';
@@ -137,9 +142,17 @@ class SimulationController {
             document.getElementById('sim-current-day').innerText = `Día: ${dayData.day}`;
             document.getElementById('sim-current-stock').innerText = `${Math.round(dayData.inventory).toLocaleString()} MT`;
 
+            // Update Real-time Throughput Box
+            const totalVolEl = document.getElementById('kpi-total-volume');
+            if (totalVolEl) {
+                totalVolEl.innerText = Math.round(this.visualizer.cumulativeExported).toLocaleString();
+            }
+
             this.playbackDay++;
             if (this.playbackDay < 365) {
-                setTimeout(step, 150); // 150ms per day = ~54 seconds per year (3x slower)
+                // Pause for 1 second if a ship is loading (dispatch > 0)
+                const delay = dayData.dispatch > 0 ? 1000 : 150;
+                setTimeout(step, delay);
             } else {
                 this.stopPlayback();
             }
