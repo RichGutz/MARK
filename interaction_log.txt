@@ -48,3 +48,15 @@
 [2026-03-13 10:51] Implementación de paneles minimizables (ribbons) con animaciones CSS. Se agregó botón de toggle (+/-) y auto-minimizacion tras 5 segundos de carga para mantener la pantalla limpia.
 [2026-03-17 10:15] Implementación de etiquetas automáticas de nombres de vías en rutas OSRM. Se habilitó 'steps=true' en la API y se agregaron marcadores visuales con el nombre de la carretera para tramos mayores a 2km.
 [2026-03-17 10:30] Optimización de lógica de ruteo: Clasificación de rutas por distancia real (OSRM) en orden ascendente y carga paralela de peticiones para mejorar la velocidad de respuesta.
+
+[2026-03-17 20:55] Cálculo de longitud y generación de PDF para el Ferrocarril. Longitud Total: 1724.27 km.
+
+[2026-03-17 21:05] Refinamiento del reporte del Ferrocarril: Eliminación de extensión y cálculo de distancia recta (266.46 km).
+
+[2026-03-18 08:54] Generación de reporte PDF comparativo de coordenadas SUNARP (Original PSAD56 vs Transformada WGS84) para los 3 tramos.
+
+[2026-03-18 09:15] Generación de reporte PDF visual SUNARP con gráficos, etiquetas y tablas de coordenadas comparativas.
+
+[2026-03-23 10:04] Generacion del PDF comparativo 'Plot_Amortiguamiento_Comparativo.pdf'. Ploteo conjunto de: (1) Poligono de la Zona de Amortiguamiento RNSFN del layer_amortiguamiento.js (WGS84 lon/lat convertido a UTM 18S via pyproj) y (2) Los 40 vertices oficiales del Cuadro de Coordenadas WGS84 UTM de la RNSFN proporcionados por el usuario. Script: plot_amortiguamiento_comparativo.py en Servidumbre/.
+
+[2026-03-23 10:09] Actualización de layer_amortiguamiento.js con los 40 vértices oficiales del Cuadro de Coordenadas WGS84 UTM RNSFN. Conversión UTM 18Slon/lat via pyproj. Backup guardado como layer_amortiguamiento_BACKUP.js.
