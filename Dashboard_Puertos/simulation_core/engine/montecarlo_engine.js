@@ -98,6 +98,8 @@ class MonteCarloEngine {
         let dailyData = [];
         let currentInventory = 0;
         let plantStoppageDays = 0;
+        let baseThroughput = 0;
+        let bufferThroughput = 0;
         
         // Schedule first ship
         let nextShipArrivalDay = Math.max(1, Math.round(this.getRandomInterval()));
@@ -106,25 +108,7 @@ class MonteCarloEngine {
             let supply = 0;
             let dispatch = 0;
 
-            // 1. Supply (Train)
-            // Logic: Train arrives if it's an operational day
-            let isOperationalDay = true;
-            let dayOfWeek = day % 7; // 0=Sunday, 1=Monday...
-            
-            if (this.params.daysPerWeek === 5) {
-                // 5 días: Lunes a Viernes (1-5), descansa 6 y 0
-                if (dayOfWeek === 0 || dayOfWeek === 6) isOperationalDay = false;
-            } else if (this.params.daysPerWeek === 6) {
-                // 6 días: Lunes a Sábado (1-6), descansa Domingo (0)
-                if (dayOfWeek === 0) isOperationalDay = false;
-            }
-            // 7 días: Siempre true (default)
-
-            if (isOperationalDay) {
-                supply = this.params.trainWagonsPerDay * this.params.trainCapacityMT;
-            }
-
-            // 2. Dispatch (Ship)
+            // 1. Dispatch (Ship) - First to create space
             if (day === nextShipArrivalDay) {
                 if (currentInventory >= this.params.shipBatchMT) {
                     dispatch = this.params.shipBatchMT;
@@ -137,7 +121,37 @@ class MonteCarloEngine {
                 }
             }
 
-            // 3. Mass Balance
+            // 2. Supply (Train)
+            let isOperationalDay = true;
+            let dayOfWeek = day % 7; 
+            
+            if (this.params.daysPerWeek === 5) {
+                if (dayOfWeek === 0 || dayOfWeek === 6) isOperationalDay = false;
+            } else if (this.params.daysPerWeek === 6) {
+                if (dayOfWeek === 0) isOperationalDay = false;
+            }
+
+            if (isOperationalDay) {
+                supply = this.params.trainWagonsPerDay * this.params.trainCapacityMT;
+            }
+
+            // 3. Mass Balance & Group Throughput Tracking
+            // Since dispatch happened first, currentInventory is lower now
+            let tempInventoryForTracking = currentInventory - dispatch;
+            if (tempInventoryForTracking < 0) tempInventoryForTracking = 0;
+
+            if (supply > 0) {
+                if (tempInventoryForTracking < this.BASE_CAPACITY_MT) {
+                    let spaceInBase = this.BASE_CAPACITY_MT - tempInventoryForTracking;
+                    let toBase = Math.min(supply, spaceInBase);
+                    let toBuffer = Math.max(0, supply - toBase);
+                    baseThroughput += toBase;
+                    bufferThroughput += toBuffer;
+                } else {
+                    bufferThroughput += supply;
+                }
+            }
+
             currentInventory += supply - dispatch;
 
             // 4. Constraints
@@ -162,7 +176,9 @@ class MonteCarloEngine {
             stats: {
                 plantStoppageDays,
                 saturationRisk: (plantStoppageDays / 365) * 100,
-                totalThroughput: dailyData.reduce((acc, d) => acc + d.supply, 0)
+                totalThroughput: dailyData.reduce((acc, d) => acc + d.supply, 0),
+                baseThroughput,
+                bufferThroughput
             }
         };
     }
@@ -174,24 +190,29 @@ class MonteCarloEngine {
         let totalStoppageDays = 0;
         let risks = [];
         let throughputs = [];
+        let baseTps = [];
+        let bufferTps = [];
 
         for (let i = 0; i < iterations; i++) {
             let result = this.runYearSimulation();
             totalStoppageDays += result.stats.plantStoppageDays;
             risks.push(result.stats.saturationRisk);
             throughputs.push(result.stats.totalThroughput);
+            baseTps.push(result.stats.baseThroughput);
+            bufferTps.push(result.stats.bufferThroughput);
         }
 
         const avgThroughput = throughputs.reduce((a, b) => a + b, 0) / iterations;
-        const monthlyThroughput = avgThroughput / 12;
+        const avgBaseTp = baseTps.reduce((a, b) => a + b, 0) / iterations;
+        const avgBufferTp = bufferTps.reduce((a, b) => a + b, 0) / iterations;
 
         return {
             avgStoppageDays: totalStoppageDays / iterations,
             avgRisk: risks.reduce((a, b) => a + b, 0) / iterations,
             maxRisk: Math.max(...risks),
             minRisk: Math.min(...risks),
-            rotBase: monthlyThroughput / this.BASE_CAPACITY_MT,
-            rotBuffer: Math.max(0, (monthlyThroughput - this.BASE_CAPACITY_MT) / this.BUFFER_CAPACITY_MT)
+            rotBase: (avgBaseTp / 12) / this.BASE_CAPACITY_MT,
+            rotBuffer: (avgBufferTp / 12) / this.BUFFER_CAPACITY_MT
         };
     }
 }

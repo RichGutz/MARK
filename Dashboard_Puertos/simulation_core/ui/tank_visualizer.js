@@ -215,7 +215,7 @@ class TankVisualizer {
             cell.style.display = 'flex';
             cell.style.alignItems = 'center';
             cell.style.justifyContent = 'center';
-            cell.style.fontSize = '8px'; // Más pequeño para que quepan volúmenes grandes
+            cell.style.fontSize = '10px';
             cell.style.color = '#94a3b8';
             cell.style.fontFamily = 'Orbitron';
             cell.style.background = 'rgba(255,255,255,0.02)';
@@ -309,7 +309,7 @@ class TankVisualizer {
 
                 volCell.innerText = Math.round(this.cumulativeExported).toLocaleString();
                 volCell.style.color = '#4caf50';
-                volCell.style.fontSize = '7px'; // Ajuste fino para números grandes
+                volCell.style.fontSize = '9px'; 
 
                 this.nextLogIndex++;
             }

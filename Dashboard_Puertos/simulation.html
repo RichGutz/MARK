@@ -10,6 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
+    <script>
+        if (localStorage.getItem('auth_mark') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
     <style>
         body {
             background-color: #0f172a;
@@ -258,7 +263,7 @@
                 <!-- Bitácora de Arribos Detallada -->
                 <div style="margin-top: 15px; width: 100%;">
                     <div style="font-size: 9px; color: #00bcd4; font-family: 'Orbitron'; margin-bottom: 5px; text-align: center;">ARRIBOS Y VOLUMEN ACUMULADO (MT)</div>
-                    <div id="ship-log-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(4, 18px); gap: 2px; background: rgba(255,255,255,0.03); padding: 5px; border-radius: 5px;">
+                    <div id="ship-log-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(4, 22px); gap: 2px; background: rgba(255,255,255,0.03); padding: 5px; border-radius: 5px;">
                         <!-- Se llenará dinámicamente: Fila1:Días, Fila2:Vol, Fila3:Días, Fila4:Vol -->
                     </div>
                 </div>
