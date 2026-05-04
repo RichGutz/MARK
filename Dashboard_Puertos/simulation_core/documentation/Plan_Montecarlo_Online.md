@@ -41,7 +41,13 @@ Se ejecutará un modelo de **Balance de Masas Diario** durante 365 días, repeti
 - **Fase 3: Visualización Dinámica (Dashboard Web)**
   - Implementación en `C:\Users\rguti\Petral.MARK\Dashboard_Puertos`.
   - **Gráfico de "Respiración" del Terminal:** Una línea de tiempo que muestra el llenado diario.
-  - **Indicadores de Estado:** Tanques Base (Verde) -> Tanques Buffer (Amarillo) -> Saturación (Rojo).
+  - **Visualización Estocástica (5 tanques):**
+    - 3 Tanques Base (Borde Azul).
+    - 2 Tanques Buffer (Borde Rojo).
+    - **Indicadores de Flujo (Dinámicos):**
+        - **Tren (Izquierda):** Silueta que se ilumina cada día de operación ferroviaria. Muestra el tonelaje ingresado (Vagones x 80).
+        - **Barco (Derecha):** Silueta que se ilumina el día del arribo y despacho (16,000 MT).
+    - Animación de llenado progresivo con relleno verde.
   - **Modo Playback:** Animación de 365 días para observar los cuellos de botella en tiempo real.
 
 - **Fase 4: Alertas de Riesgo Crítico**
