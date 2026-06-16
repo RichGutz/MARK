@@ -63,9 +63,23 @@ git push origin deploy-vps-2026.02.04.18.10
 
 ---
 
-## 2.1. Protocolo Obligatorio para AGENTES IA
+## 2.1. Protocolo Obligatorio para AGENTES IA (ACTUALIZADO)
 
-Si eres una IA, **DEBES** seguir estos pasos sin excepción para evitar subir archivos pesados o corromper el repo:
+Si eres una IA, **DEBES** seguir estos pasos sin excepción para evitar fallos catastróficos en el servidor:
+
+### 🚫 Regla 1: RUTAS LOCALES VS WEB (¡CRÍTICO!)
+* **NUNCA** incrustes rutas locales del disco duro del usuario (ej. `href="file:///C:/Users/..."`) dentro del código HTML que va a producción.
+* Si el usuario te pide agregar "archivos externos" (ej. mapas de otro repositorio), **TU TRABAJO ES COPIAR FÍSICAMENTE ESOS ARCHIVOS** al directorio del proyecto (`Dashboard_Puertos/` o similares) mediante la terminal de comandos, agregarlos al repo y usar **rutas web relativas** (ej. `href="./mapa_unacem.html"`).
+
+### 🔑 Regla 2: ENRUTAMIENTO Y CREDENCIALES (¡NO TE CONFUNDAS!)
+* `GeekSoft_Portal` se despliega en la raíz del servidor web (`/var/www/html/`).
+* `Dashboard_Puertos` se despliega en la subcarpeta `/var/www/html/petral/`.
+* Sin embargo, debido a las redirecciones del sistema, la página de login real del dashboard (la pantalla que dice "TANK") vive en `Dashboard_Puertos/login.html`.
+* **CREDENDIALES CORRECTAS DEL DASHBOARD:** Usuario: `PETRAL` | Contraseña: `TANK2026`. (No las confundas con las de `GeekSoft_Portal`).
+
+### 🌍 Regla 3: EL PROBLEMA DEL PULL Y LOS REPOS PRIVADOS
+* El script `update.sh` que corre en el VPS descarga el código desde GitHub. Si el repositorio está marcado como **Privado**, el comando `git reset --hard origin/main` en el servidor **se quedará colgado internamente pidiendo credenciales** y el script fallará silenciosamente.
+* Si un despliegue parece ejecutarse pero la web no cambia, revisa que el repositorio esté Público, o que el VPS tenga un token de acceso configurado.
 
 ### Fase 1: Auditoría de Archivos
 1. Ejecuta `git status` y revisa la lista de archivos.
