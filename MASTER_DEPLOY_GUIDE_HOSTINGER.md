@@ -583,4 +583,39 @@ Una vez configurado, cada vez que hagas un **git push**, GitHub:
 
 > [!NOTE]
 > Si el despliegue falla, recibirás un correo de GitHub. Revisa los logs en la pestaña Actions para ver qué pasó.
+
+---
+
+## 12. Configuración Especial: Volver a hacer el Repo Privado
+
+Por seguridad, es muy común que decidas volver a poner tu repositorio de GitHub como **Privado**. Sin embargo, al hacer esto, tu VPS perderá el permiso para descargar el código, y el comando `update.sh` (o el GitHub Actions) se quedará colgado para siempre esperando una contraseña.
+
+Para evitar esto, debes autorizar a tu servidor VPS mediante una de estas dos formas (se hace solo una vez):
+
+### Opción A: Usar un Token de GitHub (La más rápida)
+1. En GitHub, ve a **Settings** de tu cuenta -> **Developer settings** -> **Personal access tokens (Tokens classic)**.
+2. Genera un nuevo token marcando la casilla de permisos de `repo` y cópialo.
+3. Entra a tu VPS por SSH y cambia la URL del repositorio para incluir tu token:
+```bash
+cd /files_repo
+git remote set-url origin https://TU_NUEVO_TOKEN_AQUI@github.com/RichGutz/MARK.git
+```
+*Con esto, el servidor nunca más te pedirá contraseña.*
+
+### Opción B: Usar Llaves SSH (La más segura y profesional)
+1. En tu VPS, genera una llave SSH nueva:
+```bash
+ssh-keygen -t ed25519 -C "vps-deploy"
+```
+*(Dale Enter a todo, no le pongas contraseña a la llave).*
+2. Copia el texto que te escupa este comando:
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+3. En tu repositorio de GitHub, ve a **Settings** -> **Deploy Keys** -> **Add deploy key**. Pega el texto ahí y guárdalo.
+4. En tu VPS, cambia la forma en que Git se conecta:
+```bash
+cd /files_repo
+git remote set-url origin git@github.com:RichGutz/MARK.git
+```
 ```
