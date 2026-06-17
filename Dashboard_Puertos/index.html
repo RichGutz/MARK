@@ -302,6 +302,7 @@
                 const btn = document.querySelector('button');
                 btn.innerHTML = 'VERIFICADO';
                 btn.style.background = '#10b981';
+                localStorage.setItem('auth_mark', 'true');
                 setTimeout(() => { window.location.href = './dashboard.html'; }, 800);
             } else {
                 document.getElementById('error-msg').style.display = 'block';

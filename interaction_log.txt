@@ -60,3 +60,10 @@
 [2026-03-23 10:04] Generacion del PDF comparativo 'Plot_Amortiguamiento_Comparativo.pdf'. Ploteo conjunto de: (1) Poligono de la Zona de Amortiguamiento RNSFN del layer_amortiguamiento.js (WGS84 lon/lat convertido a UTM 18S via pyproj) y (2) Los 40 vertices oficiales del Cuadro de Coordenadas WGS84 UTM de la RNSFN proporcionados por el usuario. Script: plot_amortiguamiento_comparativo.py en Servidumbre/.
 
 [2026-03-23 10:09] ActualizaciÃ³n de layer_amortiguamiento.js con los 40 vÃ©rtices oficiales del Cuadro de Coordenadas WGS84 UTM RNSFN. ConversiÃ³n UTM 18Slon/lat via pyproj. Backup guardado como layer_amortiguamiento_BACKUP.js.
+
+[2026-05-25 10:15] Git backup branch 'funcional.24.05.26.PRE.GRAFICOS.PPT.FINAL' created. Switched back to main.
+
+[2026-05-25 10:20] Audio transcrito exitosamente usando transcribe_whisper.py. Transcripción: Solicitud de creación de gráficos locales sin alterar el Dashboard original.
+
+[2026-05-25 10:26] Toma de notas sobre flujo del dashboard (capas, perímetros, calados en Pisco y Marcona, y las 3 rutas desde Hierro Apurímac).
+2026-06-17: Corregido el bug en index.html que no guardaba auth_mark en localStorage, causando redirección doble.
